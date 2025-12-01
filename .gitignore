@@ -1,0 +1,6 @@
+env_vars.txt
+.env
+__pycache__/
+logs/
+*.log
+
