@@ -3,4 +3,5 @@ env_vars.txt
 __pycache__/
 logs/
 *.log
-
+.vscode/
+.idea/

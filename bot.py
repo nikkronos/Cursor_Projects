@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 config = load_config()
 BOT_TOKEN = config['BOT_TOKEN']
-GROUP_INVITE_LINK = 'https://t.me/+IBT7qa_VMBk5Mjgy' # Теперь это актуальная ссылка
+GROUP_INVITE_LINK = 'https://t.me/+IBT7qa_VMBk5Mjgy'
 ADMIN_ID = int(config['ADMIN_ID'])
 GROUP_CHAT_ID = int(config['GROUP_CHAT_ID'])
 
@@ -71,7 +71,7 @@ def send_admin_menu(chat_id):
     btn_receipts = types.KeyboardButton("🧾 Чеки и оплаты")
     btn_back_to_main = types.KeyboardButton("⬅️ Главное меню")
     markup.add(btn_manage_days, btn_all_users, btn_pending, btn_receipts, btn_back_to_main)
-    bot.send_message(chat_id, "Административное меню:", reply_markup=markup)
+    bot.send_message(chat_id, "*Административное меню:*", parse_mode='Markdown', reply_markup=markup)
 
 @bot.message_handler(func=lambda message: message.text == "🧾 Чеки и оплаты")
 def handle_receipts_main_menu(message):
@@ -83,7 +83,7 @@ def handle_receipts_main_menu(message):
     btn_clear_receipts = types.KeyboardButton("🗑 Удалить старые чеки")
     btn_back = types.KeyboardButton("🔙 Назад в админку")
     markup.add(btn_show_receipts, btn_clear_receipts, btn_back)
-    bot.send_message(message.chat.id, "Управление чеками:", reply_markup=markup)
+    bot.send_message(message.chat.id, "*Управление чеками:*", parse_mode='Markdown', reply_markup=markup)
 
 @bot.message_handler(func=lambda message: message.text == "👁 Показать чеки")
 def handle_show_receipts(message):
@@ -172,7 +172,7 @@ def get_users_by_status(message, status_filter):
         users = cursor.fetchall()
         if users:
             title = "Текущие участники" if status_filter == 'active' else "Бывшие участники"
-            response = f"{title}:\n\n"
+            response = f"*{title}:*\n\n"
             for user in users:
                 start_date_str = user[4].strftime('%d.%m.%Y') if user[4] else 'N/A'
                 end_date_str = user[5].strftime('%d.%m.%Y') if user[5] else 'N/A'
@@ -182,9 +182,9 @@ def get_users_by_status(message, status_filter):
             # Разбиваем сообщение, если оно слишком длинное
             if len(response) > 4000:
                 for x in range(0, len(response), 4000):
-                    bot.send_message(message.chat.id, response[x:x+4000])
+                    bot.send_message(message.chat.id, response[x:x+4000], parse_mode='Markdown')
             else:
-                bot.send_message(message.chat.id, response)
+                bot.send_message(message.chat.id, response, parse_mode='Markdown')
         else:
             bot.send_message(message.chat.id, "Участники с таким статусом не найдены.")
     except Exception as e:
@@ -467,9 +467,10 @@ def send_initial_welcome(message):
     start_button = types.InlineKeyboardButton("Запустить бота", callback_data='start_bot')
     markup.add(start_button)
     bot.send_message(message.chat.id, 
-                     "👋 Добро пожаловать в чат-бот Сообщества TradeTherapy\n\n" \
-                     "Здесь вы сможете получить доступ к Сообществу следуя инструкциям.\n\n" \
+                     f"👋 Добро пожаловать в чат-бот Сообщества *Trade Therapy*\n\n" 
+                     "Здесь вы сможете получить доступ к Сообществу следуя инструкциям.\n\n" 
                      "Для начала нажмите кнопку \"Запустить бота\"",
+                     parse_mode='Markdown',
                      reply_markup=markup)
 
 # Главное меню (блок 2)
@@ -480,21 +481,23 @@ def send_main_menu(user_id, chat_id, first_name):
     btn3 = types.KeyboardButton("О Нас")
     btn4 = types.KeyboardButton("Обратная связь")
     btn5 = types.KeyboardButton("Статус подписки")
-    markup.add(btn1, btn2, btn3, btn4, btn5)
+    btn6 = types.KeyboardButton("Отзывы")
+    btn7 = types.KeyboardButton("Публичная оферта")
+    markup.add(btn1, btn2, btn3, btn4, btn5, btn6, btn7)
     
     if user_id == ADMIN_ID:
         btn_admin = types.KeyboardButton("⚙️ Админ")
         markup.add(btn_admin)
 
     bot.send_message(chat_id, 
-                     f"Здравствуйте, {first_name} !\n\n" \
-                     "Добро пожаловать в бот платной подписки в Сообщество Trade Therapy .\n\n" \
-                     "✅ Чтобы ознакомиться с тарифами и получить доступ к закрытому нашему каналу, нажмите на кнопку \"Тарифы\"\n" \
-                     "✅ Чтобы получить подробную инструкцию по работе с ботом и его возможностях, нажмите на кнопку \"Инструкция\"\n" \
-                     "✅ Чтобы ознакомиться с информацией о нашем закрытом сообществе, нажмите на кнопку \"О Нас\"\n" \
-                     "✅ Чтобы задать вопрос, связанный с технической поддержкой, нажмите на кнопку \"Обратная связь\"\n" \
-                     "✅ Чтобы узнать статус действующей подписки, нажмите на кнопку \"Статус подписки\"\n\n" \
-                     "◻️ Чтобы войти в основное меню бота, нажмите на иконку \"☰\" справа от строки ввода сообщения.",
+                     f"Здравствуйте, {first_name} !\n\n" 
+                     f"Добро пожаловать в бот платной подписки в Сообщество *Trade Therapy*.\n\n" 
+                     "Тарифы — ознакомиться с тарифами и получить доступ к нашей закрытой группе\n" 
+                     "О Нас — ознакомиться с информацией о нашем закрытом сообществе\n" 
+                     "Статус подписки — узнать статус действующей подписки\n" 
+                     "Обратная связь — если не нашли ответ на ваш вопрос\n" 
+                     "Публичная оферта — ознакомиться с юридической стороной",
+                     parse_mode='Markdown',
                      reply_markup=markup)
 
 @bot.message_handler(func=lambda message: message.text == "⚙️ Админ")
@@ -512,6 +515,38 @@ def handle_start(message):
 
     user_data = get_user_status(user_id)
 
+    # Логика для существующих участников группы
+    try:
+        member = bot.get_chat_member(GROUP_CHAT_ID, user_id)
+        # Если пользователь уже в группе (участник, админ или создатель)
+        if member.status in ['member', 'administrator', 'creator']:
+            # Если пользователя нет в БД или подписка не активна, даем ему доступ до конца месяца
+            if not user_data or user_data[3] != 'active':
+                now = datetime.now()
+                # Вычисляем последний день текущего месяца
+                if now.month == 12:
+                    next_month = now.replace(year=now.year+1, month=1, day=1)
+                else:
+                    next_month = now.replace(month=now.month+1, day=1)
+                
+                # Дата окончания - начало следующего месяца (технически)
+                end_date = next_month
+                
+                cursor.execute("""
+                    INSERT INTO users (telegram_id, first_name, username, subscription_status, subscription_start_date, subscription_end_date, payment_status, last_notification_level) 
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, NULL)
+                    ON CONFLICT (telegram_id) 
+                    DO UPDATE SET subscription_status = 'active', subscription_end_date = %s, payment_status = 'paid', last_notification_level = NULL
+                """, (user_id, first_name, username, 'active', now, end_date, 'paid', end_date))
+                conn.commit()
+                logger.info(f"Existing member {user_id} auto-migrated with active sub until {end_date}.")
+                
+                # Обновляем user_data, чтобы не сработало добавление ниже (хотя INSERT ... ON CONFLICT уже все сделал)
+                user_data = get_user_status(user_id)
+    except Exception as e:
+        logger.error(f"Error checking existing member status in handle_start: {e}")
+
+
     if not user_data:
         try:
             cursor.execute("INSERT INTO users (telegram_id, first_name, username, subscription_status, subscription_start_date, subscription_end_date, payment_status) VALUES (%s, %s, %s, %s, %s, %s, %s)",
@@ -528,65 +563,63 @@ def callback_start_bot(call):
     user_id = call.message.chat.id
     chat_id = call.message.chat.id
     first_name = bot.get_chat(user_id).first_name
-    send_main_menu(user_id, chat_id, first_name)
+    
+    # Вызываем handle_start логику, чтобы сработала миграция
+    # Создаем фейковое сообщение для handle_start
+    msg = types.Message(call.message.message_id, call.message.from_user, call.message.date, call.message.chat, 'text', {}, '/start')
+    handle_start(msg)
 
 @bot.message_handler(func=lambda message: message.text == "Тарифы")
 def send_tariffs(message):
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-    back_button = types.KeyboardButton("Назад")
-    pay_button = types.KeyboardButton("Оплатить")
-    markup.add(pay_button, back_button)
+    btn_basic = types.KeyboardButton("Тариф \"Базисный 🤝\"")
+    btn_brave = types.KeyboardButton("Тариф \"Смелый✊\"")
+    back_button = types.KeyboardButton("Вернутся в главное меню🏡")
+    markup.add(btn_basic, btn_brave, back_button)
     bot.send_message(message.chat.id,
-                     "Тарифы\n\n" \
-                     "На настоящий момент в нашем закрытом сообществе «Trade Therapy» действует два тарифных плана:\n\n" \
-                     "◻️ Тариф \"Привет 👋\" - 1 календарный месяц доступа к закрытому клубу.\n" \
-                     "   Стоимость: 3000 руб.\n" \
-                     "   Срок действия : 1 месяц.\n\n" \
-                     "◻️ Тариф \"Морковка 🥕\" - 3 календарных месяца доступа к закрытому клубу.\n" \
-                     "   Стоимость: 9000 руб.\n" \
-                     "   Срок действия : 3 месяца.\n\n" \
-                     "Для оплаты выберите кнопку \"Оплатить\"",
+                     "*Тарифы*\n\n" 
+                     f"На настоящий момент в нашем закрытом сообществе «*Trade Therapy*» действует два тарифных плана:\n\n" 
+                     "◻️ Тариф \"Базисный 🤝\" - 1 календарный месяц доступа к закрытому клубу.\n" 
+                     "   Стоимость: 3000 руб.\n" 
+                     "   Срок действия : 1 календарный месяц.\n\n" 
+                     "◻️ Тариф \"Смелый✊\" - 3 календарных месяца доступа к закрытому клубу.\n" 
+                     "   Стоимость: 9000 руб.\n" 
+                     "   Срок действия : 3 календарных месяца.\n\n" 
+                     "Для оплаты выберите интересующий ваш тариф.",
+                     parse_mode='Markdown',
                      reply_markup=markup)
 
-# --- UPDATED PAYMENT FLOW ---
+@bot.message_handler(func=lambda message: message.text == "Тариф \"Базисный 🤝\"")
+def handle_tariff_basic(message):
+    send_payment_info(message, 3000)
 
-@bot.message_handler(func=lambda message: message.text == "Оплатить")
-def handle_payment_menu(message):
+@bot.message_handler(func=lambda message: message.text == "Тариф \"Смелый✊\"")
+def handle_tariff_brave(message):
+    send_payment_info(message, 9000)
+
+def send_payment_info(message, amount):
     user_id = message.from_user.id
     user_data = get_user_status(user_id)
     
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-    pay_sub = types.KeyboardButton("Оплатить подписку")
-    back = types.KeyboardButton("Назад")
     
     # Кнопка "Не буду платить" показывается ТОЛЬКО если статус 'active'
-    # user_data indices: 0:id, 1:name, 2:username, 3:status, 4:start_date, 5:end_date, ...
     if user_data and user_data[3] == 'active':
         wont_pay = types.KeyboardButton("Не буду платить")
-        markup.add(pay_sub, wont_pay, back)
-    else:
-        markup.add(pay_sub, back)
-
-    bot.send_message(message.chat.id, "Выберите действие:", reply_markup=markup)
-
-@bot.message_handler(func=lambda message: message.text == "Оплатить подписку")
-def handle_payment_info(message):
-    # Убираем клавиатуру, так как пользователь должен скинуть скриншот.
-    # Можно оставить только кнопку "Перезагрузить бота" (или "Главное меню"), но по заданию "Назад" меняем на "Перезагрузить".
-    # Логика "убери кнопку оплатить подписку" - имеется в виду, что она не нужна ПОСЛЕ нажатия.
-    
-    markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-    restart_btn = types.KeyboardButton("🔄 Перезагрузить бота")
+        markup.add(wont_pay)
+        
+    restart_btn = types.KeyboardButton("Вернутся в главное меню🏡")
     markup.add(restart_btn)
     
     bot.send_message(message.chat.id,
-                     "Для оплаты подписки переведите сумму на \n\n" \
-                     "Номер телефона: +79213032918 (Т-Банк)\n\n" \
-                     "Или через СБП по этому номеру телефона.\n\n" \
+                     f"Для оплаты подписки переведите сумму {amount} руб. на \n\n" 
+                     "Номер телефона: +79213032918 (Т-Банк)\n\n" 
+                     "Или через СБП по этому номеру телефона.\n\n" 
                      "После оплаты, пожалуйста, отправьте скриншот чека в этот чат для активации подписки.",
                      reply_markup=markup)
 
-@bot.message_handler(func=lambda message: message.text == "🔄 Перезагрузить бота")
+@bot.message_handler(func=lambda message: message.text == "Вернутся в главное меню🏡")
+@bot.message_handler(func=lambda message: message.text == "🔄 Перезагрузить бота") # оставляем для совместимости
 def handle_restart_bot(message):
     handle_start(message)
 
@@ -595,7 +628,7 @@ def handle_wont_pay_menu(message):
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
     reason1 = types.KeyboardButton("Я не торгую")
     reason2 = types.KeyboardButton("Не буду платить по другой причине")
-    back = types.KeyboardButton("Назад")
+    back = types.KeyboardButton("Вернутся в главное меню🏡")
     markup.add(reason1, reason2, back)
     bot.send_message(message.chat.id, "Почему вы решили не платить?", reply_markup=markup)
 
@@ -605,7 +638,7 @@ def handle_reason_trading(message):
     bot.register_next_step_handler(msg, process_reason_trading)
 
 def process_reason_trading(message):
-    if message.text == "Назад":
+    if message.text == "Вернутся в главное меню🏡" or message.text == "Назад":
         handle_wont_pay_menu(message)
         return
 
@@ -625,7 +658,7 @@ def handle_reason_other(message):
     bot.register_next_step_handler(msg, process_reason_other)
 
 def process_reason_other(message):
-    if message.text == "Назад":
+    if message.text == "Вернутся в главное меню🏡" or message.text == "Назад":
         handle_wont_pay_menu(message)
         return
 
@@ -648,37 +681,75 @@ def handle_back_button_payment(message):
 @bot.message_handler(func=lambda message: message.text == "Правила Клуба")
 def send_rules(message):
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-    back_button = types.KeyboardButton("Назад")
+    back_button = types.KeyboardButton("Вернутся в главное меню🏡")
     markup.add(back_button)
     bot.send_message(message.chat.id,
-                     "Правила Клуба\n\n" \
-                     "Здесь будут расписаны подробные правила клуба.",
+                     "*Правила Клуба*\n\n" 
+                     "1. Уважительно относиться друг к другу.\n" 
+                     "2. Не перебивать друг друга.\n" 
+                     "3. Не флудить во время активной торговли и во время важных новостных событий.\n" 
+                     "4. Если находитесь в голосовом чате (ГЧ), то включайте микрофон только тогда, когда хотите взять слово.\n" 
+                     "5. По возможности стараемся меньше материться.\n" 
+                     "6. Используем ветки в группе по назначению.",
+                     parse_mode='Markdown',
                      reply_markup=markup)
 
 @bot.message_handler(func=lambda message: message.text == "О Нас")
 def send_about_us(message):
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-    back_button = types.KeyboardButton("Назад")
+    back_button = types.KeyboardButton("Вернутся в главное меню🏡")
     markup.add(back_button)
+    
+    file_id_1 = 'AgACAgIAAxkBAAIEVWktlnhZ-lksHTT_8mMF_rMBZ1juAAJsEGsbhNZoSU0rol3-wvFxAQADAgADeQADNgQ'
+    file_id_2 = 'AgACAgIAAxkBAAIEV2ktlpFww7VEv6Sb3xRCKDOQ13NTAAJwEGsbhNZoSRonbqyrw44MAQADAgADeQADNgQ'
+    bot.send_photo(message.chat.id, file_id_1)
+    bot.send_photo(message.chat.id, file_id_2)
+    
+    # Отправляем текст с parse_mode
     bot.send_message(message.chat.id,
-                     "О Нас\n\n" \
-                     "В нашем закрытом сообществе «Trade Therapy»:\n" \
-                     "✅ Торговые идеи по российским акциям внутри дня, локально-среднесрочно\n" \
-                     "✅ Обсуждение и обоснование сделок\n" \
-                     "✅ Обзор и аналитика по событиям рынка (товарный рынок, технический анализ, новостной фон)\n" \
-                     "✅ Поддержка в чате во время торговых сессий + чат 💬\n" \
-                     "✅ Проведение стримов\n\n" \
-                     "Мы поможем вам развивать навыки и улучшать свою стратегию торговли.\n\n" \
-                     "☝️ Подписываясь на закрытое сообщество, вы должны учитывать, что операции на финансовом рынке сопряжены с риском и могут вести как к прибыли, так и к убыткам. Вы сами отвечаете за сделки, которые совершали",
+                     "*О Нас*\n\n" 
+                     f"В нашем закрытом сообществе «*Trade Therapy*»:\n\n" 
+                     "✅ Торговые идеи по российским акциям внутри дня, локально-среднесрочно\n" 
+                     "✅ Обсуждение и обоснование сделок\n" 
+                     "✅ Обзор и аналитика по событиям рынка (товарный рынок, технический анализ, новостной фон)\n" 
+                     "✅ Поддержка в голосовом чате во время активных торговых сессий + чат 💬\n" 
+                     "✅ Проведение стримов-брифов\n" 
+                     "✅ Записи психологических сессий для личностного понимания куда двигаться и зачем\n\n" 
+                     "Мы поможем вам развивать навыки и улучшать свою стратегию торговли.\n\n" 
+                     "☝️ Подписываясь на закрытое сообщество, вы должны учитывать, что операции на финансовом рынке сопряжены с риском и могут вести как к прибыли, так и к убыткам.\n" 
+                     "Вы сами отвечаете за сделки, которые совершали.",
+                     parse_mode='Markdown',
                      reply_markup=markup)
+
+@bot.message_handler(func=lambda message: message.text == "Отзывы")
+def handle_reviews(message):
+    markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+    back_button = types.KeyboardButton("Вернутся в главное меню🏡")
+    markup.add(back_button)
+    
+    file_id_screen1 = 'AgACAgIAAxkBAAIEU2ktlk9Bu7e5xcSYQrSt9mx5I4e4AAJrEGsbhNZoSdThsmpCxUMJAQADAgADeAADNgQ'
+    bot.send_photo(message.chat.id, file_id_screen1)
+
+    bot.send_message(message.chat.id, "Больше отзывов здесь: https://t.me/feedbacktradetherapy", reply_markup=markup)
 
 @bot.message_handler(func=lambda message: message.text == "Обратная связь")
 def send_feedback_contact(message):
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-    back_button = types.KeyboardButton("Назад")
+    back_button = types.KeyboardButton("Вернутся в главное меню🏡")
     markup.add(back_button)
-    bot.send_message(message.chat.id, "Обратная связь\n\n" \
+    bot.send_message(message.chat.id, "*Обратная связь*\n\n" 
                      "Если у вас есть вопросы, претензии или предложения, свяжитесь со мной: @nikkronos",
+                     parse_mode='Markdown',
+                     reply_markup=markup)
+
+@bot.message_handler(func=lambda message: message.text == "Публичная оферта")
+def send_oferta(message):
+    markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+    back_button = types.KeyboardButton("Вернутся в главное меню🏡")
+    markup.add(back_button)
+    bot.send_message(message.chat.id, "*Публичная оферта*\n\n"
+                     "Документ будет добавлен позже.", 
+                     parse_mode='Markdown',
                      reply_markup=markup)
 
 @bot.message_handler(commands=['tariffs'])
@@ -721,10 +792,11 @@ def handle_status_command(message):
          btn_tariffs = types.KeyboardButton("Тарифы")
          markup.add(btn_tariffs)
     
-    back_button = types.KeyboardButton("Назад")
+    back_button = types.KeyboardButton("Вернутся в главное меню🏡")
     markup.add(back_button)
-    bot.send_message(message.chat.id, "Статус подписки\n\n" \
+    bot.send_message(message.chat.id, "*Статус подписки*\n\n" 
                      + status_message,
+                     parse_mode='Markdown',
                      reply_markup=markup)
 
 @bot.message_handler(func=lambda message: message.text == "Статус подписки")
@@ -925,6 +997,13 @@ def handle_pending_payments(message):
         logger.error(f"Error fetching pending payments: {e}")
         bot.send_message(message.chat.id, "Ошибка при поиске оплат.")
 
+@bot.message_handler(content_types=['photo'], func=lambda message: message.chat.id == ADMIN_ID)
+def get_file_id_admin(message):
+    # Хелпер для админа чтобы узнать ID картинок
+    file_id = message.photo[-1].file_id
+    logger.info(f"ADMIN SENT PHOTO. File_id: {file_id}")
+    bot.send_message(message.chat.id, f"File ID этой картинки:\n{file_id}")
+
 @bot.message_handler(content_types=['text', 'photo', 'document'])
 def handle_payment_confirmation(message):
     if message.chat.id != ADMIN_ID:
@@ -1032,6 +1111,9 @@ def callback_reject_payment(call):
         
     try:
         user_id = int(call.data.split('_')[2])
+        
+        # Вычисляем конец текущего месяца
+        now = datetime.now() # Needs to be defined if we used it, but here we just reject
         
         cursor.execute("UPDATE users SET payment_status = 'rejected' WHERE telegram_id = %s", (user_id,))
         conn.commit()
