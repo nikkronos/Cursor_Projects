@@ -26,9 +26,20 @@
    python main.py
    ```
 
+## Автоматический запуск на сервере
+
+Для автоматического запуска бота на сервере используйте systemd service. Подробная инструкция находится в файле `README_DEPLOYMENT.md` в корне проекта.
+
+**Быстрый старт:**
+1. Скопируйте `tradetherapybot.service` в `/etc/systemd/system/`
+2. Обновите пути в файле service
+3. Выполните: `sudo systemctl enable tradetherapybot.service && sudo systemctl start tradetherapybot.service`
+
+Бот будет автоматически запускаться при загрузке сервера и перезапускаться при падении.
+
 ## Мониторинг
 - Логи пишутся в консоль и в файл `logs/bot.log`.
-- При перезапуске сервера (или ПК) бот нужно запускать вручную (если не настроен systemd/Docker).
+- При использовании systemd: `sudo journalctl -u tradetherapybot.service -f`
 - **Важно:** Регулярно делайте бэкап базы данных командой `/backup` (только для администратора).
 
 ## Резервное копирование

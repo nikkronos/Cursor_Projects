@@ -171,6 +171,6 @@ def check_subscriptions():
 
 def start_scheduler():
     scheduler = BackgroundScheduler()
-    scheduler.add_job(check_subscriptions, 'interval', minutes=3)
+    scheduler.add_job(check_subscriptions, 'interval', minutes=30)
     scheduler.start()
 
