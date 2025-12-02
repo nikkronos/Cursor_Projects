@@ -54,8 +54,8 @@ jobs:
         run: |
           ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
             "cd ${{ secrets.DEPLOY_PATH }} && \
-             pip3 install -q --upgrade pip && \
-             pip3 install -q -r requirements.txt && \
+             pip3 install -q --upgrade pip --break-system-packages && \
+             pip3 install -q -r requirements.txt --break-system-packages && \
              echo 'Dependencies installed/updated successfully'"
 
       - name: Pull latest code
