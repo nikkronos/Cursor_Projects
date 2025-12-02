@@ -3,8 +3,10 @@
 Включает механизм retry для обработки временных ошибок и rate limiting
 """
 import time
-from typing import Callable, Any, Optional
-from loader import logger
+from typing import Callable, Any, Optional, Dict, List
+from collections import defaultdict, deque
+from functools import wraps
+from loader import logger, ADMIN_ID, bot
 
 
 def retry_telegram_api(
@@ -115,6 +117,187 @@ def retry_telegram_api(
     # Этот код не должен достигнуться, но на всякий случай
     if last_exception:
         raise last_exception
+
+
+# Rate limiting: хранение истории запросов и блокировок
+_rate_limit_history: Dict[int, deque] = defaultdict(lambda: deque())
+_user_blocks: Dict[int, float] = {}  # {user_id: unblock_timestamp}
+
+
+def check_rate_limit(user_id: int, max_requests: int, time_window: float) -> bool:
+    """
+    Проверяет, не превышен ли лимит запросов для пользователя.
+    
+    Args:
+        user_id: ID пользователя
+        max_requests: Максимальное количество запросов
+        time_window: Окно времени в секундах
+    
+    Returns:
+        True если лимит не превышен, False если превышен
+    """
+    from loader import ADMIN_ID
+    
+    # Администратор не ограничивается
+    if user_id == ADMIN_ID:
+        return True
+    
+    # Проверка блокировки
+    current_time = time.time()
+    if user_id in _user_blocks:
+        if current_time < _user_blocks[user_id]:
+            # Пользователь все еще заблокирован
+            return False
+        else:
+            # Блокировка истекла, удаляем
+            del _user_blocks[user_id]
+    
+    # Получаем историю запросов пользователя
+    request_times = _rate_limit_history[user_id]
+    
+    # Удаляем старые записи (старше time_window)
+    cutoff_time = current_time - time_window
+    while request_times and request_times[0] < cutoff_time:
+        request_times.popleft()
+    
+    # Проверяем лимит
+    if len(request_times) >= max_requests:
+        return False
+    
+    # Добавляем текущий запрос
+    request_times.append(current_time)
+    return True
+
+
+def block_user(user_id: int, duration: float) -> None:
+    """
+    Блокирует пользователя на указанное время.
+    
+    Args:
+        user_id: ID пользователя
+        duration: Длительность блокировки в секундах
+    """
+    from loader import ADMIN_ID
+    
+    # Администратор не блокируется
+    if user_id == ADMIN_ID:
+        return
+    
+    unblock_time = time.time() + duration
+    _user_blocks[user_id] = unblock_time
+    logger.warning(f"User {user_id} blocked for {duration} seconds due to rate limit violations")
+
+
+def rate_limit(max_requests: int = 10, time_window: float = 15.0, block_duration: float = 30.0):
+    """
+    Декоратор для ограничения частоты запросов от пользователей.
+    
+    Args:
+        max_requests: Максимальное количество запросов за time_window
+        time_window: Окно времени в секундах
+        block_duration: Длительность блокировки в секундах при превышении лимита
+    
+    Usage:
+        @rate_limit(max_requests=10, time_window=15.0)
+        @bot.message_handler(commands=['start'])
+        def handle_start(message):
+            ...
+    """
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+        @wraps(func)
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
+            from loader import ADMIN_ID
+            
+            # Получаем user_id из аргументов (обычно первый аргумент - message или call)
+            user_id = None
+            if args:
+                message_or_call = args[0]
+                # Для message: message.from_user.id
+                # Для call: call.from_user.id
+                if hasattr(message_or_call, 'from_user') and message_or_call.from_user:
+                    user_id = message_or_call.from_user.id
+                # Если это callback query, может быть call.from_user напрямую
+                elif hasattr(message_or_call, 'from_user') and hasattr(message_or_call.from_user, 'id'):
+                    user_id = message_or_call.from_user.id
+            
+            # Если не удалось получить user_id, пропускаем проверку
+            if user_id is None:
+                logger.warning(f"Could not extract user_id for rate limiting in {func.__name__}")
+                return func(*args, **kwargs)
+            
+            # Администратор не ограничивается
+            if user_id == ADMIN_ID:
+                return func(*args, **kwargs)
+            
+            # Проверка блокировки
+            current_time = time.time()
+            if user_id in _user_blocks:
+                if current_time < _user_blocks[user_id]:
+                    remaining_time = int(_user_blocks[user_id] - current_time)
+                    logger.warning(f"User {user_id} is blocked, {remaining_time} seconds remaining")
+                    # Для callback query нужно ответить, иначе будет "loading"
+                    if args and hasattr(args[0], 'id') and hasattr(args[0], 'data'):
+                        try:
+                            bot.answer_callback_query(args[0].id, text=f"Подождите {remaining_time} секунд", show_alert=False)
+                        except Exception:
+                            pass
+                    # Не отправляем сообщение, просто игнорируем запрос
+                    return None
+                else:
+                    # Блокировка истекла
+                    del _user_blocks[user_id]
+            
+            # Проверка rate limit
+            if not check_rate_limit(user_id, max_requests, time_window):
+                # Превышен лимит - блокируем пользователя
+                block_user(user_id, block_duration)
+                
+                # Логируем для отладки
+                request_count = len(_rate_limit_history.get(user_id, deque()))
+                logger.warning(
+                    f"Rate limit exceeded for user {user_id} in {func.__name__}: "
+                    f"{request_count} requests in {time_window}s (limit: {max_requests})"
+                )
+                
+                # Для callback query нужно ответить, иначе будет "loading"
+                if args and hasattr(args[0], 'id') and hasattr(args[0], 'data'):
+                    try:
+                        bot.answer_callback_query(args[0].id, text="Превышен лимит запросов", show_alert=False)
+                    except Exception:
+                        pass
+                
+                # Отправляем предупреждение пользователю
+                try:
+                    warning_text = (
+                        f"⚠️ Вы превысили лимит запросов ({request_count}/{max_requests} за {int(time_window)} сек). "
+                        f"Пожалуйста, подождите {int(block_duration)} секунд перед следующим запросом."
+                    )
+                    safe_send_message(bot, user_id, warning_text)
+                except Exception as e:
+                    logger.error(f"Failed to send rate limit warning to user {user_id}: {e}")
+                
+                # Уведомляем администратора
+                try:
+                    from loader import ADMIN_ID
+                    if ADMIN_ID:
+                        admin_notification = (
+                            f"⚠️ Rate limit exceeded by user {user_id}. "
+                            f"{request_count} requests in {int(time_window)}s (limit: {max_requests}). "
+                            f"Blocked for {int(block_duration)} seconds."
+                        )
+                        safe_send_message(bot, ADMIN_ID, admin_notification)
+                except Exception as e:
+                    logger.error(f"Failed to notify admin about rate limit: {e}")
+                
+                return None
+            
+            # Лимит не превышен - выполняем обработчик
+            request_count = len(_rate_limit_history.get(user_id, deque()))
+            logger.debug(f"Rate limit check passed for user {user_id} in {func.__name__}: {request_count}/{max_requests} requests")
+            return func(*args, **kwargs)
+        
+        return wrapper
+    return decorator
 
 
 def safe_send_message(bot: Any, chat_id: int, text: str, **kwargs: Any) -> Optional[Any]:

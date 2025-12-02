@@ -2,6 +2,7 @@
 Join request and chat member update handlers for TradeTherapyBot.
 Handles group join requests and member status changes.
 """
+from telebot import types
 from loader import bot, logger, ADMIN_ID, GROUP_CHAT_ID
 from database import get_user_status
 from utils import safe_send_message, retry_telegram_api

@@ -7,9 +7,11 @@ from datetime import datetime
 from loader import bot, logger, ADMIN_ID, GROUP_INVITE_LINK
 from database import get_db_connection, format_db_date, update_tariff_answers_status
 from services import add_subscription_days_logic
+from utils import rate_limit
 
 
 @bot.callback_query_handler(func=lambda call: call.data == 'start_bot')
+@rate_limit(max_requests=15, time_window=10.0, block_duration=30.0)
 def callback_start_bot(call: types.CallbackQuery) -> None:
     """Обработчик callback кнопки 'Запустить бота'"""
     bot.answer_callback_query(call.id)
