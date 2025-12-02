@@ -1,30 +1,37 @@
 # Развертывание (Deployment)
 
 ## Текущее окружение
-- **Сервер:** Локальный запуск (Windows PowerShell) или Timeweb Cloud.
-- **База данных:** Timeweb Managed PostgreSQL.
+- **Сервер:** Локальный запуск (Windows PowerShell) или Timeweb Cloud/VPS.
+- **База данных:** SQLite (файл `bot.db` в корне проекта). **Не требует отдельного сервера БД.**
 
 ## Инструкция по запуску
-1. Убедиться, что установлен Python 3.x.
+1. Убедиться, что установлен Python 3.7+.
 2. Установить зависимости:
    ```bash
-   pip install pyTelegramBotAPI psycopg2-binary apscheduler python-dotenv
+   pip install -r requirements.txt
+   ```
+   Или вручную:
+   ```bash
+   pip install pyTelegramBotAPI python-dotenv APScheduler
    ```
 3. Создать файл `env_vars.txt` в корне проекта и заполнить переменные:
    ```
-   BOT_TOKEN=ваш_токен
-   ADMIN_ID=ваш_ид
-   GROUP_CHAT_ID=ид_группы
-   DB_NAME=...
-   DB_USER=...
-   DB_PASSWORD=...
-   DB_HOST=...
+   BOT_TOKEN=ваш_токен_бота
+   ADMIN_ID=ваш_telegram_id
+   GROUP_CHAT_ID=id_закрытой_группы
    ```
+   **Примечание:** Больше не нужны параметры `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST` (используется SQLite).
 4. Запустить бота:
    ```bash
-   python bot.py
+   python main.py
    ```
 
 ## Мониторинг
 - Логи пишутся в консоль и в файл `logs/bot.log`.
 - При перезапуске сервера (или ПК) бот нужно запускать вручную (если не настроен systemd/Docker).
+- **Важно:** Регулярно делайте бэкап базы данных командой `/backup` (только для администратора).
+
+## Резервное копирование
+- Используйте команду `/backup` в боте для получения файла `bot.db`.
+- Рекомендуется делать бэкап раз в неделю или после важных изменений.
+- Файл базы данных можно восстановить, просто скопировав его обратно в папку проекта.
