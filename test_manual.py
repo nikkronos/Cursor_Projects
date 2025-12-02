@@ -14,7 +14,7 @@ def test_imports():
     print("ТЕСТ 1: Проверка импортов модулей")
     print("=" * 60)
     
-    modules = ['validators', 'utils', 'database', 'services', 'config', 'loader']
+    modules = ['validators', 'utils', 'database', 'services', 'config', 'loader', 'handlers']
     failed = []
     
     for module_name in modules:
@@ -179,6 +179,70 @@ def test_database_structure():
         return False
 
 
+def test_handlers_structure():
+    """Тест 5: Проверка структуры handlers после рефакторинга"""
+    print("\n" + "=" * 60)
+    print("ТЕСТ 5: Проверка структуры handlers")
+    print("=" * 60)
+    
+    try:
+        # Проверяем импорт пакета handlers
+        print("\n--- Проверка импорта handlers ---")
+        import handlers
+        assert handlers is not None
+        print("✓ Пакет handlers импортирован")
+        
+        # Проверяем импорт всех модулей
+        print("\n--- Проверка модулей handlers ---")
+        from handlers import helpers, admin, user, callbacks, join_requests
+        
+        assert helpers is not None
+        print("✓ handlers.helpers импортирован")
+        
+        assert admin is not None
+        print("✓ handlers.admin импортирован")
+        
+        assert user is not None
+        print("✓ handlers.user импортирован")
+        
+        assert callbacks is not None
+        print("✓ handlers.callbacks импортирован")
+        
+        assert join_requests is not None
+        print("✓ handlers.join_requests импортирован")
+        
+        # Проверяем наличие основных функций в helpers
+        print("\n--- Проверка функций helpers ---")
+        from handlers.helpers import (
+            send_main_menu,
+            send_admin_menu,
+            send_payment_info,
+            TARIFF_QUESTIONS
+        )
+        assert callable(send_main_menu)
+        assert callable(send_admin_menu)
+        assert callable(send_payment_info)
+        assert isinstance(TARIFF_QUESTIONS, list)
+        print("✓ Основные helper функции существуют")
+        
+        # Проверяем наличие обработчиков в модулях
+        print("\n--- Проверка обработчиков ---")
+        assert hasattr(admin, 'handle_admin_command')
+        assert hasattr(user, 'handle_start')
+        assert hasattr(callbacks, 'callback_confirm_payment')
+        assert hasattr(join_requests, 'handle_join_request')
+        print("✓ Основные обработчики существуют")
+        
+        print("\n✅ Структура handlers корректна!")
+        return True
+        
+    except Exception as e:
+        print(f"\n❌ Ошибка при проверке handlers: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+
 def main():
     """Запуск всех тестов"""
     print("\n" + "=" * 60)
@@ -192,6 +256,7 @@ def main():
     results.append(("Валидаторы", test_validators()))
     results.append(("Утилиты", test_utils()))
     results.append(("База данных", test_database_structure()))
+    results.append(("Handlers структура", test_handlers_structure()))
     
     # Итоговый отчет
     print("\n" + "=" * 60)

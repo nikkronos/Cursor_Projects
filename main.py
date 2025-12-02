@@ -8,7 +8,8 @@ import sys
 def signal_handler(sig, frame):
     """Обработчик сигналов для graceful shutdown"""
     logger.info("Получен сигнал завершения. Останавливаю бота...")
-    bot.stop_polling()
+    if bot and hasattr(bot, 'stop_polling'):
+        bot.stop_polling()
     sys.exit(0)
 
 if __name__ == '__main__':
@@ -28,7 +29,11 @@ if __name__ == '__main__':
     # Start Polling
     logger.info("Bot started (Main).")
     try:
-        bot.polling(none_stop=True, interval=0, timeout=20)
+        if bot and hasattr(bot, 'polling'):
+            bot.polling(none_stop=True, interval=0, timeout=20)
+        else:
+            logger.error("Bot is not initialized. Please check BOT_TOKEN in env_vars.txt")
+            sys.exit(1)
     except Exception as e:
         logger.error(f"Ошибка при запуске бота: {e}")
         sys.exit(1)
