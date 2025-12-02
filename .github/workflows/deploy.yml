@@ -57,13 +57,33 @@ jobs:
              pip3 install -q -r requirements.txt --break-system-packages && \
              echo 'Dependencies installed/updated successfully'"
 
-      - name: Pull latest code
+      - name: Check if git repository exists
+        id: check_git
+        run: |
+          GIT_EXISTS=$(ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            "cd ${{ secrets.DEPLOY_PATH }} && test -d .git && echo 'yes' || echo 'no'")
+          echo "git_exists=$GIT_EXISTS" >> $GITHUB_OUTPUT
+      
+      - name: Pull latest code (git repository exists)
+        if: steps.check_git.outputs.git_exists == 'yes'
         run: |
           ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
             "cd ${{ secrets.DEPLOY_PATH }} && \
              git fetch origin && \
              git reset --hard origin/main && \
              echo 'Code updated successfully'"
+      
+      - name: Error - git repository not found
+        if: steps.check_git.outputs.git_exists == 'no'
+        run: |
+          echo "❌ ERROR: Git repository not found in ${{ secrets.DEPLOY_PATH }}" >> $GITHUB_STEP_SUMMARY
+          echo "Please initialize git repository on server manually:" >> $GITHUB_STEP_SUMMARY
+          echo "1. SSH to server: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" >> $GITHUB_STEP_SUMMARY
+          echo "2. cd ${{ secrets.DEPLOY_PATH }}" >> $GITHUB_STEP_SUMMARY
+          echo "3. git init" >> $GITHUB_STEP_SUMMARY
+          echo "4. git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO.git" >> $GITHUB_STEP_SUMMARY
+          echo "5. git pull origin main" >> $GITHUB_STEP_SUMMARY
+          exit 1
 
       - name: Restart service
         run: |
