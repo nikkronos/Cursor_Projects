@@ -164,3 +164,6 @@ sudo chown tradetherapy:tradetherapy /opt/tradetherapybot
   which python3
   ```
 
+
+
+

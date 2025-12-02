@@ -125,3 +125,6 @@ class TestHandlersStructure:
         assert hasattr(join_module, 'handle_join_request')
         assert hasattr(join_module, 'handle_chat_member_update')
 
+
+
+

@@ -76,3 +76,6 @@
 - **Все промпты:** `docs/AGENT_PROMPTS.md`
 - **Ручное тестирование:** `python test_manual.py`
 
+
+
+

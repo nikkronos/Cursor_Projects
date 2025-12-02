@@ -72,3 +72,6 @@ systemctl restart tradetherapybot.service
 
 Если команда `scp` не найдена, используйте WinSCP или FileZilla для копирования файлов.
 
+
+
+

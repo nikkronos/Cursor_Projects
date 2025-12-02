@@ -191,3 +191,6 @@ class TestValidatePositiveInteger:
         with pytest.raises(ValidationError, match="числом"):
             validate_positive_integer("abc")
 
+
+
+

@@ -2,3 +2,6 @@ BOT_TOKEN=ваш_токен_бота
 ADMIN_ID=ваш_id_телеграм
 GROUP_CHAT_ID=id_закрытой_группы
 
+
+
+

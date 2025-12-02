@@ -98,3 +98,6 @@ sudo systemctl disable tradetherapybot.service
 
 Подробная инструкция в файле `README_DEPLOYMENT.md`
 
+
+
+

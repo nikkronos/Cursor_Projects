@@ -70,3 +70,6 @@ python -m py_compile validators.py utils.py database.py
 2. **После изменений:** Проверьте, что все тесты проходят
 3. **При проблемах:** Проверьте логи в `logs/bot.log`
 
+
+
+
