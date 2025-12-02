@@ -1,6 +1,7 @@
 """
 Модуль валидации входных данных от пользователей
 """
+from typing import Union, Optional
 from loader import logger
 
 
@@ -9,7 +10,7 @@ class ValidationError(Exception):
     pass
 
 
-def validate_user_id(user_id_input):
+def validate_user_id(user_id_input: Union[str, int]) -> int:
     """
     Валидация ID пользователя Telegram.
     
@@ -55,7 +56,7 @@ def validate_user_id(user_id_input):
         raise ValidationError(f"Ошибка при валидации ID пользователя: {e}")
 
 
-def validate_days(days_input, min_days=-365, max_days=365):
+def validate_days(days_input: Union[str, int], min_days: int = -365, max_days: int = 365) -> int:
     """
     Валидация количества дней для подписки.
     
@@ -100,7 +101,7 @@ def validate_days(days_input, min_days=-365, max_days=365):
         raise ValidationError(f"Ошибка при валидации количества дней: {e}")
 
 
-def validate_text(text_input, max_length=4000, field_name="текст"):
+def validate_text(text_input: Optional[str], max_length: int = 4000, field_name: str = "текст") -> str:
     """
     Валидация текстового поля.
     
@@ -142,7 +143,7 @@ def validate_text(text_input, max_length=4000, field_name="текст"):
         raise ValidationError(f"Ошибка при валидации {field_name}: {e}")
 
 
-def validate_positive_integer(value_input, field_name="число", min_value=1, max_value=None):
+def validate_positive_integer(value_input: Union[str, int], field_name: str = "число", min_value: int = 1, max_value: Optional[int] = None) -> int:
     """
     Валидация положительного целого числа.
     

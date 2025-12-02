@@ -3,16 +3,16 @@
 Включает механизм retry для обработки временных ошибок и rate limiting
 """
 import time
-from typing import Callable, Any, Type
+from typing import Callable, Any, Optional
 from loader import logger
 
 
 def retry_telegram_api(
-    func: Callable,
+    func: Callable[..., Any],
     max_attempts: int = 3,
     base_delay: float = 1.0,
-    *args,
-    **kwargs
+    *args: Any,
+    **kwargs: Any
 ) -> Any:
     """
     Выполняет функцию с автоматическими повторами при временных ошибках Telegram API.
@@ -117,7 +117,7 @@ def retry_telegram_api(
         raise last_exception
 
 
-def safe_send_message(bot, chat_id, text, **kwargs):
+def safe_send_message(bot: Any, chat_id: int, text: str, **kwargs: Any) -> Optional[Any]:
     """
     Безопасная отправка сообщения с автоматическими повторами.
     

@@ -10,7 +10,7 @@ from services import add_subscription_days_logic
 
 
 @bot.callback_query_handler(func=lambda call: call.data == 'start_bot')
-def callback_start_bot(call):
+def callback_start_bot(call: types.CallbackQuery) -> None:
     """Обработчик callback кнопки 'Запустить бота'"""
     bot.answer_callback_query(call.id)
     user_id = call.message.chat.id
@@ -24,7 +24,7 @@ def callback_start_bot(call):
 
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('confirm_pay_'))
-def callback_confirm_payment(call):
+def callback_confirm_payment(call: types.CallbackQuery) -> None:
     """Обработчик подтверждения оплаты администратором"""
     if call.from_user.id != ADMIN_ID:
         return
@@ -63,7 +63,7 @@ def callback_confirm_payment(call):
 
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('reject_pay_'))
-def callback_reject_payment(call):
+def callback_reject_payment(call: types.CallbackQuery) -> None:
     """Обработчик отклонения оплаты администратором"""
     if call.from_user.id != ADMIN_ID:
         return
@@ -89,7 +89,7 @@ def callback_reject_payment(call):
 
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('confirm_tariff_'))
-def callback_confirm_tariff(call):
+def callback_confirm_tariff(call: types.CallbackQuery) -> None:
     """Обработчик подтверждения ответов на вопросы тарифа"""
     if call.from_user.id != ADMIN_ID:
         return
@@ -123,7 +123,7 @@ def callback_confirm_tariff(call):
 
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('reject_tariff_'))
-def callback_reject_tariff(call):
+def callback_reject_tariff(call: types.CallbackQuery) -> None:
     """Обработчик отклонения ответов на вопросы тарифа"""
     if call.from_user.id != ADMIN_ID:
         return
@@ -153,7 +153,7 @@ def callback_reject_tariff(call):
 
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('confirm_reason_trading_'))
-def callback_confirm_reason_trading(call):
+def callback_confirm_reason_trading(call: types.CallbackQuery) -> None:
     """Обработчик подтверждения причины 'Я не торгую'"""
     if call.from_user.id != ADMIN_ID:
         return
@@ -177,7 +177,7 @@ def callback_confirm_reason_trading(call):
 
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('reject_reason_trading_'))
-def callback_reject_reason_trading(call):
+def callback_reject_reason_trading(call: types.CallbackQuery) -> None:
     """Обработчик отклонения причины 'Я не торгую'"""
     if call.from_user.id != ADMIN_ID:
         return
@@ -198,7 +198,7 @@ def callback_reject_reason_trading(call):
 
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('confirm_reason_other_'))
-def callback_confirm_reason_other(call):
+def callback_confirm_reason_other(call: types.CallbackQuery) -> None:
     """Обработчик подтверждения другой причины отказа от оплаты"""
     if call.from_user.id != ADMIN_ID:
         return
@@ -222,7 +222,7 @@ def callback_confirm_reason_other(call):
 
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('reject_reason_other_'))
-def callback_reject_reason_other(call):
+def callback_reject_reason_other(call: types.CallbackQuery) -> None:
     """Обработчик отклонения другой причины отказа от оплаты"""
     if call.from_user.id != ADMIN_ID:
         return

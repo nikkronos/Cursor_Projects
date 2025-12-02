@@ -1,16 +1,17 @@
 import sqlite3
 from datetime import datetime
+from typing import Optional, List, Any
 from loader import logger
 
 DB_FILE = "bot.db"
 
-def get_db_connection():
+def get_db_connection() -> sqlite3.Connection:
     conn = sqlite3.connect(DB_FILE)
     conn.row_factory = sqlite3.Row # Allows accessing columns by name
     return conn
 
 # --- Helper functions for dates ---
-def parse_db_date(date_str):
+def parse_db_date(date_str: Optional[str]) -> Optional[datetime]:
     if not date_str:
         return None
     try:
@@ -21,13 +22,13 @@ def parse_db_date(date_str):
         except ValueError:
              return None
 
-def format_db_date(date_obj):
+def format_db_date(date_obj: Optional[datetime]) -> Optional[str]:
     if not date_obj:
         return None
     return str(date_obj)
 
 # Database initialization
-def init_db():
+def init_db() -> None:
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
@@ -90,7 +91,7 @@ def init_db():
 
 # --- Database Migration Functions ---
 
-def migrate_add_indexes():
+def migrate_add_indexes() -> None:
     """Добавить индексы в существующую базу данных (миграция)"""
     try:
         with get_db_connection() as conn:
@@ -128,7 +129,7 @@ def migrate_add_indexes():
 
 # --- Data Access Functions ---
 
-def get_user_status(telegram_id):
+def get_user_status(telegram_id: int) -> Optional[sqlite3.Row]:
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
@@ -139,7 +140,7 @@ def get_user_status(telegram_id):
         logger.error(f"Error fetching user status: {e}")
         return None
 
-def get_all_users_for_check():
+def get_all_users_for_check() -> List[sqlite3.Row]:
     """Получить всех пользователей для проверки (оптимизировано для планировщика)"""
     try:
         with get_db_connection() as conn:
@@ -158,7 +159,7 @@ def get_all_users_for_check():
         logger.error(f"Error fetching users for check: {e}")
         return []
 
-def get_active_users_for_check():
+def get_active_users_for_check() -> List[sqlite3.Row]:
     """Получить только активных пользователей для проверки (более быстрый запрос)"""
     try:
         with get_db_connection() as conn:
@@ -174,7 +175,7 @@ def get_active_users_for_check():
         logger.error(f"Error fetching active users for check: {e}")
         return []
 
-def get_users_by_status(message, status):
+def get_users_by_status(message: Any, status: str) -> None:
     """Получить список пользователей по статусу подписки и отправить админу"""
     from loader import bot
     
@@ -228,7 +229,7 @@ def get_users_by_status(message, status):
         logger.error(f"Error getting users by status: {e}")
         bot.send_message(message.chat.id, f"Ошибка при получении списка пользователей: {e}")
 
-def save_tariff_answer(user_id, question_number, answer):
+def save_tariff_answer(user_id: int, question_number: int, answer: str) -> bool:
     """Сохранить ответ на вопрос опроса"""
     try:
         with get_db_connection() as conn:
@@ -242,7 +243,7 @@ def save_tariff_answer(user_id, question_number, answer):
         logger.error(f"Error saving tariff answer: {e}")
         return False
 
-def get_user_tariff_answers(user_id):
+def get_user_tariff_answers(user_id: int) -> List[sqlite3.Row]:
     """Получить все ответы пользователя на вопросы опроса"""
     try:
         with get_db_connection() as conn:
@@ -258,7 +259,7 @@ def get_user_tariff_answers(user_id):
         logger.error(f"Error getting user tariff answers: {e}")
         return []
 
-def clear_user_tariff_answers(user_id):
+def clear_user_tariff_answers(user_id: int) -> bool:
     """Очистить ответы пользователя (после подтверждения/отклонения)"""
     try:
         with get_db_connection() as conn:
@@ -269,7 +270,7 @@ def clear_user_tariff_answers(user_id):
         logger.error(f"Error clearing user tariff answers: {e}")
         return False
 
-def update_tariff_answers_status(user_id, status):
+def update_tariff_answers_status(user_id: int, status: str) -> bool:
     """Обновить статус ответов пользователя (approved/rejected)"""
     try:
         with get_db_connection() as conn:

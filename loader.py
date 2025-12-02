@@ -1,3 +1,4 @@
+from typing import Optional, Any
 import telebot
 import logging
 import os
@@ -35,45 +36,45 @@ logger = logging.getLogger(__name__)
 # MockBot для тестирования (когда нет токена)
 class MockBot:
     """Mock объект бота для тестирования без токена"""
-    def __init__(self):
+    def __init__(self) -> None:
         self.message_handlers = []
         self.callback_query_handlers = []
         self.chat_join_request_handlers = []
         self.chat_member_handlers = []
     
-    def message_handler(self, *args, **kwargs):
+    def message_handler(self, *args: Any, **kwargs: Any) -> Any:
         """Mock декоратор для message_handler"""
-        def decorator(func):
+        def decorator(func: Any) -> Any:
             self.message_handlers.append(func)
             return func
         return decorator
     
-    def callback_query_handler(self, *args, **kwargs):
+    def callback_query_handler(self, *args: Any, **kwargs: Any) -> Any:
         """Mock декоратор для callback_query_handler"""
-        def decorator(func):
+        def decorator(func: Any) -> Any:
             self.callback_query_handlers.append(func)
             return func
         return decorator
     
-    def chat_join_request_handler(self, *args, **kwargs):
+    def chat_join_request_handler(self, *args: Any, **kwargs: Any) -> Any:
         """Mock декоратор для chat_join_request_handler"""
-        def decorator(func):
+        def decorator(func: Any) -> Any:
             self.chat_join_request_handlers.append(func)
             return func
         return decorator
     
-    def chat_member_handler(self, *args, **kwargs):
+    def chat_member_handler(self, *args: Any, **kwargs: Any) -> Any:
         """Mock декоратор для chat_member_handler"""
-        def decorator(func):
+        def decorator(func: Any) -> Any:
             self.chat_member_handlers.append(func)
             return func
         return decorator
     
-    def stop_polling(self):
+    def stop_polling(self) -> None:
         """Mock метод для stop_polling"""
         pass
     
-    def polling(self, *args, **kwargs):
+    def polling(self, *args: Any, **kwargs: Any) -> None:
         """Mock метод для polling (для тестирования)"""
         logger.warning("Mock bot polling called. Bot is not initialized (no token).")
         # В тестовом режиме просто ждем бесконечно (можно прервать Ctrl+C)

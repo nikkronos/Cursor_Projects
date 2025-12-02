@@ -1,7 +1,8 @@
+from typing import Dict, Optional
 from dotenv import load_dotenv
 import os
 
-def load_config():
+def load_config() -> Dict[str, Optional[str]]:
     load_dotenv(dotenv_path='env_vars.txt')
     return {
         'BOT_TOKEN': os.getenv('BOT_TOKEN'),

@@ -2,6 +2,7 @@
 Helper functions for creating menus and UI elements.
 These functions don't have decorators and can be used by other handlers.
 """
+from typing import Optional
 from telebot import types
 from loader import bot, ADMIN_ID
 from database import get_user_status, get_user_tariff_answers
@@ -24,7 +25,7 @@ TARIFF_QUESTIONS = [
 ]
 
 
-def send_initial_welcome(message):
+def send_initial_welcome(message: types.Message) -> None:
     """Отправляет приветственное сообщение с кнопкой запуска бота"""
     markup = types.InlineKeyboardMarkup()
     start_button = types.InlineKeyboardButton("Запустить бота", callback_data='start_bot')
@@ -37,7 +38,7 @@ def send_initial_welcome(message):
                      reply_markup=markup)
 
 
-def send_main_menu(user_id, chat_id, first_name):
+def send_main_menu(user_id: int, chat_id: int, first_name: str) -> None:
     """Отправляет главное меню пользователю"""
     markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
     btn1 = types.KeyboardButton("Тарифы")
@@ -67,7 +68,7 @@ def send_main_menu(user_id, chat_id, first_name):
                      reply_markup=markup)
 
 
-def send_admin_menu(chat_id):
+def send_admin_menu(chat_id: int) -> None:
     """Отправляет административное меню"""
     markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
     btn_manage_days = types.KeyboardButton("🕒 Изменить дни")
@@ -79,7 +80,7 @@ def send_admin_menu(chat_id):
     bot.send_message(chat_id, "*Административное меню:*", parse_mode='Markdown', reply_markup=markup)
 
 
-def send_users_filter_menu(chat_id):
+def send_users_filter_menu(chat_id: int) -> None:
     """Отправляет меню фильтрации пользователей"""
     markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
     btn_active = types.KeyboardButton("✅ Текущие участники")
@@ -89,7 +90,7 @@ def send_users_filter_menu(chat_id):
     bot.send_message(chat_id, "Какие участники вас интересуют?", reply_markup=markup)
 
 
-def send_payment_info(message, amount):
+def send_payment_info(message: types.Message, amount: int) -> None:
     """Отправляет информацию о реквизитах для оплаты"""
     user_id = message.from_user.id
     user_data = get_user_status(user_id)
@@ -124,7 +125,7 @@ def send_payment_info(message, amount):
     bot.send_message(message.chat.id, payment_text, parse_mode='Markdown', reply_markup=markup)
 
 
-def send_answers_to_admin(user_id, first_name, username):
+def send_answers_to_admin(user_id: int, first_name: str, username: Optional[str]) -> None:
     """Отправить все ответы пользователя админу с кнопками подтвердить/отклонить"""
     from database import get_user_tariff_answers
     

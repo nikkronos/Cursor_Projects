@@ -1,10 +1,11 @@
 from datetime import datetime, timedelta
+from typing import Any
 from apscheduler.schedulers.background import BackgroundScheduler
 from loader import bot, logger, ADMIN_ID, GROUP_CHAT_ID, GROUP_INVITE_LINK
 from database import get_db_connection, parse_db_date, format_db_date, get_all_users_for_check, get_user_status, get_active_users_for_check
 from utils import safe_send_message, retry_telegram_api
 
-def remove_user_from_group(user_id, chat_id):
+def remove_user_from_group(user_id: int, chat_id: int) -> bool:
     if user_id == ADMIN_ID:
         logger.info(f"Попытка удалить администратора {user_id} из группы отклонена.")
         return True 
@@ -30,7 +31,7 @@ def remove_user_from_group(user_id, chat_id):
         logger.error(f"Ошибка при удалении/разблокировке пользователя {user_id} из группы {chat_id}: {e}")
         return False
 
-def add_subscription_days_logic(user_id, days_to_add, chat_id, minutes_to_add=0):
+def add_subscription_days_logic(user_id: int, days_to_add: int, chat_id: int, minutes_to_add: int = 0) -> None:
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
@@ -90,7 +91,7 @@ def add_subscription_days_logic(user_id, days_to_add, chat_id, minutes_to_add=0)
         safe_send_message(bot, chat_id, f"Ошибка при добавлении дней к подписке: {e}")
         logger.error(f"Error adding subscription days: {e}")
 
-def remove_subscription_days_logic(user_id, days_to_remove, chat_id):
+def remove_subscription_days_logic(user_id: int, days_to_remove: int, chat_id: int) -> None:
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
@@ -118,7 +119,7 @@ def remove_subscription_days_logic(user_id, days_to_remove, chat_id):
         safe_send_message(bot, chat_id, f"Ошибка при вычитании дней из подписки: {e}")
         logger.error(f"Error removing subscription days: {e}")
 
-def check_subscriptions():
+def check_subscriptions() -> None:
     try:
         users_to_check = get_all_users_for_check()
         today = datetime.now()
@@ -179,7 +180,7 @@ def check_subscriptions():
     except Exception as e:
         logger.error(f"Error checking subscriptions: {e}")
 
-def start_scheduler():
+def start_scheduler() -> None:
     scheduler = BackgroundScheduler()
     scheduler.add_job(check_subscriptions, 'interval', minutes=30)
     scheduler.start()

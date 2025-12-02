@@ -10,7 +10,7 @@ from handlers.helpers import send_main_menu, send_payment_info, send_answers_to_
 
 
 @bot.message_handler(commands=['start'])
-def handle_start(message):
+def handle_start(message: types.Message) -> None:
     """Обработчик команды /start - регистрация пользователя и показ главного меню"""
     user_id = message.from_user.id
     first_name = message.from_user.first_name
@@ -60,7 +60,7 @@ def handle_start(message):
 
 
 @bot.message_handler(func=lambda message: message.text == "⬅️ Главное меню")
-def handle_back_to_main_menu(message):
+def handle_back_to_main_menu(message: types.Message) -> None:
     """Обработчик кнопки '⬅️ Главное меню'"""
     logger.info(f"Back to main menu requested by {message.from_user.id}")
     send_main_menu(message.from_user.id, message.chat.id, message.from_user.first_name)
@@ -68,13 +68,13 @@ def handle_back_to_main_menu(message):
 
 @bot.message_handler(func=lambda message: message.text == "Вернутся в главное меню🏡")
 @bot.message_handler(func=lambda message: message.text == "🔄 Перезагрузить бота")  # оставляем для совместимости
-def handle_restart_bot(message):
+def handle_restart_bot(message: types.Message) -> None:
     """Обработчик кнопки 'Вернутся в главное меню🏡' и '🔄 Перезагрузить бота'"""
     handle_start(message)
 
 
 @bot.message_handler(func=lambda message: message.text == "Тарифы")
-def send_tariffs(message):
+def send_tariffs(message: types.Message) -> None:
     """Показать информацию о тарифах"""
     user_id = message.from_user.id
     user_data = get_user_status(user_id)
@@ -109,7 +109,7 @@ def send_tariffs(message):
         bot.send_message(message.chat.id, tariff_text, parse_mode='Markdown', reply_markup=markup)
 
 
-def ask_tariff_question(message, question_index):
+def ask_tariff_question(message: types.Message, question_index: int) -> None:
     """Задать вопрос из опроса"""
     user_id = message.from_user.id
     
@@ -135,7 +135,7 @@ def ask_tariff_question(message, question_index):
     bot.register_next_step_handler(msg, process_tariff_answer, question_index)
 
 
-def process_tariff_answer(message, question_index):
+def process_tariff_answer(message: types.Message, question_index: int) -> None:
     """Обработать ответ на вопрос"""
     if message.text == "Вернутся в главное меню🏡":
         handle_start(message)
@@ -153,7 +153,7 @@ def process_tariff_answer(message, question_index):
 
 
 @bot.message_handler(func=lambda message: message.text == "Я согласен")
-def handle_agree_button(message):
+def handle_agree_button(message: types.Message) -> None:
     """Обработчик кнопки 'Я согласен' для начала опроса"""
     user_id = message.from_user.id
     clear_user_tariff_answers(user_id)  # Очищаем старые ответы, если есть
@@ -161,7 +161,7 @@ def handle_agree_button(message):
 
 
 @bot.message_handler(func=lambda message: message.text == "Я уже отвечал на вопросы")
-def handle_already_answered(message):
+def handle_already_answered(message: types.Message) -> None:
     """Обработчик кнопки 'Я уже отвечал на вопросы'"""
     user_id = message.from_user.id
     
@@ -188,19 +188,19 @@ def handle_already_answered(message):
 
 
 @bot.message_handler(func=lambda message: message.text == "Тариф \"Базисный 🤝\"")
-def handle_tariff_basic(message):
+def handle_tariff_basic(message: types.Message) -> None:
     """Обработчик кнопки 'Тариф \"Базисный 🤝\"'"""
     send_payment_info(message, 3000)
 
 
 @bot.message_handler(func=lambda message: message.text == "Тариф \"Смелый✊\"")
-def handle_tariff_brave(message):
+def handle_tariff_brave(message: types.Message) -> None:
     """Обработчик кнопки 'Тариф \"Смелый✊\"'"""
     send_payment_info(message, 9000)
 
 
 @bot.message_handler(func=lambda message: message.text == "Остаться в Сообществе")
-def handle_payment_button(message):
+def handle_payment_button(message: types.Message) -> None:
     """Обработчик кнопки 'Остаться в Сообществе' для пользователей с активной подпиской"""
     user_id = message.from_user.id
     user_data = get_user_status(user_id)
@@ -214,7 +214,7 @@ def handle_payment_button(message):
 
 
 @bot.message_handler(func=lambda message: message.text == "Не буду платить")
-def handle_wont_pay_menu(message):
+def handle_wont_pay_menu(message: types.Message) -> None:
     """Меню выбора причины отказа от оплаты"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
     reason1 = types.KeyboardButton("Я не торгую")
@@ -226,7 +226,7 @@ def handle_wont_pay_menu(message):
 
 
 @bot.message_handler(func=lambda message: message.text == "Я не торгую")
-def handle_reason_trading(message):
+def handle_reason_trading(message: types.Message) -> None:
     """Обработчик кнопки 'Я не торгую'"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
     back_btn = types.KeyboardButton("Назад 🔙")
@@ -236,7 +236,7 @@ def handle_reason_trading(message):
     bot.register_next_step_handler(msg, process_reason_trading)
 
 
-def process_reason_trading(message):
+def process_reason_trading(message: types.Message) -> None:
     """Обработка ответа на вопрос 'Я не торгую'"""
     if message.text == "Вернутся в главное меню🏡" or message.text == "Назад 🔙":
         if message.text == "Назад 🔙":
@@ -270,7 +270,7 @@ def process_reason_trading(message):
 
 
 @bot.message_handler(func=lambda message: message.text == "Не буду платить по другой причине")
-def handle_reason_other(message):
+def handle_reason_other(message: types.Message) -> None:
     """Обработчик кнопки 'Не буду платить по другой причине'"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
     back_btn = types.KeyboardButton("Назад 🔙")
@@ -280,7 +280,7 @@ def handle_reason_other(message):
     bot.register_next_step_handler(msg, process_reason_other)
 
 
-def process_reason_other(message):
+def process_reason_other(message: types.Message) -> None:
     """Обработка ответа на вопрос 'Не буду платить по другой причине'"""
     if message.text == "Вернутся в главное меню🏡" or message.text == "Назад 🔙":
         if message.text == "Назад 🔙":
@@ -314,13 +314,13 @@ def process_reason_other(message):
 
 
 @bot.message_handler(func=lambda message: message.text == "Назад 🔙")
-def handle_back_button(message):
+def handle_back_button(message: types.Message) -> None:
     """Обработчик кнопки 'Назад 🔙' - возврат к тарифам"""
     send_tariffs(message)
 
 
 @bot.message_handler(func=lambda message: message.text == "Правила Клуба")
-def send_rules(message):
+def send_rules(message: types.Message) -> None:
     """Показать правила клуба"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
     back_button = types.KeyboardButton("Вернутся в главное меню🏡")
@@ -339,7 +339,7 @@ def send_rules(message):
 
 
 @bot.message_handler(func=lambda message: message.text == "О Нас")
-def send_about_us(message):
+def send_about_us(message: types.Message) -> None:
     """Показать информацию о сообществе"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
     back_button = types.KeyboardButton("Вернутся в главное меню🏡")
@@ -367,7 +367,7 @@ def send_about_us(message):
 
 
 @bot.message_handler(func=lambda message: message.text == "Отзывы")
-def handle_reviews(message):
+def handle_reviews(message: types.Message) -> None:
     """Показать отзывы"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
     back_button = types.KeyboardButton("Вернутся в главное меню🏡")
@@ -380,7 +380,7 @@ def handle_reviews(message):
 
 
 @bot.message_handler(func=lambda message: message.text == "Обратная связь")
-def send_feedback_contact(message):
+def send_feedback_contact(message: types.Message) -> None:
     """Показать контакты для обратной связи"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
     back_button = types.KeyboardButton("Вернутся в главное меню🏡")
@@ -392,7 +392,7 @@ def send_feedback_contact(message):
 
 
 @bot.message_handler(func=lambda message: message.text == "Публичная оферта")
-def send_oferta(message):
+def send_oferta(message: types.Message) -> None:
     """Показать публичную оферту"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
     back_button = types.KeyboardButton("Вернутся в главное меню🏡")
@@ -404,31 +404,31 @@ def send_oferta(message):
 
 
 @bot.message_handler(commands=['tariffs'])
-def handle_tariffs_command(message):
+def handle_tariffs_command(message: types.Message) -> None:
     """Команда /tariffs"""
     send_tariffs(message)
 
 
 @bot.message_handler(commands=['rules'])
-def handle_rules_command(message):
+def handle_rules_command(message: types.Message) -> None:
     """Команда /rules"""
     send_rules(message)
 
 
 @bot.message_handler(commands=['about'])
-def handle_about_command(message):
+def handle_about_command(message: types.Message) -> None:
     """Команда /about"""
     send_about_us(message)
 
 
 @bot.message_handler(commands=['feedback'])
-def handle_feedback_command(message):
+def handle_feedback_command(message: types.Message) -> None:
     """Команда /feedback"""
     send_feedback_contact(message)
 
 
 @bot.message_handler(commands=['status'])
-def handle_status_command(message):
+def handle_status_command(message: types.Message) -> None:
     """Команда /status - показать статус подписки"""
     user_id = message.from_user.id
     user_data = get_user_status(user_id)
@@ -465,13 +465,13 @@ def handle_status_command(message):
 
 
 @bot.message_handler(func=lambda message: message.text == "Статус подписки")
-def handle_status_button(message):
+def handle_status_button(message: types.Message) -> None:
     """Обработчик кнопки 'Статус подписки'"""
     handle_status_command(message)
 
 
 @bot.message_handler(content_types=['text', 'photo', 'document'])
-def handle_payment_confirmation(message):
+def handle_payment_confirmation(message: types.Message) -> None:
     """Обработчик отправки чека для подтверждения оплаты"""
     if message.chat.id != ADMIN_ID:
         if message.content_type in ['photo', 'document']:

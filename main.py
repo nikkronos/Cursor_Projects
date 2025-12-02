@@ -1,3 +1,4 @@
+from typing import Any
 from loader import bot, logger
 from database import init_db, migrate_add_indexes
 from services import start_scheduler
@@ -5,7 +6,7 @@ import handlers # Import handlers to register them
 import signal
 import sys
 
-def signal_handler(sig, frame):
+def signal_handler(sig: Any, frame: Any) -> None:
     """Обработчик сигналов для graceful shutdown"""
     logger.info("Получен сигнал завершения. Останавливаю бота...")
     if bot and hasattr(bot, 'stop_polling'):

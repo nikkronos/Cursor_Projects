@@ -12,7 +12,7 @@ from handlers.helpers import send_admin_menu, send_users_filter_menu
 
 
 @bot.message_handler(commands=['backup'])
-def handle_backup_command(message):
+def handle_backup_command(message: types.Message) -> None:
     """Команда для получения бэкапа базы данных"""
     if message.from_user.id != ADMIN_ID:
         return
@@ -27,7 +27,7 @@ def handle_backup_command(message):
 
 
 @bot.message_handler(commands=['admin'])
-def handle_admin_command(message):
+def handle_admin_command(message: types.Message) -> None:
     """Команда /admin для открытия админского меню"""
     logger.info(f"Admin command requested by {message.from_user.id}")
     if message.from_user.id == ADMIN_ID:
@@ -37,13 +37,13 @@ def handle_admin_command(message):
 
 
 @bot.message_handler(commands=['me'])
-def handle_me_command(message):
+def handle_me_command(message: types.Message) -> None:
     """Команда /me для получения своего ID"""
     bot.send_message(message.chat.id, f"Ваш ID: {message.from_user.id}")
 
 
 @bot.message_handler(func=lambda message: message.text == "⚙️ Админ")
-def handle_admin_button(message):
+def handle_admin_button(message: types.Message) -> None:
     """Обработчик кнопки '⚙️ Админ'"""
     if message.from_user.id == ADMIN_ID:
         send_admin_menu(message.chat.id)
@@ -52,14 +52,14 @@ def handle_admin_button(message):
 
 
 @bot.message_handler(func=lambda message: message.text == "🔙 Назад в админку")
-def handle_back_to_admin(message):
+def handle_back_to_admin(message: types.Message) -> None:
     """Обработчик кнопки '🔙 Назад в админку'"""
     if message.from_user.id == ADMIN_ID:
         send_admin_menu(message.chat.id)
 
 
 @bot.message_handler(func=lambda message: message.text == "🕒 Изменить дни")
-def handle_manage_days_menu(message):
+def handle_manage_days_menu(message: types.Message) -> None:
     """Меню управления днями подписки"""
     if message.from_user.id == ADMIN_ID:
         markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
@@ -74,7 +74,7 @@ def handle_manage_days_menu(message):
 
 
 @bot.message_handler(func=lambda message: message.text == "➕ Добавить дни")
-def handle_add_days_button(message):
+def handle_add_days_button(message: types.Message) -> None:
     """Обработчик кнопки '➕ Добавить дни'"""
     logger.info(f"Add days requested by {message.from_user.id}")
     if message.from_user.id == ADMIN_ID:
@@ -86,7 +86,7 @@ def handle_add_days_button(message):
         bot.send_message(message.chat.id, "У вас нет прав администратора.")
 
 
-def process_add_days_user_id(message):
+def process_add_days_user_id(message: types.Message) -> None:
     """Обработка ввода ID пользователя для добавления дней"""
     if message.text == "🔙 Назад в админку":
         send_admin_menu(message.chat.id)
@@ -106,7 +106,7 @@ def process_add_days_user_id(message):
         send_admin_menu(message.chat.id)
 
 
-def process_add_days_amount(message, user_id):
+def process_add_days_amount(message: types.Message, user_id: int) -> None:
     """Обработка ввода количества дней для добавления"""
     if message.text == "🔙 Назад в админку":
         send_admin_menu(message.chat.id)
@@ -127,7 +127,7 @@ def process_add_days_amount(message, user_id):
 
 
 @bot.message_handler(func=lambda message: message.text == "➖ Вычесть дни")
-def handle_remove_days_button(message):
+def handle_remove_days_button(message: types.Message) -> None:
     """Обработчик кнопки '➖ Вычесть дни'"""
     if message.from_user.id == ADMIN_ID:
         markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
@@ -138,7 +138,7 @@ def handle_remove_days_button(message):
         bot.send_message(message.chat.id, "У вас нет прав администратора.")
 
 
-def process_remove_days_user_id(message):
+def process_remove_days_user_id(message: types.Message) -> None:
     """Обработка ввода ID пользователя для вычитания дней"""
     if message.text == "🔙 Назад в админку":
         send_admin_menu(message.chat.id)
@@ -158,7 +158,7 @@ def process_remove_days_user_id(message):
         send_admin_menu(message.chat.id)
 
 
-def process_remove_days_amount(message, user_id):
+def process_remove_days_amount(message: types.Message, user_id: int) -> None:
     """Обработка ввода количества дней для вычитания"""
     if message.text == "🔙 Назад в админку":
         send_admin_menu(message.chat.id)
@@ -179,7 +179,7 @@ def process_remove_days_amount(message, user_id):
 
 
 @bot.message_handler(func=lambda message: message.text == "🗑 Удалить пользователя")
-def handle_delete_user_btn(message):
+def handle_delete_user_btn(message: types.Message) -> None:
     """Обработчик кнопки '🗑 Удалить пользователя'"""
     if message.from_user.id == ADMIN_ID:
         markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
@@ -188,7 +188,7 @@ def handle_delete_user_btn(message):
         bot.register_next_step_handler(msg, process_delete_user_id)
 
 
-def process_delete_user_id(message):
+def process_delete_user_id(message: types.Message) -> None:
     """Обработка ввода ID пользователя для удаления"""
     if message.text == "🔙 Назад в админку":
         send_admin_menu(message.chat.id)
@@ -222,7 +222,7 @@ def process_delete_user_id(message):
 
 
 @bot.message_handler(func=lambda message: message.text == "👥 Все участники")
-def handle_all_users_button(message):
+def handle_all_users_button(message: types.Message) -> None:
     """Обработчик кнопки '👥 Все участники'"""
     logger.info(f"All users requested by {message.from_user.id}")
     if message.from_user.id == ADMIN_ID:
@@ -232,21 +232,21 @@ def handle_all_users_button(message):
 
 
 @bot.message_handler(func=lambda message: message.text == "✅ Текущие участники")
-def handle_active_users(message):
+def handle_active_users(message: types.Message) -> None:
     """Обработчик кнопки '✅ Текущие участники'"""
     if message.from_user.id == ADMIN_ID:
         get_users_by_status(message, 'active')
 
 
 @bot.message_handler(func=lambda message: message.text == "❌ Бывшие участники")
-def handle_inactive_users(message):
+def handle_inactive_users(message: types.Message) -> None:
     """Обработчик кнопки '❌ Бывшие участники'"""
     if message.from_user.id == ADMIN_ID:
         get_users_by_status(message, 'inactive')
 
 
 @bot.message_handler(func=lambda message: message.text == "🧾 Чеки и оплаты")
-def handle_receipts_main_menu(message):
+def handle_receipts_main_menu(message: types.Message) -> None:
     """Обработчик кнопки '🧾 Чеки и оплаты'"""
     if message.from_user.id != ADMIN_ID:
         return
@@ -260,7 +260,7 @@ def handle_receipts_main_menu(message):
 
 
 @bot.message_handler(func=lambda message: message.text == "👁 Показать чеки")
-def handle_show_receipts(message):
+def handle_show_receipts(message: types.Message) -> None:
     """Обработчик кнопки '👁 Показать чеки'"""
     if message.from_user.id != ADMIN_ID:
         return
@@ -268,7 +268,7 @@ def handle_show_receipts(message):
 
 
 @bot.message_handler(func=lambda message: message.text == "🗑 Удалить старые чеки")
-def handle_clear_receipts(message):
+def handle_clear_receipts(message: types.Message) -> None:
     """Обработчик кнопки '🗑 Удалить старые чеки'"""
     if message.from_user.id != ADMIN_ID:
         return
@@ -284,7 +284,7 @@ def handle_clear_receipts(message):
 
 
 @bot.message_handler(func=lambda message: message.text == "🧾 Чеки")
-def handle_receipts_menu(message):
+def handle_receipts_menu(message: types.Message) -> None:
     """Показать последние 10 чеков"""
     if message.from_user.id != ADMIN_ID:
         return
@@ -328,7 +328,7 @@ def handle_receipts_menu(message):
 
 
 @bot.message_handler(func=lambda message: message.text == "💰 Неподтверждённые оплаты")
-def handle_pending_payments(message):
+def handle_pending_payments(message: types.Message) -> None:
     """Показать неподтвержденные оплаты"""
     if message.from_user.id != ADMIN_ID:
         return
@@ -356,7 +356,7 @@ def handle_pending_payments(message):
 
 
 @bot.message_handler(content_types=['photo'], func=lambda message: message.chat.id == ADMIN_ID)
-def get_file_id_admin(message):
+def get_file_id_admin(message: types.Message) -> None:
     """Получить file_id фотографии (для админа)"""
     file_id = message.photo[-1].file_id
     logger.info(f"ADMIN SENT PHOTO. File_id: {file_id}")
@@ -365,7 +365,7 @@ def get_file_id_admin(message):
 
 # Админские команды через /command
 @bot.message_handler(commands=['set_subscription'])
-def set_subscription(message):
+def set_subscription(message: types.Message) -> None:
     """Команда /set_subscription для установки подписки вручную"""
     if message.from_user.id != ADMIN_ID: 
         bot.send_message(message.chat.id, "У вас нет прав для выполнения этой команды.")
@@ -407,7 +407,7 @@ def set_subscription(message):
 
 
 @bot.message_handler(commands=['get_all_users'])
-def get_all_users(message):
+def get_all_users(message: types.Message) -> None:
     """Команда /get_all_users для получения списка всех пользователей"""
     if message.from_user.id != ADMIN_ID: 
         bot.send_message(message.chat.id, "У вас нет прав для выполнения этой команды.")
@@ -437,7 +437,7 @@ def get_all_users(message):
 
 
 @bot.message_handler(commands=['add_subscription_days'])
-def add_subscription_days(message):
+def add_subscription_days(message: types.Message) -> None:
     """Команда /add_subscription_days для добавления дней через команду"""
     if message.from_user.id != ADMIN_ID:
         bot.send_message(message.chat.id, "У вас нет прав для выполнения этой команды.")
@@ -460,7 +460,7 @@ def add_subscription_days(message):
 
 
 @bot.message_handler(commands=['remove_subscription_days'])
-def remove_subscription_days(message):
+def remove_subscription_days(message: types.Message) -> None:
     """Команда /remove_subscription_days для удаления дней через команду"""
     if message.from_user.id != ADMIN_ID:
         bot.send_message(message.chat.id, "У вас нет прав для выполнения этой команды.")
@@ -479,7 +479,7 @@ def remove_subscription_days(message):
 
 
 @bot.message_handler(commands=['migrate_all_members'])
-def migrate_all_members(message):
+def migrate_all_members(message: types.Message) -> None:
     """Команда /migrate_all_members для миграции всех участников группы"""
     if message.from_user.id != ADMIN_ID:
         bot.send_message(message.chat.id, "У вас нет прав для выполнения этой команды.")
@@ -501,7 +501,7 @@ def migrate_all_members(message):
 
 
 @bot.message_handler(commands=['migrate_user'])
-def migrate_single_user(message):
+def migrate_single_user(message: types.Message) -> None:
     """Команда /migrate_user для миграции одного участника"""
     if message.from_user.id != ADMIN_ID:
         bot.send_message(message.chat.id, "У вас нет прав для выполнения этой команды.")

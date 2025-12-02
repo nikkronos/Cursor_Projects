@@ -9,7 +9,7 @@ from handlers.helpers import send_main_menu
 
 
 @bot.chat_join_request_handler()
-def handle_join_request(join_request):
+def handle_join_request(join_request: types.ChatJoinRequest) -> None:
     """Обработчик заявок на вступление в группу"""
     user_id = join_request.from_user.id
     chat_id = join_request.chat.id
@@ -43,7 +43,7 @@ def handle_join_request(join_request):
 
 
 @bot.chat_member_handler()
-def handle_chat_member_update(update):
+def handle_chat_member_update(update: types.ChatMemberUpdated) -> None:
     """Обработчик обновлений статуса участников группы (failsafe kick)"""
     if update.chat.id == GROUP_CHAT_ID:
         user_id = update.from_user.id
