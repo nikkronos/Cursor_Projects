@@ -1,0 +1,120 @@
+name: Deploy to Server
+
+on:
+  # Запускается после успешного завершения workflow тестов при push в main
+  workflow_run:
+    workflows: ["Run Tests"]
+    types:
+      - completed
+    branches:
+      - main
+  # Также можно запустить вручную
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to Production Server
+    runs-on: ubuntu-latest
+    
+    # Запускается только если тесты прошли успешно (или при ручном запуске)
+    if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add server to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Create backup directory
+        run: |
+          ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            "mkdir -p ${{ secrets.DEPLOY_PATH }}/backups"
+
+      - name: Backup database
+        continue-on-error: true
+        run: |
+          ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            "cd ${{ secrets.DEPLOY_PATH }} && \
+             if [ -f bot.db ]; then \
+               cp bot.db backups/bot_backup_\$(date +%Y%m%d_%H%M%S).db && \
+               echo 'Database backup created successfully'; \
+             else \
+               echo 'Warning: bot.db not found, skipping backup'; \
+             fi"
+
+      - name: Install/Update dependencies (always update)
+        run: |
+          ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            "cd ${{ secrets.DEPLOY_PATH }} && \
+             pip3 install -q --upgrade pip && \
+             pip3 install -q -r requirements.txt && \
+             echo 'Dependencies installed/updated successfully'"
+
+      - name: Pull latest code
+        run: |
+          ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            "cd ${{ secrets.DEPLOY_PATH }} && \
+             git fetch origin && \
+             git reset --hard origin/main && \
+             echo 'Code updated successfully'"
+
+      - name: Restart service
+        run: |
+          ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            "systemctl restart ${{ secrets.SERVICE_NAME }}.service && \
+             sleep 3 && \
+             systemctl status ${{ secrets.SERVICE_NAME }}.service --no-pager -l || true"
+
+      - name: Verify service is running
+        run: |
+          STATUS=$(ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            "systemctl is-active ${{ secrets.SERVICE_NAME }}.service" || echo "failed")
+          if [ "$STATUS" != "active" ]; then
+            echo "❌ Service is not running! Status: $STATUS"
+            echo "Attempting rollback..."
+            
+            # Rollback: restore previous commit
+            ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+              "cd ${{ secrets.DEPLOY_PATH }} && \
+               git reset --hard HEAD~1 && \
+               systemctl restart ${{ secrets.SERVICE_NAME }}.service && \
+               sleep 3"
+            
+            # Check again
+            ROLLBACK_STATUS=$(ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+              "systemctl is-active ${{ secrets.SERVICE_NAME }}.service" || echo "failed")
+            
+            if [ "$ROLLBACK_STATUS" != "active" ]; then
+              echo "❌ Rollback failed! Manual intervention required."
+              exit 1
+            else
+              echo "✅ Rollback successful. Service is running with previous version."
+              exit 1
+            fi
+          else
+            echo "✅ Service is running successfully"
+          fi
+
+      - name: Deployment summary
+        if: always()
+        run: |
+          echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status:** ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deployed to:** ${{ secrets.SSH_HOST }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Path:** ${{ secrets.DEPLOY_PATH }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Time:** $(date)" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ job.status }}" = "success" ]; then
+            echo "✅ Deployment completed successfully!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Deployment failed. Check logs above." >> $GITHUB_STEP_SUMMARY
+          fi
+
