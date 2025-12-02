@@ -30,5 +30,16 @@
 | `file_type` | TEXT | Тип файла: `photo` или `document` |
 | `created_at` | TEXT | Дата и время загрузки чека (Default: CURRENT_TIMESTAMP) |
 
+## Индексы
+
+Для оптимизации запросов в базе данных создаются следующие индексы:
+
+- `idx_subscription_status` - на поле `subscription_status` таблицы `users`
+- `idx_subscription_end_date` - на поле `subscription_end_date` таблицы `users`
+- `idx_subscription_status_end_date` - комбинированный индекс на `(subscription_status, subscription_end_date)` таблицы `users`
+- `idx_receipts_user_id` - на поле `user_id` таблицы `receipts`
+
+Индексы создаются автоматически при инициализации новой базы данных. Для существующих баз данных выполняется автоматическая миграция при старте бота (функция `migrate_add_indexes()`).
+
 ## Резервное копирование
 Рекомендуется регулярно делать бэкап файла `bot.db` с помощью команды `/backup` (доступна только администратору).

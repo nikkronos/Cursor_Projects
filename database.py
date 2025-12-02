@@ -68,6 +68,17 @@ def init_db():
             
             conn.commit()
             
+            # Создание индексов для оптимизации запросов
+            try:
+                cursor.execute("CREATE INDEX IF NOT EXISTS idx_subscription_status ON users(subscription_status)")
+                cursor.execute("CREATE INDEX IF NOT EXISTS idx_subscription_end_date ON users(subscription_end_date)")
+                cursor.execute("CREATE INDEX IF NOT EXISTS idx_subscription_status_end_date ON users(subscription_status, subscription_end_date)")
+                cursor.execute("CREATE INDEX IF NOT EXISTS idx_receipts_user_id ON receipts(user_id)")
+                conn.commit()
+                logger.info("Database indexes created successfully.")
+            except sqlite3.Error as e:
+                logger.error(f"Error creating indexes: {e}")
+            
             try:
                 cursor.execute("ALTER TABLE users ADD COLUMN last_notification_level TEXT DEFAULT NULL")
             except sqlite3.OperationalError:
@@ -76,6 +87,44 @@ def init_db():
         logger.info("Database initialized (SQLite).")
     except Exception as e:
         logger.critical(f"Error initializing database: {e}")
+
+# --- Database Migration Functions ---
+
+def migrate_add_indexes():
+    """Добавить индексы в существующую базу данных (миграция)"""
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            # Проверяем, существуют ли уже индексы
+            cursor.execute("""
+                SELECT name FROM sqlite_master 
+                WHERE type='index' AND name='idx_subscription_status'
+            """)
+            if cursor.fetchone():
+                logger.info("Indexes already exist, skipping migration.")
+                return
+            
+            logger.info("Starting database migration: adding indexes...")
+            
+            # Создаем индексы
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_subscription_status ON users(subscription_status)")
+            logger.info("Created index: idx_subscription_status")
+            
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_subscription_end_date ON users(subscription_end_date)")
+            logger.info("Created index: idx_subscription_end_date")
+            
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_subscription_status_end_date ON users(subscription_status, subscription_end_date)")
+            logger.info("Created index: idx_subscription_status_end_date")
+            
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_receipts_user_id ON receipts(user_id)")
+            logger.info("Created index: idx_receipts_user_id")
+            
+            conn.commit()
+            logger.info("Database migration completed successfully.")
+            
+    except Exception as e:
+        logger.error(f"Error during database migration: {e}")
 
 # --- Data Access Functions ---
 
@@ -91,13 +140,38 @@ def get_user_status(telegram_id):
         return None
 
 def get_all_users_for_check():
+    """Получить всех пользователей для проверки (оптимизировано для планировщика)"""
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT telegram_id, first_name, subscription_status, subscription_end_date, payment_status, last_notification_level FROM users")
+            # Оптимизация: получаем только пользователей, которые могут иметь активную подписку
+            # или нуждаются в проверке (активные + неактивные с датой окончания)
+            cursor.execute("""
+                SELECT telegram_id, first_name, subscription_status, subscription_end_date, 
+                       payment_status, last_notification_level 
+                FROM users 
+                WHERE subscription_status = 'active' 
+                   OR (subscription_status = 'inactive' AND subscription_end_date IS NOT NULL)
+            """)
             return cursor.fetchall()
     except Exception as e:
-        logger.error(f"Error fetching all users for check: {e}")
+        logger.error(f"Error fetching users for check: {e}")
+        return []
+
+def get_active_users_for_check():
+    """Получить только активных пользователей для проверки (более быстрый запрос)"""
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT telegram_id, first_name, subscription_status, subscription_end_date, 
+                       payment_status, last_notification_level 
+                FROM users 
+                WHERE subscription_status = 'active' AND subscription_end_date IS NOT NULL
+            """)
+            return cursor.fetchall()
+    except Exception as e:
+        logger.error(f"Error fetching active users for check: {e}")
         return []
 
 def get_users_by_status(message, status):

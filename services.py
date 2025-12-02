@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 from loader import bot, logger, ADMIN_ID, GROUP_CHAT_ID, GROUP_INVITE_LINK
-from database import get_db_connection, parse_db_date, format_db_date, get_all_users_for_check, get_user_status
+from database import get_db_connection, parse_db_date, format_db_date, get_all_users_for_check, get_user_status, get_active_users_for_check
+from utils import safe_send_message, retry_telegram_api
 
 def remove_user_from_group(user_id, chat_id):
     if user_id == ADMIN_ID:
@@ -9,8 +10,15 @@ def remove_user_from_group(user_id, chat_id):
         return True 
 
     try:
-        bot.kick_chat_member(chat_id, user_id)
-        bot.unban_chat_member(chat_id, user_id)
+        # Используем retry для критичных операций удаления пользователя
+        def kick_user():
+            bot.kick_chat_member(chat_id, user_id)
+        
+        def unban_user():
+            bot.unban_chat_member(chat_id, user_id)
+        
+        retry_telegram_api(kick_user, max_attempts=3)
+        retry_telegram_api(unban_user, max_attempts=3)
         logger.info(f"Пользователь {user_id} удален из группы {chat_id} и разблокирован.")
         return True
     except Exception as e:
@@ -54,30 +62,32 @@ def add_subscription_days_logic(user_id, days_to_add, chat_id, minutes_to_add=0)
             conn.commit()
         
         if minutes_to_add > 0 and days_to_add == 0:
-             bot.send_message(chat_id, f"Пользователю {user_id} добавлена подписка на {minutes_to_add} минут. Дата окончания: {new_end_date.strftime('%H:%M:%S %d.%m.%Y')}")
+             safe_send_message(bot, chat_id, f"Пользователю {user_id} добавлена подписка на {minutes_to_add} минут. Дата окончания: {new_end_date.strftime('%H:%M:%S %d.%m.%Y')}")
         else:
-             bot.send_message(chat_id, f"К подписке пользователя {user_id} добавлено {days_to_add} дней. Новая дата окончания: {new_end_date.strftime('%d.%m.%Y')}")
+             safe_send_message(bot, chat_id, f"К подписке пользователя {user_id} добавлено {days_to_add} дней. Новая дата окончания: {new_end_date.strftime('%d.%m.%Y')}")
 
         try:
             if minutes_to_add > 0 and days_to_add == 0:
-                bot.send_message(user_id, f"Вам добавлено {minutes_to_add} минут подписки (тест). Действует до: {new_end_date.strftime('%H:%M:%S %d.%m.%Y')}")
+                safe_send_message(bot, user_id, f"Вам добавлено {minutes_to_add} минут подписки (тест). Действует до: {new_end_date.strftime('%H:%M:%S %d.%m.%Y')}")
             else:
-                bot.send_message(user_id, f"Ваша подписка активирована/продлена на {days_to_add} дней. Действует до: {new_end_date.strftime('%d.%m.%Y')}")
+                safe_send_message(bot, user_id, f"Ваша подписка активирована/продлена на {days_to_add} дней. Действует до: {new_end_date.strftime('%d.%m.%Y')}")
             
             try:
-                member = bot.get_chat_member(GROUP_CHAT_ID, user_id)
+                def get_member():
+                    return bot.get_chat_member(GROUP_CHAT_ID, user_id)
+                member = retry_telegram_api(get_member, max_attempts=2)
                 if member.status in ['creator', 'administrator', 'member']:
                     pass 
                 else:
-                     bot.send_message(user_id, f"Теперь вы можете вступить в группу (если еще не там) по ссылке: {GROUP_INVITE_LINK}")
+                     safe_send_message(bot, user_id, f"Теперь вы можете вступить в группу (если еще не там) по ссылке: {GROUP_INVITE_LINK}")
             except Exception:
-                bot.send_message(user_id, f"Теперь вы можете вступить в группу (если еще не там) по ссылке: {GROUP_INVITE_LINK}")
+                safe_send_message(bot, user_id, f"Теперь вы можете вступить в группу (если еще не там) по ссылке: {GROUP_INVITE_LINK}")
 
         except Exception as e:
             logger.error(f"Не удалось отправить уведомление пользователю {user_id}: {e}")
 
     except Exception as e:
-        bot.send_message(chat_id, f"Ошибка при добавлении дней к подписке: {e}")
+        safe_send_message(bot, chat_id, f"Ошибка при добавлении дней к подписке: {e}")
         logger.error(f"Error adding subscription days: {e}")
 
 def remove_subscription_days_logic(user_id, days_to_remove, chat_id):
@@ -95,17 +105,17 @@ def remove_subscription_days_logic(user_id, days_to_remove, chat_id):
                 cursor.execute("UPDATE users SET subscription_end_date = ?, last_notification_level = NULL WHERE telegram_id = ?", (new_end_date_str, user_id))
                 conn.commit()
                 
-                bot.send_message(chat_id, f"Из подписки пользователя {user_id} вычтено {days_to_remove} дней. Новая дата окончания: {new_end_date.strftime('%H:%M:%S %d.%m.%Y')}")
+                safe_send_message(bot, chat_id, f"Из подписки пользователя {user_id} вычтено {days_to_remove} дней. Новая дата окончания: {new_end_date.strftime('%H:%M:%S %d.%m.%Y')}")
                 
                 try:
-                    bot.send_message(user_id, f"Срок вашей подписки уменьшен на {days_to_remove} дней. Новая дата окончания: {new_end_date.strftime('%d.%m.%Y')}")
+                    safe_send_message(bot, user_id, f"Срок вашей подписки уменьшен на {days_to_remove} дней. Новая дата окончания: {new_end_date.strftime('%d.%m.%Y')}")
                 except Exception as e:
                      logger.error(f"Не удалось отправить уведомление пользователю {user_id}: {e}")
 
             else:
-                bot.send_message(chat_id, f"Пользователь {user_id} не найден или у него нет даты окончания подписки.")
+                safe_send_message(bot, chat_id, f"Пользователь {user_id} не найден или у него нет даты окончания подписки.")
     except Exception as e:
-        bot.send_message(chat_id, f"Ошибка при вычитании дней из подписки: {e}")
+        safe_send_message(bot, chat_id, f"Ошибка при вычитании дней из подписки: {e}")
         logger.error(f"Error removing subscription days: {e}")
 
 def check_subscriptions():
@@ -129,7 +139,7 @@ def check_subscriptions():
                 reminder_text = "\n\nЕсли вы не будете продлевать подписку, то напишите, пожалуйста, о своей причине в форме обратной связи."
 
                 if end_date < today:
-                    bot.send_message(user_id, f"Привет, {first_name}! Твоя подписка истекла {end_date.strftime('%d.%m.%Y')}. Пожалуйста, продли ее.")
+                    safe_send_message(bot, user_id, f"Привет, {first_name}! Твоя подписка истекла {end_date.strftime('%d.%m.%Y')}. Пожалуйста, продли ее.")
                     
                     with get_db_connection() as conn:
                          conn.execute("UPDATE users SET subscription_status = 'inactive', last_notification_level = 'expired' WHERE telegram_id = ?", (user_id,))
@@ -142,19 +152,19 @@ def check_subscriptions():
                         logger.info(f"Пользователь {user_id} обработан как удаленный из группы (истечение подписки).")
 
                 elif 1 < days_left <= 3 and last_notif_level != '3days':
-                    bot.send_message(user_id, f"Привет, {first_name}! Твоя подписка истекает через 3 дня ({end_date.strftime('%d.%m.%Y')}). Пожалуйста, не забудь продлить.{reminder_text}")
+                    safe_send_message(bot, user_id, f"Привет, {first_name}! Твоя подписка истекает через 3 дня ({end_date.strftime('%d.%m.%Y')}). Пожалуйста, не забудь продлить.{reminder_text}")
                     with get_db_connection() as conn:
                          conn.execute("UPDATE users SET last_notification_level = '3days' WHERE telegram_id = ?", (user_id,))
                          conn.commit()
                 
                 elif 0 < days_left <= 1 and last_notif_level != '1day':
-                     bot.send_message(user_id, f"Привет, {first_name}! Твоя подписка истекает завтра ({end_date.strftime('%d.%m.%Y')}).{reminder_text}")
+                     safe_send_message(bot, user_id, f"Привет, {first_name}! Твоя подписка истекает завтра ({end_date.strftime('%d.%m.%Y')}).{reminder_text}")
                      with get_db_connection() as conn:
                           conn.execute("UPDATE users SET last_notification_level = '1day' WHERE telegram_id = ?", (user_id,))
                           conn.commit()
                 
                 elif 0 < hours_left <= 1 and last_notif_level != '1hour':
-                     bot.send_message(user_id, f"Привет, {first_name}! Твоя подписка истекает менее чем через час!{reminder_text}")
+                     safe_send_message(bot, user_id, f"Привет, {first_name}! Твоя подписка истекает менее чем через час!{reminder_text}")
                      with get_db_connection() as conn:
                           conn.execute("UPDATE users SET last_notification_level = '1hour' WHERE telegram_id = ?", (user_id,))
                           conn.commit()

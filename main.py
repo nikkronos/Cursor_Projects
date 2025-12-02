@@ -1,5 +1,5 @@
 from loader import bot, logger
-from database import init_db
+from database import init_db, migrate_add_indexes
 from services import start_scheduler
 import handlers # Import handlers to register them
 import signal
@@ -18,6 +18,9 @@ if __name__ == '__main__':
     
     # Initialize Database
     init_db()
+    
+    # Migrate existing database (add indexes if needed)
+    migrate_add_indexes()
     
     # Start Scheduler
     start_scheduler()

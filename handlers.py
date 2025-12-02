@@ -3,6 +3,8 @@ from datetime import datetime
 from loader import bot, logger, ADMIN_ID, GROUP_CHAT_ID, GROUP_INVITE_LINK
 from database import get_db_connection, parse_db_date, format_db_date, get_user_status, get_users_by_status, DB_FILE, save_tariff_answer, get_user_tariff_answers, clear_user_tariff_answers, update_tariff_answers_status
 from services import remove_user_from_group, add_subscription_days_logic, remove_subscription_days_logic
+from utils import safe_send_message, retry_telegram_api
+from validators import validate_user_id, validate_days, ValidationError
 
 # --- Helper Handlers ---
 def send_initial_welcome(message):
@@ -104,20 +106,30 @@ def handle_join_request(join_request):
     user_data = get_user_status(user_id)
 
     if user_data and user_data['subscription_status'] == 'active': 
-        bot.approve_chat_join_request(chat_id, user_id)
-        welcome_text = (
-            "Ваша заявка на вступление в группу одобрена! Добро пожаловать в *Сообщество Trade Therapy*!\n\n"
-            "Повторно ознакомьтесь с правилами в ветке *\"Объявления\"*, оставьте уведомления на эту ветку включёнными.\n\n"
-            "Если вы активно торгуете, то так же оставьте включёнными уведомления на ветку *\"События рынка\"*.\n\n"
-            "Представьтесь в ветке *\"Нетворкинг\"* по примеру в закрепе этой ветки.\n\n"
-            "*Соблюдайте правила и чувствуйте себя собой в этой безопасной среде.*"
-        )
-        bot.send_message(user_id, welcome_text, parse_mode='Markdown')
-        logger.info(f"Заявка пользователя {user_id} в группу {chat_id} одобрена.")
+        try:
+            def approve_request():
+                bot.approve_chat_join_request(chat_id, user_id)
+            retry_telegram_api(approve_request, max_attempts=3)
+            welcome_text = (
+                "Ваша заявка на вступление в группу одобрена! Добро пожаловать в *Сообщество Trade Therapy*!\n\n"
+                "Повторно ознакомьтесь с правилами в ветке *\"Объявления\"*, оставьте уведомления на эту ветку включёнными.\n\n"
+                "Если вы активно торгуете, то так же оставьте включёнными уведомления на ветку *\"События рынка\"*.\n\n"
+                "Представьтесь в ветке *\"Нетворкинг\"* по примеру в закрепе этой ветки.\n\n"
+                "*Соблюдайте правила и чувствуйте себя собой в этой безопасной среде.*"
+            )
+            safe_send_message(bot, user_id, welcome_text, parse_mode='Markdown')
+            logger.info(f"Заявка пользователя {user_id} в группу {chat_id} одобрена.")
+        except Exception as e:
+            logger.error(f"Ошибка при одобрении заявки пользователя {user_id}: {e}")
     else:
-        bot.decline_chat_join_request(chat_id, user_id)
-        bot.send_message(user_id, f"Ваша заявка на вступление в группу отклонена, так как у вас нет активной подписки. Пожалуйста, продлите ее через бота.")
-        logger.info(f"Заявка пользователя {user_id} в группу {chat_id} отклонена (нет активной подписки).")
+        try:
+            def decline_request():
+                bot.decline_chat_join_request(chat_id, user_id)
+            retry_telegram_api(decline_request, max_attempts=2)
+            safe_send_message(bot, user_id, f"Ваша заявка на вступление в группу отклонена, так как у вас нет активной подписки. Пожалуйста, продлите ее через бота.")
+            logger.info(f"Заявка пользователя {user_id} в группу {chat_id} отклонена (нет активной подписки).")
+        except Exception as e:
+            logger.error(f"Ошибка при отклонении заявки пользователя {user_id}: {e}")
 
 @bot.message_handler(commands=['backup'])
 def handle_backup_command(message):
@@ -234,11 +246,16 @@ def process_add_days_user_id(message):
         return
     
     try:
-        user_id = int(message.text)
+        user_id = validate_user_id(message.text)
         msg = bot.send_message(message.chat.id, f"Введите количество дней для добавления для пользователя {user_id}:")
         bot.register_next_step_handler(msg, process_add_days_amount, user_id)
-    except ValueError:
-        bot.send_message(message.chat.id, "Некорректный ID пользователя. Попробуйте еще раз.")
+    except ValidationError as e:
+        logger.warning(f"Invalid user_id input from admin {message.from_user.id}: {message.text}. Error: {e}")
+        bot.send_message(message.chat.id, f"Некорректный ID пользователя: {e}. Попробуйте еще раз.")
+        send_admin_menu(message.chat.id)
+    except Exception as e:
+        logger.error(f"Unexpected error in process_add_days_user_id: {e}")
+        bot.send_message(message.chat.id, "Произошла ошибка. Попробуйте еще раз.")
         send_admin_menu(message.chat.id)
 
 def process_add_days_amount(message, user_id):
@@ -247,11 +264,16 @@ def process_add_days_amount(message, user_id):
         return
 
     try:
-        days_to_add = int(message.text)
+        days_to_add = validate_days(message.text)
         add_subscription_days_logic(user_id, days_to_add, message.chat.id)
         send_admin_menu(message.chat.id)
-    except ValueError:
-        bot.send_message(message.chat.id, "Некорректное количество дней. Попробуйте еще раз.")
+    except ValidationError as e:
+        logger.warning(f"Invalid days input from admin {message.from_user.id}: {message.text}. Error: {e}")
+        bot.send_message(message.chat.id, f"Некорректное количество дней: {e}. Попробуйте еще раз.")
+        send_admin_menu(message.chat.id)
+    except Exception as e:
+        logger.error(f"Unexpected error in process_add_days_amount: {e}")
+        bot.send_message(message.chat.id, "Произошла ошибка. Попробуйте еще раз.")
         send_admin_menu(message.chat.id)
 
 @bot.message_handler(func=lambda message: message.text == "➖ Вычесть дни")
@@ -270,11 +292,16 @@ def process_remove_days_user_id(message):
         return
         
     try:
-        user_id = int(message.text)
+        user_id = validate_user_id(message.text)
         msg = bot.send_message(message.chat.id, f"Введите количество дней для вычитания для пользователя {user_id}:")
         bot.register_next_step_handler(msg, process_remove_days_amount, user_id)
-    except ValueError:
-        bot.send_message(message.chat.id, "Некорректный ID пользователя. Попробуйте еще раз.")
+    except ValidationError as e:
+        logger.warning(f"Invalid user_id input from admin {message.from_user.id}: {message.text}. Error: {e}")
+        bot.send_message(message.chat.id, f"Некорректный ID пользователя: {e}. Попробуйте еще раз.")
+        send_admin_menu(message.chat.id)
+    except Exception as e:
+        logger.error(f"Unexpected error in process_remove_days_user_id: {e}")
+        bot.send_message(message.chat.id, "Произошла ошибка. Попробуйте еще раз.")
         send_admin_menu(message.chat.id)
 
 def process_remove_days_amount(message, user_id):
@@ -283,11 +310,16 @@ def process_remove_days_amount(message, user_id):
         return
 
     try:
-        days_to_remove = int(message.text)
+        days_to_remove = validate_days(message.text)
         remove_subscription_days_logic(user_id, days_to_remove, message.chat.id)
         send_admin_menu(message.chat.id)
-    except ValueError:
-        bot.send_message(message.chat.id, "Некорректное количество дней. Попробуйте еще раз.")
+    except ValidationError as e:
+        logger.warning(f"Invalid days input from admin {message.from_user.id}: {message.text}. Error: {e}")
+        bot.send_message(message.chat.id, f"Некорректное количество дней: {e}. Попробуйте еще раз.")
+        send_admin_menu(message.chat.id)
+    except Exception as e:
+        logger.error(f"Unexpected error in process_remove_days_amount: {e}")
+        bot.send_message(message.chat.id, "Произошла ошибка. Попробуйте еще раз.")
         send_admin_menu(message.chat.id)
 
 @bot.message_handler(func=lambda message: message.text == "⚙️ Админ")
@@ -837,11 +869,15 @@ def add_subscription_days(message):
     args = message.text.split()[1:]
     if len(args) == 2:
         try:
-            user_id = int(args[0])
-            days_to_add = int(args[1])
+            user_id = validate_user_id(args[0])
+            days_to_add = validate_days(args[1])
             add_subscription_days_logic(user_id, days_to_add, message.chat.id)
-        except ValueError:
-            bot.send_message(message.chat.id, "Некорректные данные. ID и дни должны быть числами.")
+        except ValidationError as e:
+            logger.warning(f"Invalid input in /add_subscription_days from admin {message.from_user.id}: {args}. Error: {e}")
+            bot.send_message(message.chat.id, f"Некорректные данные: {e}")
+        except Exception as e:
+            logger.error(f"Unexpected error in /add_subscription_days: {e}")
+            bot.send_message(message.chat.id, "Произошла ошибка при добавлении дней.")
     else:
         bot.send_message(message.chat.id, "Использование: /add_subscription_days <user_id> <количество_дней>")
 
@@ -899,7 +935,7 @@ def migrate_single_user(message):
     args = message.text.split()[1:]
     if len(args) == 1:
         try:
-            user_id = int(args[0])
+            user_id = validate_user_id(args[0])
             
             # Проверяем, есть ли пользователь в группе
             try:
@@ -1014,7 +1050,7 @@ def process_delete_user_id(message):
         return
         
     try:
-        user_id = int(message.text)
+        user_id = validate_user_id(message.text)
         
         now = datetime.now()
         now_str = format_db_date(now)
@@ -1030,8 +1066,13 @@ def process_delete_user_id(message):
              
         send_admin_menu(message.chat.id)
         
-    except ValueError:
-        bot.send_message(message.chat.id, "Некорректный ID. Попробуйте еще раз.")
+    except ValidationError as e:
+        logger.warning(f"Invalid user_id input from admin {message.from_user.id}: {message.text}. Error: {e}")
+        bot.send_message(message.chat.id, f"Некорректный ID: {e}. Попробуйте еще раз.")
+        send_admin_menu(message.chat.id)
+    except Exception as e:
+        logger.error(f"Unexpected error in process_delete_user_id: {e}")
+        bot.send_message(message.chat.id, "Произошла ошибка. Попробуйте еще раз.")
         send_admin_menu(message.chat.id)
 
 @bot.message_handler(func=lambda message: message.text == "💰 Неподтверждённые оплаты")
