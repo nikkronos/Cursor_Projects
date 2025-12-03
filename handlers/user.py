@@ -20,10 +20,12 @@ def handle_start(message: types.Message) -> None:
 
     user_data = get_user_status(user_id)
 
-    try:
-        member = bot.get_chat_member(GROUP_CHAT_ID, user_id)
-        if member.status in ['member', 'administrator', 'creator']:
-            if not user_data or user_data['subscription_status'] != 'active':
+    # Проверяем статус пользователя в группе только если GROUP_CHAT_ID задан
+    if GROUP_CHAT_ID:
+        try:
+            member = bot.get_chat_member(GROUP_CHAT_ID, user_id)
+            if member.status in ['member', 'administrator', 'creator']:
+                if not user_data or user_data['subscription_status'] != 'active':
                 now = datetime.now()
                 if now.month == 12:
                     next_month = now.replace(year=now.year+1, month=1, day=1)
@@ -46,8 +48,9 @@ def handle_start(message: types.Message) -> None:
                 logger.info(f"Existing member {user_id} auto-migrated with active sub until {end_date}.")
                 
                 user_data = get_user_status(user_id)
-    except Exception as e:
-        logger.error(f"Error checking existing member status in handle_start: {e}")
+        except Exception as e:
+            # Логируем как warning, так как это не критично (группа может быть недоступна)
+            logger.warning(f"Could not check user status in group (group may not be available): {e}")
 
     if not user_data:
         try:
