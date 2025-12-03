@@ -85,7 +85,9 @@ def is_tariff_stub_active() -> bool:
     # 25 декабря 2025 года, 12:00 МСК = 09:00 UTC
     stub_end = datetime(2025, 12, 25, 9, 0, 0, tzinfo=timezone.utc)  # 12:00 МСК = 09:00 UTC
     now = datetime.now(timezone.utc)
-    return now < stub_end
+    is_active = now < stub_end
+    logger.info(f"Tariff stub check: now={now}, stub_end={stub_end}, is_active={is_active}")
+    return is_active
 
 @bot.message_handler(func=lambda message: message.text == "Тарифы")
 @rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
@@ -95,7 +97,9 @@ def send_tariffs(message: types.Message) -> None:
     user_data = get_user_status(user_id)
     
     # Проверяем, активна ли заглушка (до 25.12.2025 12:00 МСК)
-    if is_tariff_stub_active():
+    stub_active = is_tariff_stub_active()
+    logger.info(f"User {user_id} requested tariffs, stub_active={stub_active}")
+    if stub_active:
         markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
         back_button = types.KeyboardButton("Вернутся в главное меню🏡")
         markup.add(back_button)
