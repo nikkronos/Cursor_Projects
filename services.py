@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from typing import Any
 from apscheduler.schedulers.background import BackgroundScheduler
 from loader import bot, logger, ADMIN_ID, GROUP_CHAT_ID, GROUP_INVITE_LINK
-from database import get_db_connection, parse_db_date, format_db_date, get_all_users_for_check, get_user_status
+from database import get_db_connection, parse_db_date, format_db_date, get_all_users_for_check, get_user_status, get_active_users
 from utils import safe_send_message, retry_telegram_api
 
 def remove_user_from_group(user_id: int, chat_id: int) -> bool:
@@ -191,8 +191,32 @@ def check_subscriptions() -> None:
         else:
             logger.error(f"Error in check_subscriptions: {error_type} - {error_message}")
 
+def notify_tariff_available() -> None:
+    """Отправляет уведомление всем активным пользователям о том, что тарифы доступны"""
+    try:
+        active_users = get_active_users()
+        message_text = "Теперь можно продлить доступ"
+        
+        for user in active_users:
+            user_id = user['telegram_id']
+            try:
+                safe_send_message(bot, user_id, message_text)
+                logger.info(f"Tariff availability notification sent to user {user_id}")
+            except Exception as e:
+                logger.error(f"Failed to send tariff notification to user {user_id}: {e}")
+        
+        logger.info(f"Tariff availability notifications sent to {len(active_users)} active users")
+    except Exception as e:
+        logger.error(f"Error sending tariff availability notifications: {e}")
+
 def start_scheduler() -> None:
     scheduler = BackgroundScheduler()
     scheduler.add_job(check_subscriptions, 'interval', minutes=30)
+    
+    # Задача на отправку уведомления о доступности тарифов: 25.12.2025 в 12:00 МСК (09:00 UTC)
+    from datetime import timezone
+    notification_time = datetime(2025, 12, 25, 9, 0, 0, tzinfo=timezone.utc)
+    scheduler.add_job(notify_tariff_available, 'date', run_date=notification_time, id='tariff_notification')
+    
     scheduler.start()
 

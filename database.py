@@ -140,6 +140,17 @@ def get_user_status(telegram_id: int) -> Optional[sqlite3.Row]:
         logger.error(f"Error fetching user status: {e}")
         return None
 
+def get_active_users() -> List[sqlite3.Row]:
+    """Получить всех активных пользователей"""
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT telegram_id, first_name FROM users WHERE subscription_status = 'active'")
+            return cursor.fetchall()
+    except Exception as e:
+        logger.error(f"Error fetching active users: {e}")
+        return []
+
 def get_all_users_for_check() -> List[sqlite3.Row]:
     """Получить всех пользователей для проверки (оптимизировано для планировщика)"""
     try:
