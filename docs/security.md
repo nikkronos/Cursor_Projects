@@ -145,3 +145,4 @@ logger.info(f"Bot token: {BOT_TOKEN}")  # ОПАСНО!
 
 
 
+

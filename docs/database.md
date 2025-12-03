@@ -30,6 +30,18 @@
 | `file_type` | TEXT | Тип файла: `photo` или `document` |
 | `created_at` | TEXT | Дата и время загрузки чека (Default: CURRENT_TIMESTAMP) |
 
+### Таблица `tariff_answers`
+Таблица для хранения ответов пользователей на вопросы опроса (ветка "Не буду платить").
+
+| Поле | Тип | Описание |
+|------|-----|----------|
+| `id` | INTEGER PRIMARY KEY AUTOINCREMENT | Внутренний ID записи |
+| `user_id` | INTEGER | ID пользователя (FOREIGN KEY к users.telegram_id) |
+| `question_number` | INTEGER | Номер вопроса в опросе |
+| `answer` | TEXT | Ответ пользователя |
+| `created_at` | TEXT | Дата и время ответа (Default: CURRENT_TIMESTAMP) |
+| `status` | TEXT | Статус ответа: `pending`, `approved`, `rejected` |
+
 ## Индексы
 
 Для оптимизации запросов в базе данных создаются следующие индексы:

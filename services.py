@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from typing import Any
 from apscheduler.schedulers.background import BackgroundScheduler
 from loader import bot, logger, ADMIN_ID, GROUP_CHAT_ID, GROUP_INVITE_LINK
-from database import get_db_connection, parse_db_date, format_db_date, get_all_users_for_check, get_user_status, get_active_users_for_check
+from database import get_db_connection, parse_db_date, format_db_date, get_all_users_for_check, get_user_status
 from utils import safe_send_message, retry_telegram_api
 
 def remove_user_from_group(user_id: int, chat_id: int) -> bool:
@@ -120,65 +120,76 @@ def remove_subscription_days_logic(user_id: int, days_to_remove: int, chat_id: i
         logger.error(f"Error removing subscription days: {e}")
 
 def check_subscriptions() -> None:
+    """Проверка подписок и отправка уведомлений. Оптимизировано: одно соединение с БД для всех обновлений."""
     try:
         users_to_check = get_all_users_for_check()
         today = datetime.now()
-
-        for user in users_to_check:
-            user_id, first_name = user['telegram_id'], user['first_name']
-            sub_status = user['subscription_status']
-            last_notif_level = user['last_notification_level']
+        
+        # Открываем одно соединение для всех обновлений БД
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
             
-            end_date = parse_db_date(user['subscription_end_date'])
-
-            if sub_status == 'active' and end_date:
-                time_left = end_date - today
-                days_left = time_left.days
-                seconds_left = time_left.total_seconds()
-                hours_left = seconds_left / 3600
-                
-                reminder_text = "\n\nЕсли вы не будете продлевать подписку, то напишите, пожалуйста, о своей причине в форме обратной связи."
-
-                if end_date < today:
-                    safe_send_message(bot, user_id, f"Привет, {first_name}! Твоя подписка истекла {end_date.strftime('%d.%m.%Y')}. Пожалуйста, продли ее.")
+            for user in users_to_check:
+                try:
+                    user_id, first_name = user['telegram_id'], user['first_name']
+                    sub_status = user['subscription_status']
+                    last_notif_level = user['last_notification_level']
                     
-                    with get_db_connection() as conn:
-                         conn.execute("UPDATE users SET subscription_status = 'inactive', last_notification_level = 'expired' WHERE telegram_id = ?", (user_id,))
-                         conn.commit()
-                    
-                    if remove_user_from_group(user_id, GROUP_CHAT_ID):
-                        with get_db_connection() as conn:
-                             conn.execute("UPDATE users SET last_notification_level = 'kicked' WHERE telegram_id = ?", (user_id,))
-                             conn.commit()
-                        logger.info(f"Пользователь {user_id} обработан как удаленный из группы (истечение подписки).")
+                    end_date = parse_db_date(user['subscription_end_date'])
 
-                elif 1 < days_left <= 3 and last_notif_level != '3days':
-                    safe_send_message(bot, user_id, f"Привет, {first_name}! Твоя подписка истекает через 3 дня ({end_date.strftime('%d.%m.%Y')}). Пожалуйста, не забудь продлить.{reminder_text}")
-                    with get_db_connection() as conn:
-                         conn.execute("UPDATE users SET last_notification_level = '3days' WHERE telegram_id = ?", (user_id,))
-                         conn.commit()
+                    if sub_status == 'active' and end_date:
+                        time_left = end_date - today
+                        days_left = time_left.days
+                        seconds_left = time_left.total_seconds()
+                        hours_left = seconds_left / 3600
+                        
+                        reminder_text = "\n\nЕсли вы не будете продлевать подписку, то напишите, пожалуйста, о своей причине в форме обратной связи."
+
+                        if end_date < today:
+                            safe_send_message(bot, user_id, f"Привет, {first_name}! Твоя подписка истекла {end_date.strftime('%d.%m.%Y')}. Пожалуйста, продли ее.")
+                            
+                            cursor.execute("UPDATE users SET subscription_status = 'inactive', last_notification_level = 'expired' WHERE telegram_id = ?", (user_id,))
+                            
+                            if remove_user_from_group(user_id, GROUP_CHAT_ID):
+                                cursor.execute("UPDATE users SET last_notification_level = 'kicked' WHERE telegram_id = ?", (user_id,))
+                                logger.info(f"Пользователь {user_id} обработан как удаленный из группы (истечение подписки).")
+
+                        elif 1 < days_left <= 3 and last_notif_level != '3days':
+                            safe_send_message(bot, user_id, f"Привет, {first_name}! Твоя подписка истекает через 3 дня ({end_date.strftime('%d.%m.%Y')}). Пожалуйста, не забудь продлить.{reminder_text}")
+                            cursor.execute("UPDATE users SET last_notification_level = '3days' WHERE telegram_id = ?", (user_id,))
+                        
+                        elif 0 < days_left <= 1 and last_notif_level != '1day':
+                            safe_send_message(bot, user_id, f"Привет, {first_name}! Твоя подписка истекает завтра ({end_date.strftime('%d.%m.%Y')}).{reminder_text}")
+                            cursor.execute("UPDATE users SET last_notification_level = '1day' WHERE telegram_id = ?", (user_id,))
+                        
+                        elif 0 < hours_left <= 1 and last_notif_level != '1hour':
+                            safe_send_message(bot, user_id, f"Привет, {first_name}! Твоя подписка истекает менее чем через час!{reminder_text}")
+                            cursor.execute("UPDATE users SET last_notification_level = '1hour' WHERE telegram_id = ?", (user_id,))
+
+                    elif sub_status == 'inactive' and last_notif_level != 'kicked':
+                        if remove_user_from_group(user_id, GROUP_CHAT_ID):
+                            cursor.execute("UPDATE users SET last_notification_level = 'kicked' WHERE telegram_id = ?", (user_id,))
+                            logger.info(f"Пользователь {user_id} удален из группы (подписка неактивна).")
                 
-                elif 0 < days_left <= 1 and last_notif_level != '1day':
-                     safe_send_message(bot, user_id, f"Привет, {first_name}! Твоя подписка истекает завтра ({end_date.strftime('%d.%m.%Y')}).{reminder_text}")
-                     with get_db_connection() as conn:
-                          conn.execute("UPDATE users SET last_notification_level = '1day' WHERE telegram_id = ?", (user_id,))
-                          conn.commit()
-                
-                elif 0 < hours_left <= 1 and last_notif_level != '1hour':
-                     safe_send_message(bot, user_id, f"Привет, {first_name}! Твоя подписка истекает менее чем через час!{reminder_text}")
-                     with get_db_connection() as conn:
-                          conn.execute("UPDATE users SET last_notification_level = '1hour' WHERE telegram_id = ?", (user_id,))
-                          conn.commit()
-
-            elif sub_status == 'inactive' and last_notif_level != 'kicked':
-                if remove_user_from_group(user_id, GROUP_CHAT_ID):
-                    with get_db_connection() as conn:
-                         conn.execute("UPDATE users SET last_notification_level = 'kicked' WHERE telegram_id = ?", (user_id,))
-                         conn.commit()
-                    logger.info(f"Пользователь {user_id} удален из группы (подписка неактивна).")
-
+                except Exception as user_error:
+                    # Ошибка при обработке одного пользователя не должна останавливать обработку остальных
+                    logger.error(f"Error processing user {user.get('telegram_id', 'unknown')} in check_subscriptions: {user_error}")
+                    continue
+            
+            # Коммитим все изменения одним разом в конце
+            conn.commit()
+            
     except Exception as e:
-        logger.error(f"Error checking subscriptions: {e}")
+        # Разделяем обработку ошибок по типам для более детального логирования
+        error_type = type(e).__name__
+        error_message = str(e)
+        
+        if "database" in error_message.lower() or "sqlite" in error_message.lower():
+            logger.critical(f"Database error in check_subscriptions: {error_type} - {error_message}")
+        elif "telegram" in error_message.lower() or "api" in error_message.lower():
+            logger.error(f"Telegram API error in check_subscriptions: {error_type} - {error_message}")
+        else:
+            logger.error(f"Error in check_subscriptions: {error_type} - {error_message}")
 
 def start_scheduler() -> None:
     scheduler = BackgroundScheduler()

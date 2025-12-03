@@ -159,22 +159,6 @@ def get_all_users_for_check() -> List[sqlite3.Row]:
         logger.error(f"Error fetching users for check: {e}")
         return []
 
-def get_active_users_for_check() -> List[sqlite3.Row]:
-    """Получить только активных пользователей для проверки (более быстрый запрос)"""
-    try:
-        with get_db_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute("""
-                SELECT telegram_id, first_name, subscription_status, subscription_end_date, 
-                       payment_status, last_notification_level 
-                FROM users 
-                WHERE subscription_status = 'active' AND subscription_end_date IS NOT NULL
-            """)
-            return cursor.fetchall()
-    except Exception as e:
-        logger.error(f"Error fetching active users for check: {e}")
-        return []
-
 def get_users_by_status(message: Any, status: str) -> None:
     """Получить список пользователей по статусу подписки и отправить админу"""
     from loader import bot

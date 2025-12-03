@@ -111,3 +111,4 @@ sudo systemctl restart tradetherapybot.service
 
 Бот должен заработать! 🎉
 
+

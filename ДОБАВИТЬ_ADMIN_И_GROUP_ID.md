@@ -107,3 +107,4 @@ systemctl status tradetherapybot.service
 
 **Готово!** 🎉
 
+
