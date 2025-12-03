@@ -26,28 +26,28 @@ def handle_start(message: types.Message) -> None:
             member = bot.get_chat_member(GROUP_CHAT_ID, user_id)
             if member.status in ['member', 'administrator', 'creator']:
                 if not user_data or user_data['subscription_status'] != 'active':
-                now = datetime.now()
-                if now.month == 12:
-                    next_month = now.replace(year=now.year+1, month=1, day=1)
-                else:
-                    next_month = now.replace(month=now.month+1, day=1)
-                
-                end_date = next_month
-                now_str = format_db_date(now)
-                end_date_str = format_db_date(end_date)
-                
-                with get_db_connection() as conn:
-                    cursor = conn.cursor()
-                    cursor.execute("""
-                        INSERT INTO users (telegram_id, first_name, username, subscription_status, subscription_start_date, subscription_end_date, payment_status, last_notification_level) 
-                        VALUES (?, ?, ?, ?, ?, ?, ?, NULL)
-                        ON CONFLICT (telegram_id) 
-                        DO UPDATE SET subscription_status = 'active', subscription_end_date = ?, payment_status = 'paid', last_notification_level = NULL
-                    """, (user_id, first_name, username, 'active', now_str, end_date_str, 'paid', end_date_str))
-                    conn.commit()
-                logger.info(f"Existing member {user_id} auto-migrated with active sub until {end_date}.")
-                
-                user_data = get_user_status(user_id)
+                    now = datetime.now()
+                    if now.month == 12:
+                        next_month = now.replace(year=now.year+1, month=1, day=1)
+                    else:
+                        next_month = now.replace(month=now.month+1, day=1)
+                    
+                    end_date = next_month
+                    now_str = format_db_date(now)
+                    end_date_str = format_db_date(end_date)
+                    
+                    with get_db_connection() as conn:
+                        cursor = conn.cursor()
+                        cursor.execute("""
+                            INSERT INTO users (telegram_id, first_name, username, subscription_status, subscription_start_date, subscription_end_date, payment_status, last_notification_level) 
+                            VALUES (?, ?, ?, ?, ?, ?, ?, NULL)
+                            ON CONFLICT (telegram_id) 
+                            DO UPDATE SET subscription_status = 'active', subscription_end_date = ?, payment_status = 'paid', last_notification_level = NULL
+                        """, (user_id, first_name, username, 'active', now_str, end_date_str, 'paid', end_date_str))
+                        conn.commit()
+                    logger.info(f"Existing member {user_id} auto-migrated with active sub until {end_date}.")
+                    
+                    user_data = get_user_status(user_id)
         except Exception as e:
             # Логируем как warning, так как это не критично (группа может быть недоступна)
             logger.warning(f"Could not check user status in group (group may not be available): {e}")
