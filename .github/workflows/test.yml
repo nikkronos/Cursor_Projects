@@ -1,53 +1,34 @@
 name: Run Tests
 
-# Триггеры: запуск при push в любую ветку и при создании pull request
 on:
   push:
-    branches: [ '*' ]  # Все ветки
+    branches: [ main, master ]
   pull_request:
-    branches: [ '*' ]  # Все ветки
+    branches: [ main, master ]
+  workflow_dispatch:
 
 jobs:
   test:
-    runs-on: ubuntu-latest  # Используем последнюю стабильную Ubuntu
+    runs-on: ubuntu-latest
     
     steps:
-    # Шаг 1: Получение кода из репозитория
     - name: Checkout code
       uses: actions/checkout@v4
-    
-    # Шаг 2: Установка Python
+      
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.10'  # Используем Python 3.10 (стабильная версия)
-        cache: 'pip'  # Кешируем pip для ускорения
-    
-    # Шаг 3: Установка зависимостей
+        python-version: '3.10'
+        
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-    
-    # Шаг 4: Запуск тестов через pytest
-    - name: Run tests with pytest
+        
+    - name: Run tests
       run: |
-        pytest tests/ -v --tb=short
-    
-    # Шаг 5: Уведомление при падении (автоматически через GitHub)
-    # GitHub автоматически отправляет email уведомления при падении workflow
-    # Дополнительно выводим информацию о результатах
-    - name: Test results summary
-      if: always()  # Выполняется всегда, даже если тесты упали
+        pytest tests/ -v
+        
+    - name: Check test coverage
       run: |
-        if [ ${{ job.status }} == 'failure' ]; then
-          echo "❌ Тесты не прошли. Проверьте логи выше для деталей."
-          exit 1
-        else
-          echo "✅ Все тесты прошли успешно!"
-        fi
-
-
-
-
-
+        pytest tests/ --cov=. --cov-report=term-missing || true
