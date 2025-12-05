@@ -11,7 +11,7 @@ from utils import rate_limit
 
 
 @bot.callback_query_handler(func=lambda call: call.data == 'start_bot')
-@rate_limit(max_requests=15, time_window=20.0, block_duration=60.0)
+@rate_limit(max_requests=15, time_window=20.0, block_duration=30.0)
 def callback_start_bot(call: types.CallbackQuery) -> None:
     """Обработчик callback кнопки 'Запустить бота'"""
     bot.answer_callback_query(call.id)
