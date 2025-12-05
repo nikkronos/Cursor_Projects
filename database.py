@@ -194,19 +194,20 @@ def get_users_by_status(message: Any, status: str) -> None:
                 response += "─" * 20 + "\n"
             
             # Разбиваем на части, если сообщение слишком длинное (Telegram лимит ~4096 символов)
+            # Убираем parse_mode='Markdown', так как текст может содержать специальные символы
             if len(response) > 4000:
                 parts = response.split("─" * 20 + "\n")
                 current_part = ""
                 for part in parts:
                     if len(current_part + part) > 4000:
-                        bot.send_message(message.chat.id, current_part, parse_mode='Markdown')
+                        bot.send_message(message.chat.id, current_part)
                         current_part = part
                     else:
                         current_part += part + "─" * 20 + "\n"
                 if current_part:
-                    bot.send_message(message.chat.id, current_part, parse_mode='Markdown')
+                    bot.send_message(message.chat.id, current_part)
             else:
-                bot.send_message(message.chat.id, response, parse_mode='Markdown')
+                bot.send_message(message.chat.id, response)
         else:
             bot.send_message(message.chat.id, f"Пользователи со статусом '{status}' не найдены.")
     except Exception as e:

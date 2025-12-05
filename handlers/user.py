@@ -503,6 +503,29 @@ def handle_status_button(message: types.Message) -> None:
 @rate_limit(max_requests=3, time_window=60.0, block_duration=60.0)
 def handle_payment_confirmation(message: types.Message) -> None:
     """Обработчик отправки чека для подтверждения оплаты"""
+    from loader import GROUP_CHAT_ID
+    
+    # Пропускаем сообщения из группы и от админа
+    if message.chat.id == ADMIN_ID or message.chat.id == GROUP_CHAT_ID:
+        logger.debug(f"Skipping message from admin or group chat: chat_id={message.chat.id}, type={message.chat.type}")
+        return
+    
+    # Пропускаем сообщения от бота самому себе
+    if message.from_user and message.from_user.is_bot:
+        logger.debug(f"Skipping message from bot: user_id={message.from_user.id}")
+        return
+    
+    # Обрабатываем чеки ТОЛЬКО из личных сообщений (private chat)
+    # Пропускаем сообщения из групп, каналов и супергрупп
+    if message.chat.type not in ['private']:
+        logger.warning(f"Payment confirmation handler triggered from non-private chat: type={message.chat.type}, chat_id={message.chat.id}, user_id={message.from_user.id if message.from_user else 'unknown'}")
+        return
+    
+    # Пропускаем пересланные сообщения (могут быть из группы)
+    if message.forward_from or message.forward_from_chat:
+        logger.debug(f"Skipping forwarded message from user {message.from_user.id if message.from_user else 'unknown'}")
+        return
+    
     if message.chat.id != ADMIN_ID:
         if message.content_type in ['photo', 'document']:
              try:
