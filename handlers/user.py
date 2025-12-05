@@ -426,7 +426,7 @@ def send_about_us(message: types.Message) -> None:
     markup.add(back_button)
     
     file_id_1 = 'AgACAgIAAxkBAAIBVWkyixXjweZ6oINDWgmt8nx4x4IcAAINDGsbDOuYSSKaanngUxMIAQADAgADeQADNgQ'
-    file_id_2 = 'AgACAgIAAxkBAAIBV2kyixirwzWthLY7BKHqGXWAWhhSAAIODGsbDOuYSSYrbd8k6r4C1AQADAgADeQADNgQ'
+    file_id_2 = 'AgACAgIAAxkBAAIBbGkyi95WTRE_ZX4J7-L6oEa3JzdwAAITDGsbDOuYSTWJ5HWKUYN7AQADAgADeQADNgQ'
     
     # Отправляем фото с обработкой ошибок
     # Если file_id устарел, нужно получить новый: отправить фото боту в личку, бот вернет file_id
