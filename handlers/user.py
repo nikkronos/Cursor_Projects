@@ -81,8 +81,27 @@ def handle_restart_bot(message: types.Message) -> None:
 @rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
 def send_tariffs(message: types.Message) -> None:
     """Показать информацию о тарифах"""
+    from datetime import datetime
+    
     user_id = message.from_user.id
     user_data = get_user_status(user_id)
+    
+    # Заглушка до 25 декабря 2025
+    today = datetime.now()
+    deadline = datetime(2025, 12, 25, 23, 59, 59)
+    
+    if today < deadline:
+        # Показываем заглушку
+        markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+        back_button = types.KeyboardButton("Вернутся в главное меню🏡")
+        markup.add(back_button)
+        bot.send_message(message.chat.id,
+                         "*Тарифы*\n\n"
+                         "В данный момент набор в сообщество приостановлен до 25 декабря 2025 года.\n\n"
+                         "После этой даты мы возобновим прием новых участников.",
+                         parse_mode='Markdown',
+                         reply_markup=markup)
+        return
     
     # Если у пользователя есть активная подписка - показываем кнопку "Остаться в Сообществе"
     if user_data and user_data['subscription_status'] == 'active':
@@ -367,8 +386,17 @@ def send_about_us(message: types.Message) -> None:
     
     file_id_1 = 'AgACAgIAAxkBAAIEVWktlnhZ-lksHTT_8mMF_rMBZ1juAAJsEGsbhNZoSU0rol3-wvFxAQADAgADeQADNgQ'
     file_id_2 = 'AgACAgIAAxkBAAIEV2ktlpFww7VEv6Sb3xRCKDOQ13NTAAJwEGsbhNZoSRonbqyrw44MAQADAgADeQADNgQ'
-    bot.send_photo(message.chat.id, file_id_1)
-    bot.send_photo(message.chat.id, file_id_2)
+    
+    # Отправляем фото с обработкой ошибок
+    try:
+        bot.send_photo(message.chat.id, file_id_1)
+    except Exception as e:
+        logger.error(f"Failed to send photo 1 in send_about_us: {e}")
+    
+    try:
+        bot.send_photo(message.chat.id, file_id_2)
+    except Exception as e:
+        logger.error(f"Failed to send photo 2 in send_about_us: {e}")
     
     bot.send_message(message.chat.id,
                      "*О Нас*\n\n" 
@@ -395,7 +423,12 @@ def handle_reviews(message: types.Message) -> None:
     markup.add(back_button)
     
     file_id_screen1 = 'AgACAgIAAxkBAAIEU2ktlk9Bu7e5xcSYQrSt9mx5I4e4AAJrEGsbhNZoSdThsmpCxUMJAQADAgADeAADNgQ'
-    bot.send_photo(message.chat.id, file_id_screen1)
+    
+    # Отправляем фото с обработкой ошибок
+    try:
+        bot.send_photo(message.chat.id, file_id_screen1)
+    except Exception as e:
+        logger.error(f"Failed to send photo in handle_reviews: {e}")
 
     bot.send_message(message.chat.id, "Больше отзывов здесь: https://t.me/feedbacktradetherapy", reply_markup=markup)
 

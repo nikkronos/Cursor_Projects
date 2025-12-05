@@ -19,7 +19,7 @@ except (TypeError, ValueError, KeyError) as e:
     GROUP_CHAT_ID = None
     logger.debug(f"Config loading failed (this is OK for testing): {e}")
 
-GROUP_INVITE_LINK = 'https://t.me/+IBT7qa_VMBk5Mjgy'
+GROUP_INVITE_LINK = 'https://t.me/+jpWPa5zAj61lMWI6'
 
 # Настройка логирования
 os.makedirs('logs', exist_ok=True)
