@@ -58,6 +58,35 @@ def handle_start(message: types.Message) -> None:
         except Exception as e:
             logger.error(f"Error adding new user to database: {e}")
     
+    # Проверка: если заглушка тарифов закончилась (25.12.2025 12:00 MSK), отправляем уведомление
+    try:
+        from zoneinfo import ZoneInfo
+        msk_tz = ZoneInfo("Europe/Moscow")
+    except ImportError:
+        msk_tz = None
+    
+    if msk_tz:
+        now = datetime.now(msk_tz)
+        tariff_deadline = datetime(2025, 12, 25, 12, 0, 0, tzinfo=msk_tz)
+    else:
+        now = datetime.now()
+        tariff_deadline = datetime(2025, 12, 25, 12, 0, 0)
+    
+    # Если заглушка закончилась и пользователь еще не получал уведомление, отправляем
+    if now >= tariff_deadline:
+        user_data_updated = get_user_status(user_id)
+        # Проверяем, не получал ли пользователь уже это уведомление
+        if user_data_updated and user_data_updated.get('last_notification_level') != 'tariff_available':
+            try:
+                bot.send_message(user_id, 
+                               "Кнопка \"Тарифы\" снова доступна. Можете проверить условия продления доступа в сообщество.")
+                # Отмечаем, что уведомление отправлено
+                with get_db_connection() as conn:
+                    conn.execute("UPDATE users SET last_notification_level = 'tariff_available' WHERE telegram_id = ?", (user_id,))
+                    conn.commit()
+            except Exception as e:
+                logger.error(f"Failed to send tariff notification to user {user_id}: {e}")
+    
     send_main_menu(user_id, message.chat.id, first_name)
 
 
@@ -86,9 +115,22 @@ def send_tariffs(message: types.Message) -> None:
     user_id = message.from_user.id
     user_data = get_user_status(user_id)
     
-    # Заглушка до 25 декабря 2025
-    today = datetime.now()
-    deadline = datetime(2025, 12, 25, 23, 59, 59)
+    # Заглушка до 25 декабря 2025 в 12:00 по Москве
+    try:
+        from zoneinfo import ZoneInfo
+        msk_tz = ZoneInfo("Europe/Moscow")
+    except ImportError:
+        # Для Python < 3.9 используем UTC и добавляем 3 часа (MSK = UTC+3)
+        from datetime import timedelta
+        msk_tz = None
+    
+    if msk_tz:
+        today = datetime.now(msk_tz)
+        deadline = datetime(2025, 12, 25, 12, 0, 0, tzinfo=msk_tz)
+    else:
+        # Fallback для старых версий Python
+        today = datetime.now()
+        deadline = datetime(2025, 12, 25, 12, 0, 0)
     
     if today < deadline:
         # Показываем заглушку
@@ -97,8 +139,7 @@ def send_tariffs(message: types.Message) -> None:
         markup.add(back_button)
         bot.send_message(message.chat.id,
                          "*Тарифы*\n\n"
-                         "В данный момент набор в сообщество приостановлен до 25 декабря 2025 года.\n\n"
-                         "После этой даты мы возобновим прием новых участников.",
+                         "Информация появится здесь 25 декабря.",
                          parse_mode='Markdown',
                          reply_markup=markup)
         return
