@@ -503,43 +503,62 @@ def handle_status_button(message: types.Message) -> None:
 @rate_limit(max_requests=3, time_window=60.0, block_duration=60.0)
 def handle_payment_confirmation(message: types.Message) -> None:
     """Обработчик отправки чека для подтверждения оплаты"""
-    if message.chat.id != ADMIN_ID:
-        if message.content_type in ['photo', 'document']:
-             try:
-                 with get_db_connection() as conn:
-                     conn.execute("UPDATE users SET payment_status = 'pending_review' WHERE telegram_id = ?", (message.from_user.id,))
-                     conn.commit()
-             except Exception as e:
-                 logger.error(f"Error updating payment status: {e}")
+    from loader import GROUP_CHAT_ID
 
-             try:
-                 file_id = None
-                 file_type = 'unknown'
-                 
-                 if message.content_type == 'photo':
-                     file_id = message.photo[-1].file_id
-                     file_type = 'photo'
-                 elif message.content_type == 'document':
-                     file_id = message.document.file_id
-                     file_type = 'document'
-                 
-                 if file_id:
-                     with get_db_connection() as conn:
-                         conn.execute("INSERT INTO receipts (user_id, file_id, file_type) VALUES (?, ?, ?)", (message.from_user.id, file_id, file_type))
-                         conn.commit()
-             except Exception as e:
-                 logger.error(f"Error saving receipt: {e}")
+    # Пропускаем сообщения из группы и от админа
+    if message.chat.id == ADMIN_ID or message.chat.id == GROUP_CHAT_ID:
+        logger.debug(f"Skipping message from admin or group chat: chat_id={message.chat.id}, type={message.chat.type}")
+        return
 
-             markup = types.InlineKeyboardMarkup()
-             btn_confirm = types.InlineKeyboardButton("✅ Подтвердить", callback_data=f"confirm_pay_{message.from_user.id}")
-             btn_reject = types.InlineKeyboardButton("❌ Отклонить", callback_data=f"reject_pay_{message.from_user.id}")
-             markup.add(btn_confirm, btn_reject)
-             
-             bot.forward_message(ADMIN_ID, message.chat.id, message.message_id)
-             
-             bot.send_message(ADMIN_ID, f"Пользователь {message.from_user.first_name} прислал чек.", reply_markup=markup)
-             
-             bot.send_message(message.chat.id, "Ваше подтверждение отправлено администратору. Ожидайте активации.")
+    # Пропускаем сообщения от бота самому себе
+    if message.from_user and message.from_user.is_bot:
+        logger.debug(f"Skipping message from bot: user_id={message.from_user.id}")
+        return
+
+    # Обрабатываем чеки ТОЛЬКО из личных сообщений (private chat)
+    # Пропускаем сообщения из групп, каналов и супергрупп
+    if message.chat.type not in ['private']:
+        logger.warning(f"Payment confirmation handler triggered from non-private chat: type={message.chat.type}, chat_id={message.chat.id}, user_id={message.from_user.id if message.from_user else 'unknown'}")
+        return
+
+    # Пропускаем пересланные сообщения (могут быть из группы)
+    if message.forward_from or message.forward_from_chat:
+        logger.debug(f"Skipping forwarded message from user {message.from_user.id if message.from_user else 'unknown'}")
+        return
+
+    if message.content_type in ['photo', 'document']:
+        try:
+            with get_db_connection() as conn:
+                conn.execute("UPDATE users SET payment_status = 'pending_review' WHERE telegram_id = ?", (message.from_user.id,))
+                conn.commit()
+        except Exception as e:
+            logger.error(f"Error updating payment status: {e}")
+
+        try:
+            file_id = None
+            file_type = 'unknown'
+            
+            if message.content_type == 'photo':
+                file_id = message.photo[-1].file_id
+                file_type = 'photo'
+            elif message.content_type == 'document':
+                file_id = message.document.file_id
+                file_type = 'document'
+            
+            if file_id:
+                with get_db_connection() as conn:
+                    conn.execute("INSERT INTO receipts (user_id, file_id, file_type) VALUES (?, ?, ?)", (message.from_user.id, file_id, file_type))
+                    conn.commit()
+        except Exception as e:
+            logger.error(f"Error saving receipt: {e}")
+
+        markup = types.InlineKeyboardMarkup()
+        btn_confirm = types.InlineKeyboardButton("✅ Подтвердить", callback_data=f"confirm_pay_{message.from_user.id}")
+        btn_reject = types.InlineKeyboardButton("❌ Отклонить", callback_data=f"reject_pay_{message.from_user.id}")
+        markup.add(btn_confirm, btn_reject)
         
-        else:
-            pass
+        bot.forward_message(ADMIN_ID, message.chat.id, message.message_id)
+        
+        bot.send_message(ADMIN_ID, f"Пользователь {message.from_user.first_name} прислал чек.", reply_markup=markup)
+        
+        bot.send_message(message.chat.id, "Ваше подтверждение отправлено администратору. Ожидайте активации.")
