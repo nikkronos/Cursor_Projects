@@ -7,7 +7,7 @@ from datetime import datetime
 from loader import bot, logger, ADMIN_ID, GROUP_CHAT_ID
 from database import get_db_connection, parse_db_date, format_db_date, get_user_status, save_tariff_answer, get_user_tariff_answers, clear_user_tariff_answers
 from handlers.helpers import send_main_menu, send_payment_info, send_answers_to_admin, TARIFF_QUESTIONS
-from utils import rate_limit
+from utils import rate_limit, safe_send_message
 
 
 @bot.message_handler(commands=['start'])
@@ -58,6 +58,27 @@ def handle_start(message: types.Message) -> None:
         except Exception as e:
             logger.error(f"Error adding new user to database: {e}")
     
+    # Проверка: если заглушка тарифов закончилась (25.12.2025 12:00 MSK), отправляем уведомление
+    try:
+        from zoneinfo import ZoneInfo
+        msk_tz = ZoneInfo("Europe/Moscow")
+    except ImportError:
+        msk_tz = None
+    
+    if msk_tz:
+        now = datetime.now(msk_tz)
+        tariff_deadline = datetime(2025, 12, 25, 12, 0, 0, tzinfo=msk_tz)
+    else:
+        now = datetime.now()
+        tariff_deadline = datetime(2025, 12, 25, 12, 0, 0)
+    
+    if now >= tariff_deadline and (not user_data or user_data.get('last_notification_level') != 'tariff_available'):
+        safe_send_message(bot, user_id, "Кнопка \"Тарифы\" снова доступна. Можете проверить условия продления доступа в сообщество.")
+        # Обновляем статус уведомления в БД
+        with get_db_connection() as conn:
+            conn.execute("UPDATE users SET last_notification_level = 'tariff_available' WHERE telegram_id = ?", (user_id,))
+            conn.commit()
+    
     send_main_menu(user_id, message.chat.id, first_name)
 
 
@@ -83,6 +104,32 @@ def send_tariffs(message: types.Message) -> None:
     """Показать информацию о тарифах"""
     user_id = message.from_user.id
     user_data = get_user_status(user_id)
+    
+    # Заглушка до 25 декабря 2025 в 12:00 по Москве
+    try:
+        from zoneinfo import ZoneInfo
+        msk_tz = ZoneInfo("Europe/Moscow")
+    except ImportError:
+        msk_tz = None
+    
+    if msk_tz:
+        today = datetime.now(msk_tz)
+        deadline = datetime(2025, 12, 25, 12, 0, 0, tzinfo=msk_tz)
+    else:
+        # Fallback for older Python versions (less precise)
+        today = datetime.now()
+        deadline = datetime(2025, 12, 25, 12, 0, 0)
+    
+    if today < deadline:
+        markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+        back_button = types.KeyboardButton("Вернутся в главное меню🏡")
+        markup.add(back_button)
+        bot.send_message(message.chat.id,
+                         "*Тарифы*\n\n"
+                         "Информация появится здесь 25 декабря.",
+                         parse_mode='Markdown',
+                         reply_markup=markup)
+        return
     
     # Если у пользователя есть активная подписка - показываем кнопку "Остаться в Сообществе"
     if user_data and user_data['subscription_status'] == 'active':
