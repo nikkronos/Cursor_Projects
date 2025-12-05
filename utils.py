@@ -252,10 +252,35 @@ def rate_limit(max_requests: int = 10, time_window: float = 15.0, block_duration
                 # Превышен лимит - блокируем пользователя
                 block_user(user_id, block_duration)
                 
+                # Получаем информацию о пользователе для логирования
+                user_info = ""
+                try:
+                    # Пытаемся получить имя из message/call
+                    if args and hasattr(args[0], 'from_user') and args[0].from_user:
+                        first_name = getattr(args[0].from_user, 'first_name', None) or "Unknown"
+                        username = getattr(args[0].from_user, 'username', None)
+                        user_info = f" ({first_name}"
+                        if username:
+                            user_info += f", @{username}"
+                        user_info += ")"
+                    else:
+                        # Если нет в message, пытаемся получить из базы данных
+                        from database import get_user_status
+                        user_data = get_user_status(user_id)
+                        if user_data:
+                            first_name = user_data.get('first_name', 'Unknown')
+                            username = user_data.get('username')
+                            user_info = f" ({first_name}"
+                            if username:
+                                user_info += f", @{username}"
+                            user_info += ")"
+                except Exception:
+                    pass  # Если не удалось получить информацию, продолжаем без неё
+                
                 # Логируем для отладки
                 request_count = len(_rate_limit_history.get(user_id, deque()))
                 logger.warning(
-                    f"Rate limit exceeded for user {user_id} in {func.__name__}: "
+                    f"Rate limit exceeded for user {user_id}{user_info} in {func.__name__}: "
                     f"{request_count} requests in {time_window}s (limit: {max_requests})"
                 )
                 
@@ -281,7 +306,7 @@ def rate_limit(max_requests: int = 10, time_window: float = 15.0, block_duration
                     from loader import ADMIN_ID
                     if ADMIN_ID:
                         admin_notification = (
-                            f"⚠️ Rate limit exceeded by user {user_id}. "
+                            f"⚠️ Rate limit exceeded by user {user_id}{user_info}. "
                             f"{request_count} requests in {int(time_window)}s (limit: {max_requests}). "
                             f"Blocked for {int(block_duration)} seconds."
                         )

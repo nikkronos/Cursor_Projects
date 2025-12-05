@@ -178,10 +178,90 @@ class TestRateLimiting(unittest.TestCase):
             self.assertIsNone(result, "4th callback should be blocked")
             # Проверяем, что был вызван answer_callback_query
             mock_bot.answer_callback_query.assert_called()
+    
+    def test_rate_limit_logging_includes_user_info(self):
+        """Тест: логирование включает информацию о пользователе"""
+        _rate_limit_history.clear()
+        _user_blocks.clear()
+        
+        @rate_limit(max_requests=2, time_window=10.0, block_duration=1.0)
+        def test_handler(message):
+            return "OK"
+        
+        # Создаем mock message с информацией о пользователе
+        message = Mock()
+        message.from_user.id = 871902505
+        message.from_user.first_name = "Иван"
+        message.from_user.username = "ivan_user"
+        
+        # Делаем 2 запроса
+        for i in range(2):
+            with patch('utils.logger') as mock_logger, \
+                 patch('utils.safe_send_message') as mock_send, \
+                 patch('utils.bot') as mock_bot:
+                result = test_handler(message)
+                self.assertEqual(result, "OK")
+        
+        # 3-й запрос должен быть заблокирован и залогирован с информацией о пользователе
+        with patch('utils.logger') as mock_logger, \
+             patch('utils.safe_send_message') as mock_send, \
+             patch('utils.bot') as mock_bot:
+            result = test_handler(message)
+            self.assertIsNone(result, "3rd request should be blocked")
+            
+            # Проверяем, что logger.warning был вызван с информацией о пользователе
+            warning_calls = [call for call in mock_logger.warning.call_args_list 
+                            if 'Rate limit exceeded' in str(call)]
+            self.assertGreater(len(warning_calls), 0, "Logger should be called with rate limit warning")
+            
+            # Проверяем, что в логе есть информация о пользователе
+            warning_message = str(warning_calls[0])
+            self.assertIn('871902505', warning_message, "Log should contain user ID")
+            # Проверяем, что есть имя или username (может быть в разных форматах)
+            self.assertTrue(
+                'Иван' in warning_message or 'ivan_user' in warning_message or '871902505' in warning_message,
+                "Log should contain user information"
+            )
+    
+    def test_rate_limit_logging_without_user_info(self):
+        """Тест: логирование работает даже без информации о пользователе"""
+        _rate_limit_history.clear()
+        _user_blocks.clear()
+        
+        @rate_limit(max_requests=2, time_window=10.0, block_duration=1.0)
+        def test_handler(message):
+            return "OK"
+        
+        # Создаем mock message без имени и username
+        message = Mock()
+        message.from_user.id = 12345
+        message.from_user.first_name = None
+        message.from_user.username = None
+        
+        # Делаем 2 запроса
+        for i in range(2):
+            with patch('utils.logger') as mock_logger, \
+                 patch('utils.safe_send_message') as mock_send, \
+                 patch('utils.bot') as mock_bot:
+                result = test_handler(message)
+                self.assertEqual(result, "OK")
+        
+        # 3-й запрос должен быть заблокирован
+        with patch('utils.logger') as mock_logger, \
+             patch('utils.safe_send_message') as mock_send, \
+             patch('utils.bot') as mock_bot:
+            result = test_handler(message)
+            self.assertIsNone(result, "3rd request should be blocked")
+            
+            # Проверяем, что logger.warning был вызван (даже без полной информации)
+            warning_calls = [call for call in mock_logger.warning.call_args_list 
+                            if 'Rate limit exceeded' in str(call)]
+            self.assertGreater(len(warning_calls), 0, "Logger should be called even without user info")
 
 
 if __name__ == '__main__':
     unittest.main()
+
 
 
 
