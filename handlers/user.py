@@ -11,7 +11,7 @@ from utils import rate_limit
 
 
 @bot.message_handler(commands=['start'])
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=10, time_window=15.0, block_duration=60.0)
 def handle_start(message: types.Message) -> None:
     """Обработчик команды /start - регистрация пользователя и показ главного меню"""
     user_id = message.from_user.id
@@ -58,40 +58,11 @@ def handle_start(message: types.Message) -> None:
         except Exception as e:
             logger.error(f"Error adding new user to database: {e}")
     
-    # Проверка: если заглушка тарифов закончилась (25.12.2025 12:00 MSK), отправляем уведомление
-    try:
-        from zoneinfo import ZoneInfo
-        msk_tz = ZoneInfo("Europe/Moscow")
-    except ImportError:
-        msk_tz = None
-    
-    if msk_tz:
-        now = datetime.now(msk_tz)
-        tariff_deadline = datetime(2025, 12, 25, 12, 0, 0, tzinfo=msk_tz)
-    else:
-        now = datetime.now()
-        tariff_deadline = datetime(2025, 12, 25, 12, 0, 0)
-    
-    # Если заглушка закончилась и пользователь еще не получал уведомление, отправляем
-    if now >= tariff_deadline:
-        user_data_updated = get_user_status(user_id)
-        # Проверяем, не получал ли пользователь уже это уведомление
-        if user_data_updated and user_data_updated.get('last_notification_level') != 'tariff_available':
-            try:
-                bot.send_message(user_id, 
-                               "Кнопка \"Тарифы\" снова доступна. Можете проверить условия продления доступа в сообщество.")
-                # Отмечаем, что уведомление отправлено
-                with get_db_connection() as conn:
-                    conn.execute("UPDATE users SET last_notification_level = 'tariff_available' WHERE telegram_id = ?", (user_id,))
-                    conn.commit()
-            except Exception as e:
-                logger.error(f"Failed to send tariff notification to user {user_id}: {e}")
-    
     send_main_menu(user_id, message.chat.id, first_name)
 
 
 @bot.message_handler(func=lambda message: message.text == "⬅️ Главное меню")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=10, time_window=15.0, block_duration=60.0)
 def handle_back_to_main_menu(message: types.Message) -> None:
     """Обработчик кнопки '⬅️ Главное меню'"""
     logger.info(f"Back to main menu requested by {message.from_user.id}")
@@ -100,49 +71,18 @@ def handle_back_to_main_menu(message: types.Message) -> None:
 
 @bot.message_handler(func=lambda message: message.text == "Вернутся в главное меню🏡")
 @bot.message_handler(func=lambda message: message.text == "🔄 Перезагрузить бота")  # оставляем для совместимости
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=10, time_window=15.0, block_duration=60.0)
 def handle_restart_bot(message: types.Message) -> None:
     """Обработчик кнопки 'Вернутся в главное меню🏡' и '🔄 Перезагрузить бота'"""
     handle_start(message)
 
 
 @bot.message_handler(func=lambda message: message.text == "Тарифы")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=10, time_window=15.0, block_duration=60.0)
 def send_tariffs(message: types.Message) -> None:
     """Показать информацию о тарифах"""
-    from datetime import datetime
-    
     user_id = message.from_user.id
     user_data = get_user_status(user_id)
-    
-    # Заглушка до 25 декабря 2025 в 12:00 по Москве
-    try:
-        from zoneinfo import ZoneInfo
-        msk_tz = ZoneInfo("Europe/Moscow")
-    except ImportError:
-        # Для Python < 3.9 используем UTC и добавляем 3 часа (MSK = UTC+3)
-        from datetime import timedelta
-        msk_tz = None
-    
-    if msk_tz:
-        today = datetime.now(msk_tz)
-        deadline = datetime(2025, 12, 25, 12, 0, 0, tzinfo=msk_tz)
-    else:
-        # Fallback для старых версий Python
-        today = datetime.now()
-        deadline = datetime(2025, 12, 25, 12, 0, 0)
-    
-    if today < deadline:
-        # Показываем заглушку
-        markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-        back_button = types.KeyboardButton("Вернутся в главное меню🏡")
-        markup.add(back_button)
-        bot.send_message(message.chat.id,
-                         "*Тарифы*\n\n"
-                         "Информация появится здесь 25 декабря.",
-                         parse_mode='Markdown',
-                         reply_markup=markup)
-        return
     
     # Если у пользователя есть активная подписка - показываем кнопку "Остаться в Сообществе"
     if user_data and user_data['subscription_status'] == 'active':
@@ -174,7 +114,7 @@ def send_tariffs(message: types.Message) -> None:
         bot.send_message(message.chat.id, tariff_text, parse_mode='Markdown', reply_markup=markup)
 
 
-@rate_limit(max_requests=15, time_window=10.0, block_duration=30.0)
+@rate_limit(max_requests=15, time_window=10.0, block_duration=60.0)
 def ask_tariff_question(message: types.Message, question_index: int) -> None:
     """Задать вопрос из опроса"""
     user_id = message.from_user.id
@@ -201,7 +141,7 @@ def ask_tariff_question(message: types.Message, question_index: int) -> None:
     bot.register_next_step_handler(msg, process_tariff_answer, question_index)
 
 
-@rate_limit(max_requests=15, time_window=10.0, block_duration=30.0)
+@rate_limit(max_requests=15, time_window=10.0, block_duration=60.0)
 def process_tariff_answer(message: types.Message, question_index: int) -> None:
     """Обработать ответ на вопрос"""
     if message.text == "Вернутся в главное меню🏡":
@@ -220,7 +160,7 @@ def process_tariff_answer(message: types.Message, question_index: int) -> None:
 
 
 @bot.message_handler(func=lambda message: message.text == "Я согласен")
-@rate_limit(max_requests=15, time_window=10.0, block_duration=30.0)
+@rate_limit(max_requests=15, time_window=10.0, block_duration=60.0)
 def handle_agree_button(message: types.Message) -> None:
     """Обработчик кнопки 'Я согласен' для начала опроса"""
     user_id = message.from_user.id
@@ -229,7 +169,7 @@ def handle_agree_button(message: types.Message) -> None:
 
 
 @bot.message_handler(func=lambda message: message.text == "Я уже отвечал на вопросы")
-@rate_limit(max_requests=15, time_window=10.0, block_duration=30.0)
+@rate_limit(max_requests=15, time_window=10.0, block_duration=60.0)
 def handle_already_answered(message: types.Message) -> None:
     """Обработчик кнопки 'Я уже отвечал на вопросы'"""
     user_id = message.from_user.id
@@ -257,21 +197,21 @@ def handle_already_answered(message: types.Message) -> None:
 
 
 @bot.message_handler(func=lambda message: message.text == "Тариф \"Базисный 🤝\"")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=10, time_window=15.0, block_duration=60.0)
 def handle_tariff_basic(message: types.Message) -> None:
     """Обработчик кнопки 'Тариф \"Базисный 🤝\"'"""
     send_payment_info(message, 3000)
 
 
 @bot.message_handler(func=lambda message: message.text == "Тариф \"Смелый✊\"")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=10, time_window=15.0, block_duration=60.0)
 def handle_tariff_brave(message: types.Message) -> None:
     """Обработчик кнопки 'Тариф \"Смелый✊\"'"""
     send_payment_info(message, 9000)
 
 
 @bot.message_handler(func=lambda message: message.text == "Остаться в Сообществе")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=10, time_window=15.0, block_duration=60.0)
 def handle_payment_button(message: types.Message) -> None:
     """Обработчик кнопки 'Остаться в Сообществе' для пользователей с активной подпиской"""
     user_id = message.from_user.id
@@ -286,7 +226,7 @@ def handle_payment_button(message: types.Message) -> None:
 
 
 @bot.message_handler(func=lambda message: message.text == "Не буду платить")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=10, time_window=15.0, block_duration=60.0)
 def handle_wont_pay_menu(message: types.Message) -> None:
     """Меню выбора причины отказа от оплаты"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
@@ -299,7 +239,7 @@ def handle_wont_pay_menu(message: types.Message) -> None:
 
 
 @bot.message_handler(func=lambda message: message.text == "Я не торгую")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=10, time_window=15.0, block_duration=60.0)
 def handle_reason_trading(message: types.Message) -> None:
     """Обработчик кнопки 'Я не торгую'"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
@@ -310,7 +250,7 @@ def handle_reason_trading(message: types.Message) -> None:
     bot.register_next_step_handler(msg, process_reason_trading)
 
 
-@rate_limit(max_requests=15, time_window=10.0, block_duration=30.0)
+@rate_limit(max_requests=15, time_window=10.0, block_duration=60.0)
 def process_reason_trading(message: types.Message) -> None:
     """Обработка ответа на вопрос 'Я не торгую'"""
     if message.text == "Вернутся в главное меню🏡" or message.text == "Назад 🔙":
@@ -345,7 +285,7 @@ def process_reason_trading(message: types.Message) -> None:
 
 
 @bot.message_handler(func=lambda message: message.text == "Не буду платить по другой причине")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=10, time_window=15.0, block_duration=60.0)
 def handle_reason_other(message: types.Message) -> None:
     """Обработчик кнопки 'Не буду платить по другой причине'"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
@@ -356,7 +296,7 @@ def handle_reason_other(message: types.Message) -> None:
     bot.register_next_step_handler(msg, process_reason_other)
 
 
-@rate_limit(max_requests=15, time_window=10.0, block_duration=30.0)
+@rate_limit(max_requests=15, time_window=10.0, block_duration=60.0)
 def process_reason_other(message: types.Message) -> None:
     """Обработка ответа на вопрос 'Не буду платить по другой причине'"""
     if message.text == "Вернутся в главное меню🏡" or message.text == "Назад 🔙":
@@ -391,14 +331,14 @@ def process_reason_other(message: types.Message) -> None:
 
 
 @bot.message_handler(func=lambda message: message.text == "Назад 🔙")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=10, time_window=15.0, block_duration=60.0)
 def handle_back_button(message: types.Message) -> None:
     """Обработчик кнопки 'Назад 🔙' - возврат к тарифам"""
     send_tariffs(message)
 
 
 @bot.message_handler(func=lambda message: message.text == "Правила Клуба")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=10, time_window=15.0, block_duration=60.0)
 def send_rules(message: types.Message) -> None:
     """Показать правила клуба"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
@@ -418,42 +358,17 @@ def send_rules(message: types.Message) -> None:
 
 
 @bot.message_handler(func=lambda message: message.text == "О Нас")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=10, time_window=15.0, block_duration=60.0)
 def send_about_us(message: types.Message) -> None:
     """Показать информацию о сообществе"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
     back_button = types.KeyboardButton("Вернутся в главное меню🏡")
     markup.add(back_button)
     
-    file_id_1 = 'AgACAgIAAxkBAAIBVWkyixXjweZ6oINDWgmt8nx4x4IcAAINDGsbDOuYSSKaanngUxMIAQADAgADeQADNgQ'
-    file_id_2 = 'AgACAgIAAxkBAAIBbGkyi95WTRE_ZX4J7-L6oEa3JzdwAAITDGsbDOuYSTWJ5HWKUYN7AQADAgADeQADNgQ'
-    
-    # Отправляем фото с обработкой ошибок
-    # Если file_id устарел, нужно получить новый: отправить фото боту в личку, бот вернет file_id
-    photo_sent_1 = False
-    photo_sent_2 = False
-    
-    try:
-        bot.send_photo(message.chat.id, file_id_1)
-        photo_sent_1 = True
-    except Exception as e:
-        logger.error(f"Failed to send photo 1 in send_about_us: {e}. File_id may be expired. Need to get new file_id.")
-        # Если фото не отправилось, отправляем сообщение админу
-        try:
-            bot.send_message(ADMIN_ID, f"⚠️ File_id для фото 1 в меню 'О Нас' устарел. Отправьте фото боту в личку, чтобы получить новый file_id.")
-        except:
-            pass
-    
-    try:
-        bot.send_photo(message.chat.id, file_id_2)
-        photo_sent_2 = True
-    except Exception as e:
-        logger.error(f"Failed to send photo 2 in send_about_us: {e}. File_id may be expired. Need to get new file_id.")
-        # Если фото не отправилось, отправляем сообщение админу
-        try:
-            bot.send_message(ADMIN_ID, f"⚠️ File_id для фото 2 в меню 'О Нас' устарел. Отправьте фото боту в личку, чтобы получить новый file_id.")
-        except:
-            pass
+    file_id_1 = 'AgACAgIAAxkBAAIEVWktlnhZ-lksHTT_8mMF_rMBZ1juAAJsEGsbhNZoSU0rol3-wvFxAQADAgADeQADNgQ'
+    file_id_2 = 'AgACAgIAAxkBAAIEV2ktlpFww7VEv6Sb3xRCKDOQ13NTAAJwEGsbhNZoSRonbqyrw44MAQADAgADeQADNgQ'
+    bot.send_photo(message.chat.id, file_id_1)
+    bot.send_photo(message.chat.id, file_id_2)
     
     bot.send_message(message.chat.id,
                      "*О Нас*\n\n" 
@@ -472,32 +387,21 @@ def send_about_us(message: types.Message) -> None:
 
 
 @bot.message_handler(func=lambda message: message.text == "Отзывы")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=10, time_window=15.0, block_duration=60.0)
 def handle_reviews(message: types.Message) -> None:
     """Показать отзывы"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
     back_button = types.KeyboardButton("Вернутся в главное меню🏡")
     markup.add(back_button)
     
-    file_id_screen1 = 'AgACAgIAAxkBAAIBU2kyis8l2ZPw_HqN794AASaMossz-wACDAxrGwzrmEkMfvx28vOWXAEAAwIAA3gAAzYE'
-    
-    # Отправляем фото с обработкой ошибок
-    # Если file_id устарел, нужно получить новый: отправить фото боту в личку, бот вернет file_id
-    try:
-        bot.send_photo(message.chat.id, file_id_screen1)
-    except Exception as e:
-        logger.error(f"Failed to send photo in handle_reviews: {e}. File_id may be expired. Need to get new file_id.")
-        # Если фото не отправилось, отправляем сообщение админу
-        try:
-            bot.send_message(ADMIN_ID, f"⚠️ File_id для фото в меню 'Отзывы' устарел. Отправьте фото боту в личку, чтобы получить новый file_id.")
-        except:
-            pass
+    file_id_screen1 = 'AgACAgIAAxkBAAIEU2ktlk9Bu7e5xcSYQrSt9mx5I4e4AAJrEGsbhNZoSdThsmpCxUMJAQADAgADeAADNgQ'
+    bot.send_photo(message.chat.id, file_id_screen1)
 
     bot.send_message(message.chat.id, "Больше отзывов здесь: https://t.me/feedbacktradetherapy", reply_markup=markup)
 
 
 @bot.message_handler(func=lambda message: message.text == "Обратная связь")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=10, time_window=15.0, block_duration=60.0)
 def send_feedback_contact(message: types.Message) -> None:
     """Показать контакты для обратной связи"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
@@ -510,7 +414,7 @@ def send_feedback_contact(message: types.Message) -> None:
 
 
 @bot.message_handler(func=lambda message: message.text == "Публичная оферта")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=10, time_window=15.0, block_duration=60.0)
 def send_oferta(message: types.Message) -> None:
     """Показать публичную оферту"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
@@ -523,35 +427,35 @@ def send_oferta(message: types.Message) -> None:
 
 
 @bot.message_handler(commands=['tariffs'])
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=10, time_window=15.0, block_duration=60.0)
 def handle_tariffs_command(message: types.Message) -> None:
     """Команда /tariffs"""
     send_tariffs(message)
 
 
 @bot.message_handler(commands=['rules'])
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=10, time_window=15.0, block_duration=60.0)
 def handle_rules_command(message: types.Message) -> None:
     """Команда /rules"""
     send_rules(message)
 
 
 @bot.message_handler(commands=['about'])
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=10, time_window=15.0, block_duration=60.0)
 def handle_about_command(message: types.Message) -> None:
     """Команда /about"""
     send_about_us(message)
 
 
 @bot.message_handler(commands=['feedback'])
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=10, time_window=15.0, block_duration=60.0)
 def handle_feedback_command(message: types.Message) -> None:
     """Команда /feedback"""
     send_feedback_contact(message)
 
 
 @bot.message_handler(commands=['status'])
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=10, time_window=15.0, block_duration=60.0)
 def handle_status_command(message: types.Message) -> None:
     """Команда /status - показать статус подписки"""
     user_id = message.from_user.id
@@ -589,39 +493,16 @@ def handle_status_command(message: types.Message) -> None:
 
 
 @bot.message_handler(func=lambda message: message.text == "Статус подписки")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=10, time_window=15.0, block_duration=60.0)
 def handle_status_button(message: types.Message) -> None:
     """Обработчик кнопки 'Статус подписки'"""
     handle_status_command(message)
 
 
 @bot.message_handler(content_types=['text', 'photo', 'document'])
-@rate_limit(max_requests=3, time_window=60.0, block_duration=60.0)
+@rate_limit(max_requests=3, time_window=60.0, block_duration=120.0)
 def handle_payment_confirmation(message: types.Message) -> None:
     """Обработчик отправки чека для подтверждения оплаты"""
-    from loader import GROUP_CHAT_ID
-    
-    # Пропускаем сообщения из группы и от админа
-    if message.chat.id == ADMIN_ID or message.chat.id == GROUP_CHAT_ID:
-        logger.debug(f"Skipping message from admin or group chat: chat_id={message.chat.id}, type={message.chat.type}")
-        return
-    
-    # Пропускаем сообщения от бота самому себе
-    if message.from_user and message.from_user.is_bot:
-        logger.debug(f"Skipping message from bot: user_id={message.from_user.id}")
-        return
-    
-    # Обрабатываем чеки ТОЛЬКО из личных сообщений (private chat)
-    # Пропускаем сообщения из групп, каналов и супергрупп
-    if message.chat.type not in ['private']:
-        logger.warning(f"Payment confirmation handler triggered from non-private chat: type={message.chat.type}, chat_id={message.chat.id}, user_id={message.from_user.id if message.from_user else 'unknown'}")
-        return
-    
-    # Пропускаем пересланные сообщения (могут быть из группы)
-    if message.forward_from or message.forward_from_chat:
-        logger.debug(f"Skipping forwarded message from user {message.from_user.id if message.from_user else 'unknown'}")
-        return
-    
     if message.chat.id != ADMIN_ID:
         if message.content_type in ['photo', 'document']:
              try:

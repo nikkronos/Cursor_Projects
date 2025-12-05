@@ -188,7 +188,7 @@ def block_user(user_id: int, duration: float) -> None:
     logger.warning(f"User {user_id} blocked for {duration} seconds due to rate limit violations")
 
 
-def rate_limit(max_requests: int = 10, time_window: float = 15.0, block_duration: float = 30.0):
+def rate_limit(max_requests: int = 10, time_window: float = 15.0, block_duration: float = 60.0):
     """
     Декоратор для ограничения частоты запросов от пользователей.
     
@@ -274,8 +274,26 @@ def rate_limit(max_requests: int = 10, time_window: float = 15.0, block_duration
                             if username:
                                 user_info += f", @{username}"
                             user_info += ")"
-                except Exception:
-                    pass  # Если не удалось получить информацию, продолжаем без неё
+                        else:
+                            # Если нет в БД, пытаемся получить через Telegram API
+                            try:
+                                chat_member = bot.get_chat_member(user_id, user_id)
+                                if chat_member and chat_member.user:
+                                    first_name = chat_member.user.first_name or "Unknown"
+                                    username = chat_member.user.username
+                                    user_info = f" ({first_name}"
+                                    if username:
+                                        user_info += f", @{username}"
+                                    user_info += ")"
+                            except Exception as api_error:
+                                logger.debug(f"Could not get user info via API for {user_id}: {api_error}")
+                except Exception as e:
+                    logger.debug(f"Error extracting user info for {user_id}: {e}")
+                    # Продолжаем без информации о пользователе
+                
+                # Логируем для отладки (временно, для диагностики)
+                if not user_info:
+                    logger.debug(f"User info is empty for {user_id} in {func.__name__}, args[0] type: {type(args[0]) if args else 'no args'}")
                 
                 # Логируем для отладки
                 request_count = len(_rate_limit_history.get(user_id, deque()))
