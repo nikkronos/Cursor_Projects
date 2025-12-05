@@ -46,3 +46,6 @@ Thumbs.db
 
 # Backup файлы
 *.backup
+
+# Временные тестовые файлы (опционально, можно закоммитить если нужны)
+# test_user_info_extraction.py
