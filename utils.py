@@ -188,7 +188,7 @@ def block_user(user_id: int, duration: float) -> None:
     logger.warning(f"User {user_id} blocked for {duration} seconds due to rate limit violations")
 
 
-def rate_limit(max_requests: int = 10, time_window: float = 15.0, block_duration: float = 60.0):
+def rate_limit(max_requests: int = 10, time_window: float = 30.0, block_duration: float = 60.0):
     """
     Декоратор для ограничения частоты запросов от пользователей.
     
