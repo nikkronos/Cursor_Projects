@@ -425,19 +425,35 @@ def send_about_us(message: types.Message) -> None:
     back_button = types.KeyboardButton("Вернутся в главное меню🏡")
     markup.add(back_button)
     
-    file_id_1 = 'AgACAgIAAxkBAAIEVWktlnhZ-lksHTT_8mMF_rMBZ1juAAJsEGsbhNZoSU0rol3-wvFxAQADAgADeQADNgQ'
-    file_id_2 = 'AgACAgIAAxkBAAIEV2ktlpFww7VEv6Sb3xRCKDOQ13NTAAJwEGsbhNZoSRonbqyrw44MAQADAgADeQADNgQ'
+    file_id_1 = 'AgACAgIAAxkBAAIBVWkyixXjweZ6oINDWgmt8nx4x4IcAAINDGsbDOuYSSKaanngUxMIAQADAgADeQADNgQ'
+    file_id_2 = 'AgACAgIAAxkBAAIBV2kyixirwzWthLY7BKHqGXWAWhhSAAIODGsbDOuYSSYrbd8k6r4C1AQADAgADeQADNgQ'
     
     # Отправляем фото с обработкой ошибок
+    # Если file_id устарел, нужно получить новый: отправить фото боту в личку, бот вернет file_id
+    photo_sent_1 = False
+    photo_sent_2 = False
+    
     try:
         bot.send_photo(message.chat.id, file_id_1)
+        photo_sent_1 = True
     except Exception as e:
-        logger.error(f"Failed to send photo 1 in send_about_us: {e}")
+        logger.error(f"Failed to send photo 1 in send_about_us: {e}. File_id may be expired. Need to get new file_id.")
+        # Если фото не отправилось, отправляем сообщение админу
+        try:
+            bot.send_message(ADMIN_ID, f"⚠️ File_id для фото 1 в меню 'О Нас' устарел. Отправьте фото боту в личку, чтобы получить новый file_id.")
+        except:
+            pass
     
     try:
         bot.send_photo(message.chat.id, file_id_2)
+        photo_sent_2 = True
     except Exception as e:
-        logger.error(f"Failed to send photo 2 in send_about_us: {e}")
+        logger.error(f"Failed to send photo 2 in send_about_us: {e}. File_id may be expired. Need to get new file_id.")
+        # Если фото не отправилось, отправляем сообщение админу
+        try:
+            bot.send_message(ADMIN_ID, f"⚠️ File_id для фото 2 в меню 'О Нас' устарел. Отправьте фото боту в личку, чтобы получить новый file_id.")
+        except:
+            pass
     
     bot.send_message(message.chat.id,
                      "*О Нас*\n\n" 
@@ -463,13 +479,19 @@ def handle_reviews(message: types.Message) -> None:
     back_button = types.KeyboardButton("Вернутся в главное меню🏡")
     markup.add(back_button)
     
-    file_id_screen1 = 'AgACAgIAAxkBAAIEU2ktlk9Bu7e5xcSYQrSt9mx5I4e4AAJrEGsbhNZoSdThsmpCxUMJAQADAgADeAADNgQ'
+    file_id_screen1 = 'AgACAgIAAxkBAAIBU2kyis8l2ZPw_HqN794AASaMossz-wACDAxrGwzrmEkMfvx28vOWXAEAAwIAA3gAAzYE'
     
     # Отправляем фото с обработкой ошибок
+    # Если file_id устарел, нужно получить новый: отправить фото боту в личку, бот вернет file_id
     try:
         bot.send_photo(message.chat.id, file_id_screen1)
     except Exception as e:
-        logger.error(f"Failed to send photo in handle_reviews: {e}")
+        logger.error(f"Failed to send photo in handle_reviews: {e}. File_id may be expired. Need to get new file_id.")
+        # Если фото не отправилось, отправляем сообщение админу
+        try:
+            bot.send_message(ADMIN_ID, f"⚠️ File_id для фото в меню 'Отзывы' устарел. Отправьте фото боту в личку, чтобы получить новый file_id.")
+        except:
+            pass
 
     bot.send_message(message.chat.id, "Больше отзывов здесь: https://t.me/feedbacktradetherapy", reply_markup=markup)
 
