@@ -513,29 +513,38 @@ def migrate_single_user(message: types.Message) -> None:
             user_id = validate_user_id(args[0])
             
             # Проверяем, есть ли пользователь в группе
+            user_in_group = False
+            member_status = None
             try:
                 member = bot.get_chat_member(GROUP_CHAT_ID, user_id)
-                if member.status not in ['member', 'administrator', 'creator']:
-                    bot.send_message(message.chat.id, f"Пользователь {user_id} не найден в группе или имеет статус: {member.status}")
-                    return
+                member_status = member.status
+                if member.status in ['member', 'administrator', 'creator']:
+                    user_in_group = True
             except Exception as e:
-                bot.send_message(message.chat.id, f"Не удалось проверить участника в группе: {e}")
-                return
+                logger.warning(f"Не удалось проверить участника {user_id} в группе: {e}")
             
-            # Получаем информацию о пользователе из группы
-            try:
-                member = bot.get_chat_member(GROUP_CHAT_ID, user_id)
-                first_name = member.user.first_name if member.user.first_name else "Unknown"
-                username = member.user.username
-            except:
-                # Если не удалось получить через группу, пробуем через chat
+            # Получаем информацию о пользователе
+            first_name = "Unknown"
+            username = None
+            
+            # Сначала пробуем получить через группу
+            if user_in_group:
+                try:
+                    member = bot.get_chat_member(GROUP_CHAT_ID, user_id)
+                    first_name = member.user.first_name if member.user.first_name else "Unknown"
+                    username = member.user.username
+                except:
+                    pass
+            
+            # Если не получилось через группу, пробуем через chat
+            if first_name == "Unknown":
                 try:
                     user_chat = bot.get_chat(user_id)
                     first_name = user_chat.first_name if user_chat.first_name else "Unknown"
                     username = user_chat.username
-                except:
-                    first_name = "Unknown"
-                    username = None
+                except Exception as e:
+                    logger.warning(f"Не удалось получить информацию о пользователе {user_id}: {e}")
+                    # Продолжаем с дефолтными значениями
             
             # Выдаем подписку до конца месяца
             now = datetime.now()
@@ -558,8 +567,17 @@ def migrate_single_user(message: types.Message) -> None:
                 """, (user_id, first_name, username, 'active', now_str, end_date_str, 'paid', end_date_str, first_name, username))
                 conn.commit()
             
-            bot.send_message(message.chat.id, f"✅ Пользователь {user_id} ({first_name}) получил подписку до {end_date.strftime('%d.%m.%Y')}")
-            logger.info(f"User {user_id} migrated with subscription until {end_date}")
+            # Формируем сообщение с информацией о статусе в группе
+            status_info = ""
+            if not user_in_group:
+                if member_status:
+                    status_info = f"\n⚠️ Внимание: пользователь не в группе (статус: {member_status})"
+                else:
+                    status_info = f"\n⚠️ Внимание: пользователь не найден в группе"
+            
+            bot.send_message(message.chat.id, 
+                           f"✅ Пользователь {user_id} ({first_name}) получил подписку до {end_date.strftime('%d.%m.%Y')}{status_info}")
+            logger.info(f"User {user_id} migrated with subscription until {end_date}. In group: {user_in_group}")
             
         except ValueError:
             bot.send_message(message.chat.id, "Некорректный ID пользователя.")
