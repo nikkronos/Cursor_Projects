@@ -40,8 +40,15 @@ def send_initial_welcome(message: types.Message) -> None:
 
 def send_main_menu(user_id: int, chat_id: int, first_name: str) -> None:
     """Отправляет главное меню пользователю"""
+    from database import get_user_status
+    
+    # Проверяем статус подписки для выбора правильной кнопки
+    user_data = get_user_status(user_id)
+    is_active = user_data and user_data['subscription_status'] == 'active'
+    
     markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
-    btn1 = types.KeyboardButton("Тарифы")
+    # Для активных - "Тариф", для неактивных - "Тарифы"
+    btn1 = types.KeyboardButton("Тариф" if is_active else "Тарифы")
     btn2 = types.KeyboardButton("Правила Клуба")
     btn3 = types.KeyboardButton("О Нас")
     btn4 = types.KeyboardButton("Обратная связь")
@@ -54,10 +61,13 @@ def send_main_menu(user_id: int, chat_id: int, first_name: str) -> None:
         btn_admin = types.KeyboardButton("⚙️ Админ")
         markup.add(btn_admin)
 
+    # Текст в описании тоже меняем в зависимости от статуса
+    tariff_text = "*Тариф*" if is_active else "*Тарифы*"
+    
     bot.send_message(chat_id, 
                      f"Здравствуйте, {first_name} !\n\n" 
                      f"Добро пожаловать в бот платной подписки в Сообщество *Trade Therapy*.\n\n" 
-                     "*Тарифы* — ознакомиться с тарифами и получить доступ к нашей закрытой группе\n" 
+                     f"{tariff_text} — ознакомиться с тарифами и получить доступ к нашей закрытой группе\n" 
                      "*О Нас* — ознакомиться с информацией о нашем закрытом сообществе\n" 
                      "*Правила Клуба* — изучить внутренний регламент\n"
                      "*Статус подписки* — узнать статус действующей подписки\n"
