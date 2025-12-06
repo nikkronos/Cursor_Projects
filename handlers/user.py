@@ -96,22 +96,16 @@ def send_tariffs(message: types.Message) -> None:
                          parse_mode='Markdown',
                          reply_markup=markup)
     else:
-        # Для пользователей без подписки - показываем опрос
-        tariff_text = (
-            "Здесь не совсем стандартные условия, потому что задача стоит: выстроить действительно *сильное сообщество людей*, которые зарабатывают деньги с рынка и *знают, для чего* им нужны эти *деньги*.\n\n"
-            "Поэтому, чтобы присоединиться к сообществу, необходимо по максимуму ответить на следующие вопросы:\n\n"
-        )
-        
-        for i, question in enumerate(TARIFF_QUESTIONS, 1):
-            tariff_text += f"{i}. {question}\n"
-        
+        # Заглушка для пользователей без подписки - не даем проходить дальше
         markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-        btn_agree = types.KeyboardButton("Я согласен")
-        btn_already_answered = types.KeyboardButton("Я уже отвечал на вопросы")
         back_button = types.KeyboardButton("Вернутся в главное меню🏡")
-        markup.add(btn_agree, btn_already_answered, back_button)
+        markup.add(back_button)
         
-        bot.send_message(message.chat.id, tariff_text, parse_mode='Markdown', reply_markup=markup)
+        bot.send_message(message.chat.id,
+                         "*Тарифы*\n\n"
+                         "Информация появится здесь 25 декабря.",
+                         parse_mode='Markdown',
+                         reply_markup=markup)
 
 
 @rate_limit(max_requests=15, time_window=10.0, block_duration=30.0)
