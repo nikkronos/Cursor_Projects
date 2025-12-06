@@ -176,7 +176,19 @@ def get_users_by_status(message: Any, status: str) -> None:
             users = cursor.fetchall()
         
         if users:
-            response = f"Пользователи со статусом '{status}':\n\n"
+            # Функция для очистки потенциально проблемных символов Markdown
+            def clean_text(text: str) -> str:
+                """Удаляет специальные символы Markdown из текста"""
+                if not text:
+                    return 'N/A'
+                # Удаляем все специальные символы Markdown
+                markdown_chars = ['*', '_', '`', '[', ']', '(', ')', '~', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!']
+                cleaned = str(text)
+                for char in markdown_chars:
+                    cleaned = cleaned.replace(char, '')
+                return cleaned
+            
+            response = f"Пользователи со статусом '{clean_text(status)}':\n\n"
             for user in users:
                 start_date = parse_db_date(user['subscription_start_date'])
                 end_date = parse_db_date(user['subscription_end_date'])
@@ -184,29 +196,54 @@ def get_users_by_status(message: Any, status: str) -> None:
                 start_date_str = start_date.strftime('%d.%m.%Y %H:%M') if start_date else 'N/A'
                 end_date_str = end_date.strftime('%d.%m.%Y %H:%M') if end_date else 'N/A'
                 
-                username = f"@{user['username']}" if user['username'] else "нет username"
-                response += f"ID: {user['telegram_id']}\n"
-                response += f"Имя: {user['first_name']}\n"
+                # Безопасное форматирование данных пользователя с очисткой специальных символов
+                user_id = str(user['telegram_id'])
+                first_name = clean_text(user['first_name']) if user['first_name'] else 'N/A'
+                username_raw = user['username'] if user['username'] else None
+                username = f"@{clean_text(username_raw)}" if username_raw else "нет username"
+                payment_status = clean_text(user['payment_status']) if user['payment_status'] else 'N/A'
+                
+                response += f"ID: {user_id}\n"
+                response += f"Имя: {first_name}\n"
                 response += f"Username: {username}\n"
                 response += f"Начало: {start_date_str}\n"
                 response += f"Конец: {end_date_str}\n"
-                response += f"Оплата: {user['payment_status']}\n"
-                response += "─" * 20 + "\n"
+                response += f"Оплата: {payment_status}\n"
+                response += "-" * 20 + "\n"
             
             # Разбиваем на части, если сообщение слишком длинное (Telegram лимит ~4096 символов)
+            # НЕ используем parse_mode чтобы избежать проблем с парсингом специальных символов
+            # Используем обычный текст без форматирования
             if len(response) > 4000:
-                parts = response.split("─" * 20 + "\n")
+                parts = response.split("-" * 20 + "\n")
                 current_part = ""
                 for part in parts:
                     if len(current_part + part) > 4000:
-                        bot.send_message(message.chat.id, current_part, parse_mode='Markdown')
+                        # Отправляем без parse_mode (обычный текст)
+                        try:
+                            bot.send_message(message.chat.id, current_part)
+                        except Exception as send_error:
+                            logger.error(f"Error sending message part: {send_error}")
+                            # Пробуем отправить как обычный текст с экранированием
+                            bot.send_message(message.chat.id, current_part.replace('*', '').replace('_', '').replace('`', ''))
                         current_part = part
                     else:
-                        current_part += part + "─" * 20 + "\n"
+                        current_part += part + "-" * 20 + "\n"
                 if current_part:
-                    bot.send_message(message.chat.id, current_part, parse_mode='Markdown')
+                    try:
+                        bot.send_message(message.chat.id, current_part)
+                    except Exception as send_error:
+                        logger.error(f"Error sending message part: {send_error}")
+                        bot.send_message(message.chat.id, current_part.replace('*', '').replace('_', '').replace('`', ''))
             else:
-                bot.send_message(message.chat.id, response, parse_mode='Markdown')
+                # Отправляем без parse_mode (обычный текст)
+                try:
+                    bot.send_message(message.chat.id, response)
+                except Exception as send_error:
+                    logger.error(f"Error sending message: {send_error}")
+                    # Пробуем отправить как обычный текст с удалением потенциально проблемных символов
+                    safe_response = response.replace('*', '').replace('_', '').replace('`', '').replace('[', '').replace(']', '')
+                    bot.send_message(message.chat.id, safe_response)
         else:
             bot.send_message(message.chat.id, f"Пользователи со статусом '{status}' не найдены.")
     except Exception as e:

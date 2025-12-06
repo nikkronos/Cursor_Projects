@@ -1,51 +1,8 @@
-# База данных
-*.db
-bot.db
-*.sqlite
-*.sqlite3
-
-# Логи
-logs/
-*.log
-bot.log
-
-# Python кэш и скомпилированные файлы
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-
-# Виртуальное окружение
-venv/
-env/
-ENV/
-.venv
-
-# Переменные окружения (чувствительные данные)
 env_vars.txt
 .env
-.env.local
+__pycache__/
+logs/
+*.log
+bot.db
+*.db
 
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Временные файлы
-*.tmp
-*.bak
-*.save
-*.swp
-
-# Backup файлы
-*.backup
-
-# Временные тестовые файлы (опционально, можно закоммитить если нужны)
-# test_user_info_extraction.py

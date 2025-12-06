@@ -128,24 +128,31 @@ def send_payment_info(message: types.Message, amount: int) -> None:
 def send_answers_to_admin(user_id: int, first_name: str, username: Optional[str]) -> None:
     """Отправить все ответы пользователя админу с кнопками подтвердить/отклонить"""
     from database import get_user_tariff_answers
+    from utils import escape_markdown
     
     answers = get_user_tariff_answers(user_id)
     
     if not answers:
         return
     
+    # Экранируем пользовательские данные для безопасного использования в Markdown
+    first_name_escaped = escape_markdown(first_name if first_name else 'N/A')
+    username_str = f"@{username}" if username else "нет username"
+    username_escaped = escape_markdown(username_str)
+    
     response = f"Ответы на вопросы от пользователя:\n\n"
     response += f"ID: {user_id}\n"
-    response += f"Имя: {first_name}\n"
-    username_str = f"@{username}" if username else "нет username"
-    response += f"Username: {username_str}\n\n"
+    response += f"Имя: {first_name_escaped}\n"
+    response += f"Username: {username_escaped}\n\n"
     
     for answer_row in answers:
         question_num = answer_row['question_number']
         answer_text = answer_row['answer']
         question_text = TARIFF_QUESTIONS[question_num - 1]
+        # Экранируем ответ пользователя
+        answer_text_escaped = escape_markdown(answer_text if answer_text else 'N/A')
         response += f"{question_num}. {question_text}\n"
-        response += f"Ответ: {answer_text}\n\n"
+        response += f"Ответ: {answer_text_escaped}\n\n"
     
     # Разбиваем на части, если сообщение слишком длинное
     if len(response) > 4000:
