@@ -172,6 +172,7 @@ def safe_send_photo(
     chat_id: int,
     photo: str,
     caption: Optional[str] = None,
+    notify_admin: bool = True,
     **kwargs: Any
 ) -> Optional[Any]:
     """
@@ -182,6 +183,7 @@ def safe_send_photo(
         chat_id: ID чата для отправки
         photo: file_id или URL фото
         caption: Подпись к фото
+        notify_admin: Уведомить администратора при ошибке (по умолчанию True)
         **kwargs: Дополнительные параметры для send_photo
     
     Returns:
@@ -191,9 +193,45 @@ def safe_send_photo(
         return bot.send_photo(chat_id=chat_id, photo=photo, caption=caption, **kwargs)
     
     try:
-        return retry_telegram_api(send_func, max_attempts=3)
+        result = retry_telegram_api(send_func, max_attempts=3)
+        if result is None:
+            raise Exception("Фото не было отправлено (результат None)")
+        return result
     except Exception as e:
-        logger.error(f"Не удалось отправить фото в чат {chat_id}: {e}")
+        error_message = str(e).lower()
+        is_file_not_found = any(keyword in error_message for keyword in [
+            "file not found", "bad file", "file_id", "file doesn't exist",
+            "wrong file_id", "file is too big", "file_unique_id"
+        ])
+        
+        if is_file_not_found:
+            logger.warning(f"⚠️ file_id устарел или недействителен для чата {chat_id}. file_id: {photo[:50]}...")
+            if notify_admin:
+                try:
+                    safe_send_message(
+                        bot,
+                        ADMIN_ID,
+                        f"⚠️ *Внимание!* file_id устарел или недействителен.\n\n"
+                        f"Чат: {chat_id}\n"
+                        f"file_id: `{photo[:50]}...`\n\n"
+                        f"Необходимо обновить file_id в коде.",
+                        parse_mode='Markdown'
+                    )
+                except Exception as admin_error:
+                    logger.error(f"Не удалось уведомить администратора: {admin_error}")
+        else:
+            logger.error(f"Не удалось отправить фото в чат {chat_id}: {e}")
+            if notify_admin:
+                try:
+                    safe_send_message(
+                        bot,
+                        ADMIN_ID,
+                        f"❌ Ошибка отправки фото в чат {chat_id}:\n`{str(e)[:200]}`",
+                        parse_mode='Markdown'
+                    )
+                except Exception as admin_error:
+                    logger.error(f"Не удалось уведомить администратора: {admin_error}")
+        
         return None
 
 
