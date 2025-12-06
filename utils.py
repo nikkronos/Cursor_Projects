@@ -167,6 +167,36 @@ def safe_send_message(
         return None
 
 
+def safe_send_photo(
+    bot: Any,
+    chat_id: int,
+    photo: str,
+    caption: Optional[str] = None,
+    **kwargs: Any
+) -> Optional[Any]:
+    """
+    Безопасная отправка фото с автоматическими повторами при ошибках.
+    
+    Args:
+        bot: Экземпляр бота
+        chat_id: ID чата для отправки
+        photo: file_id или URL фото
+        caption: Подпись к фото
+        **kwargs: Дополнительные параметры для send_photo
+    
+    Returns:
+        Результат отправки фото или None при ошибке
+    """
+    def send_func():
+        return bot.send_photo(chat_id=chat_id, photo=photo, caption=caption, **kwargs)
+    
+    try:
+        return retry_telegram_api(send_func, max_attempts=3)
+    except Exception as e:
+        logger.error(f"Не удалось отправить фото в чат {chat_id}: {e}")
+        return None
+
+
 # ==================== Rate Limiting ====================
 
 # Хранилище истории запросов: {user_id: [timestamp1, timestamp2, ...]}
@@ -230,9 +260,9 @@ def check_rate_limit(
 
 
 def rate_limit(
-    max_requests: int = 10,
-    time_window: float = 15.0,
-    block_duration: float = 60.0
+    max_requests: int = 20,
+    time_window: float = 30.0,
+    block_duration: float = 30.0
 ):
     """
     Декоратор для применения rate limiting к обработчикам.

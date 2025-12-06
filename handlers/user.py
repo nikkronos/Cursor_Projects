@@ -11,7 +11,7 @@ from utils import rate_limit
 
 
 @bot.message_handler(commands=['start'])
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=20, time_window=30.0, block_duration=30.0)
 def handle_start(message: types.Message) -> None:
     """Обработчик команды /start - регистрация пользователя и показ главного меню"""
     user_id = message.from_user.id
@@ -62,7 +62,7 @@ def handle_start(message: types.Message) -> None:
 
 
 @bot.message_handler(func=lambda message: message.text == "⬅️ Главное меню")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=20, time_window=30.0, block_duration=30.0)
 def handle_back_to_main_menu(message: types.Message) -> None:
     """Обработчик кнопки '⬅️ Главное меню'"""
     logger.info(f"Back to main menu requested by {message.from_user.id}")
@@ -71,14 +71,14 @@ def handle_back_to_main_menu(message: types.Message) -> None:
 
 @bot.message_handler(func=lambda message: message.text == "Вернутся в главное меню🏡")
 @bot.message_handler(func=lambda message: message.text == "🔄 Перезагрузить бота")  # оставляем для совместимости
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=20, time_window=30.0, block_duration=30.0)
 def handle_restart_bot(message: types.Message) -> None:
     """Обработчик кнопки 'Вернутся в главное меню🏡' и '🔄 Перезагрузить бота'"""
     handle_start(message)
 
 
 @bot.message_handler(func=lambda message: message.text == "Тарифы")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=20, time_window=30.0, block_duration=30.0)
 def send_tariffs(message: types.Message) -> None:
     """Показать заглушку для тарифов (для неактивных пользователей)"""
     # Заглушка для всех - не даем проходить дальше
@@ -94,7 +94,7 @@ def send_tariffs(message: types.Message) -> None:
 
 
 @bot.message_handler(func=lambda message: message.text == "Тариф")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=20, time_window=30.0, block_duration=30.0)
 def send_tariff(message: types.Message) -> None:
     """Показать заглушку для тарифов (для активных пользователей)"""
     # Заглушка для всех - не даем проходить дальше
@@ -192,21 +192,21 @@ def handle_already_answered(message: types.Message) -> None:
 
 
 @bot.message_handler(func=lambda message: message.text == "Тариф \"Базисный 🤝\"")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=20, time_window=30.0, block_duration=30.0)
 def handle_tariff_basic(message: types.Message) -> None:
     """Обработчик кнопки 'Тариф \"Базисный 🤝\"'"""
     send_payment_info(message, 3000)
 
 
 @bot.message_handler(func=lambda message: message.text == "Тариф \"Смелый✊\"")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=20, time_window=30.0, block_duration=30.0)
 def handle_tariff_brave(message: types.Message) -> None:
     """Обработчик кнопки 'Тариф \"Смелый✊\"'"""
     send_payment_info(message, 9000)
 
 
 @bot.message_handler(func=lambda message: message.text == "Остаться в Сообществе")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=20, time_window=30.0, block_duration=30.0)
 def handle_payment_button(message: types.Message) -> None:
     """Обработчик кнопки 'Остаться в Сообществе' для пользователей с активной подпиской"""
     user_id = message.from_user.id
@@ -221,7 +221,7 @@ def handle_payment_button(message: types.Message) -> None:
 
 
 @bot.message_handler(func=lambda message: message.text == "Не буду платить")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=20, time_window=30.0, block_duration=30.0)
 def handle_wont_pay_menu(message: types.Message) -> None:
     """Меню выбора причины отказа от оплаты"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
@@ -234,7 +234,7 @@ def handle_wont_pay_menu(message: types.Message) -> None:
 
 
 @bot.message_handler(func=lambda message: message.text == "Я не торгую")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=20, time_window=30.0, block_duration=30.0)
 def handle_reason_trading(message: types.Message) -> None:
     """Обработчик кнопки 'Я не торгую'"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
@@ -280,7 +280,7 @@ def process_reason_trading(message: types.Message) -> None:
 
 
 @bot.message_handler(func=lambda message: message.text == "Не буду платить по другой причине")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=20, time_window=30.0, block_duration=30.0)
 def handle_reason_other(message: types.Message) -> None:
     """Обработчик кнопки 'Не буду платить по другой причине'"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
@@ -326,14 +326,14 @@ def process_reason_other(message: types.Message) -> None:
 
 
 @bot.message_handler(func=lambda message: message.text == "Назад 🔙")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=20, time_window=30.0, block_duration=30.0)
 def handle_back_button(message: types.Message) -> None:
     """Обработчик кнопки 'Назад 🔙' - возврат к тарифам"""
     send_tariffs(message)
 
 
 @bot.message_handler(func=lambda message: message.text == "Правила Клуба")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=20, time_window=30.0, block_duration=30.0)
 def send_rules(message: types.Message) -> None:
     """Показать правила клуба"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
@@ -353,19 +353,23 @@ def send_rules(message: types.Message) -> None:
 
 
 @bot.message_handler(func=lambda message: message.text == "О Нас")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=20, time_window=30.0, block_duration=30.0)
 def send_about_us(message: types.Message) -> None:
     """Показать информацию о сообществе"""
+    from utils import safe_send_photo, safe_send_message
+    
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
     back_button = types.KeyboardButton("Вернутся в главное меню🏡")
     markup.add(back_button)
     
     file_id_1 = 'AgACAgIAAxkBAAIEVWktlnhZ-lksHTT_8mMF_rMBZ1juAAJsEGsbhNZoSU0rol3-wvFxAQADAgADeQADNgQ'
     file_id_2 = 'AgACAgIAAxkBAAIEV2ktlpFww7VEv6Sb3xRCKDOQ13NTAAJwEGsbhNZoSRonbqyrw44MAQADAgADeQADNgQ'
-    bot.send_photo(message.chat.id, file_id_1)
-    bot.send_photo(message.chat.id, file_id_2)
     
-    bot.send_message(message.chat.id,
+    # Безопасная отправка фото с обработкой ошибок
+    safe_send_photo(bot, message.chat.id, file_id_1)
+    safe_send_photo(bot, message.chat.id, file_id_2)
+    
+    safe_send_message(bot, message.chat.id,
                      "*О Нас*\n\n" 
                      f"В нашем закрытом сообществе *Trade Therapy*:\n\n" 
                      "✅ Торговые идеи по российским акциям внутри дня, локально-среднесрочно\n" 
@@ -382,21 +386,25 @@ def send_about_us(message: types.Message) -> None:
 
 
 @bot.message_handler(func=lambda message: message.text == "Отзывы")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=20, time_window=30.0, block_duration=30.0)
 def handle_reviews(message: types.Message) -> None:
     """Показать отзывы"""
+    from utils import safe_send_photo, safe_send_message
+    
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
     back_button = types.KeyboardButton("Вернутся в главное меню🏡")
     markup.add(back_button)
     
     file_id_screen1 = 'AgACAgIAAxkBAAIEU2ktlk9Bu7e5xcSYQrSt9mx5I4e4AAJrEGsbhNZoSdThsmpCxUMJAQADAgADeAADNgQ'
-    bot.send_photo(message.chat.id, file_id_screen1)
+    
+    # Безопасная отправка фото с обработкой ошибок
+    safe_send_photo(bot, message.chat.id, file_id_screen1)
 
-    bot.send_message(message.chat.id, "Больше отзывов здесь: https://t.me/feedbacktradetherapy", reply_markup=markup)
+    safe_send_message(bot, message.chat.id, "Больше отзывов здесь: https://t.me/feedbacktradetherapy", reply_markup=markup)
 
 
 @bot.message_handler(func=lambda message: message.text == "Обратная связь")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=20, time_window=30.0, block_duration=30.0)
 def send_feedback_contact(message: types.Message) -> None:
     """Показать контакты для обратной связи"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
@@ -409,7 +417,7 @@ def send_feedback_contact(message: types.Message) -> None:
 
 
 @bot.message_handler(func=lambda message: message.text == "Публичная оферта")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=20, time_window=30.0, block_duration=30.0)
 def send_oferta(message: types.Message) -> None:
     """Показать публичную оферту"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
@@ -422,35 +430,35 @@ def send_oferta(message: types.Message) -> None:
 
 
 @bot.message_handler(commands=['tariffs'])
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=20, time_window=30.0, block_duration=30.0)
 def handle_tariffs_command(message: types.Message) -> None:
     """Команда /tariffs"""
     send_tariffs(message)
 
 
 @bot.message_handler(commands=['rules'])
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=20, time_window=30.0, block_duration=30.0)
 def handle_rules_command(message: types.Message) -> None:
     """Команда /rules"""
     send_rules(message)
 
 
 @bot.message_handler(commands=['about'])
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=20, time_window=30.0, block_duration=30.0)
 def handle_about_command(message: types.Message) -> None:
     """Команда /about"""
     send_about_us(message)
 
 
 @bot.message_handler(commands=['feedback'])
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=20, time_window=30.0, block_duration=30.0)
 def handle_feedback_command(message: types.Message) -> None:
     """Команда /feedback"""
     send_feedback_contact(message)
 
 
 @bot.message_handler(commands=['status'])
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=20, time_window=30.0, block_duration=30.0)
 def handle_status_command(message: types.Message) -> None:
     """Команда /status - показать статус подписки"""
     from utils import escape_markdown
@@ -492,7 +500,7 @@ def handle_status_command(message: types.Message) -> None:
 
 
 @bot.message_handler(func=lambda message: message.text == "Статус подписки")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+@rate_limit(max_requests=20, time_window=30.0, block_duration=30.0)
 def handle_status_button(message: types.Message) -> None:
     """Обработчик кнопки 'Статус подписки'"""
     handle_status_command(message)
