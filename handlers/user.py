@@ -478,9 +478,25 @@ def handle_status_command(message: types.Message) -> None:
             first_name_escaped = escape_markdown(first_name if first_name else 'Пользователь')
             status_message = f"Текущий статус подписки, {first_name_escaped}:\n\n"
             status_message += f"Статус: Активна\n"
-            if start_date and end_date:
+            if start_date:
                 status_message += f"Начало подписки: {start_date.strftime('%H:%M:%S %d.%m.%Y')}\n"
+            if end_date:
                 status_message += f"Конец подписки: {end_date.strftime('%H:%M:%S %d.%m.%Y')}\n"
+                # Добавляем информацию о том, сколько дней осталось
+                from datetime import datetime
+                today = datetime.now()
+                time_left = end_date - today
+                days_left = time_left.days
+                if days_left > 0:
+                    status_message += f"Осталось дней: {days_left}\n"
+                elif days_left == 0:
+                    hours_left = int(time_left.total_seconds() / 3600)
+                    if hours_left > 0:
+                        status_message += f"Осталось часов: {hours_left}\n"
+                    else:
+                        status_message += f"⚠️ Подписка истекает сегодня!\n"
+                else:
+                    status_message += f"⚠️ Подписка истекла!\n"
         else:
             status_message = "К сожалению, у вас нет подписки."
     else:
