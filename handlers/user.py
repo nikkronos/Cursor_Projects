@@ -362,8 +362,8 @@ def send_about_us(message: types.Message) -> None:
     back_button = types.KeyboardButton("Вернутся в главное меню🏡")
     markup.add(back_button)
     
-    file_id_1 = 'AgACAgIAAxkBAAIEVWktlnhZ-lksHTT_8mMF_rMBZ1juAAJsEGsbhNZoSU0rol3-wvFxAQADAgADeQADNgQ'
-    file_id_2 = 'AgACAgIAAxkBAAIEV2ktlpFww7VEv6Sb3xRCKDOQ13NTAAJwEGsbhNZoSRonbqyrw44MAQADAgADeQADNgQ'
+    file_id_1 = 'AgACAgIAAxkBAAIDjWk0Ve7jr9BNjptyo92Pmm3kRsrgAAK2EWsbTN-hSQ_V94QZNTTPAQADAgADeQADNgQ'
+    file_id_2 = 'AgACAgIAAxkBAAIDj2k0VfGQFrLlIL95ikdTBvY5YOsoAAK3EWsbTN-hSWZgbKmD1H5LAQADAgADeQADNgQ'
     
     # Безопасная отправка фото с обработкой ошибок
     safe_send_photo(bot, message.chat.id, file_id_1)
@@ -395,7 +395,7 @@ def handle_reviews(message: types.Message) -> None:
     back_button = types.KeyboardButton("Вернутся в главное меню🏡")
     markup.add(back_button)
     
-    file_id_screen1 = 'AgACAgIAAxkBAAIEU2ktlk9Bu7e5xcSYQrSt9mx5I4e4AAJrEGsbhNZoSdThsmpCxUMJAQADAgADeAADNgQ'
+    file_id_screen1 = 'AgACAgIAAxkBAAIDkWk0VfRgFa66PTTFGJ6eUwEiVFs5AAK4EWsbTN-hSdji4StbcH64AQADAgADeAADNgQ'
     
     # Безопасная отправка фото с обработкой ошибок
     safe_send_photo(bot, message.chat.id, file_id_screen1)
