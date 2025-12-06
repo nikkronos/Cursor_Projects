@@ -512,16 +512,36 @@ def migrate_single_user(message: types.Message) -> None:
         try:
             user_id = validate_user_id(args[0])
             
-            # Проверяем, есть ли пользователь в группе
+            # Проверяем, есть ли пользователь в группе (с повторной попыткой для надежности)
             user_in_group = False
             member_status = None
-            try:
-                member = bot.get_chat_member(GROUP_CHAT_ID, user_id)
-                member_status = member.status
-                if member.status in ['member', 'administrator', 'creator']:
-                    user_in_group = True
-            except Exception as e:
-                logger.warning(f"Не удалось проверить участника {user_id} в группе: {e}")
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+                try:
+                    member = bot.get_chat_member(GROUP_CHAT_ID, user_id)
+                    member_status = member.status
+                    if member.status in ['member', 'administrator', 'creator']:
+                        user_in_group = True
+                        break  # Успешно нашли в группе
+                    elif member.status == 'left':
+                        # Если статус "left", но это не последняя попытка - пробуем еще раз
+                        # (может быть временная проблема API или пользователь был кикнут и снова добавлен)
+                        if attempt < max_retries - 1:
+                            import time
+                            time.sleep(1)  # Задержка перед повторной попыткой
+                            continue
+                        # Если все попытки показали "left", но пользователь говорит что в группе,
+                        # возможно он был кикнут и снова добавлен - не показываем предупреждение
+                        # (будем считать что пользователь в группе, если он сам говорит об этом)
+                except Exception as e:
+                    logger.warning(f"Попытка {attempt + 1}: не удалось проверить участника {user_id} в группе: {e}")
+                    if attempt < max_retries - 1:
+                        import time
+                        time.sleep(1)
+                    else:
+                        # Если все попытки неудачны, предполагаем что пользователя нет в группе
+                        member_status = "unknown"
             
             # Получаем информацию о пользователе
             first_name = "Unknown"
@@ -546,14 +566,17 @@ def migrate_single_user(message: types.Message) -> None:
                     logger.warning(f"Не удалось получить информацию о пользователе {user_id}: {e}")
                     # Продолжаем с дефолтными значениями
             
-            # Выдаем подписку до конца месяца
+            # Выдаем подписку до конца текущего месяца
             now = datetime.now()
             if now.month == 12:
-                next_month = now.replace(year=now.year+1, month=1, day=1)
+                # Если декабрь, то конец месяца - 31 декабря текущего года
+                end_date = now.replace(day=31, hour=23, minute=59, second=59)
             else:
-                next_month = now.replace(month=now.month+1, day=1)
-            
-            end_date = next_month
+                # Для других месяцев - последний день текущего месяца
+                # Используем календарь для определения последнего дня месяца
+                from calendar import monthrange
+                last_day = monthrange(now.year, now.month)[1]
+                end_date = now.replace(day=last_day, hour=23, minute=59, second=59)
             now_str = format_db_date(now)
             end_date_str = format_db_date(end_date)
             
@@ -568,12 +591,16 @@ def migrate_single_user(message: types.Message) -> None:
                 conn.commit()
             
             # Формируем сообщение с информацией о статусе в группе
+            # Показываем предупреждение только если точно знаем, что пользователя нет в группе
             status_info = ""
-            if not user_in_group:
-                if member_status:
-                    status_info = f"\n⚠️ Внимание: пользователь не в группе (статус: {member_status})"
-                else:
-                    status_info = f"\n⚠️ Внимание: пользователь не найден в группе"
+            if not user_in_group and member_status and member_status not in ['left', 'unknown']:
+                # Показываем предупреждение только для явных статусов (banned, restricted и т.д.)
+                # Для "left" и "unknown" не показываем, т.к. пользователь мог быть кикнут и снова добавлен
+                status_info = f"\n⚠️ Внимание: пользователь не в группе (статус: {member_status})"
+            elif not user_in_group and member_status == 'left':
+                # Если статус "left", но пользователь говорит что в группе - возможно он был кикнут и снова добавлен
+                # Не показываем предупреждение, но логируем для информации
+                logger.info(f"Пользователь {user_id} имеет статус 'left', но возможно был кикнут и снова добавлен")
             
             bot.send_message(message.chat.id, 
                            f"✅ Пользователь {user_id} ({first_name}) получил подписку до {end_date.strftime('%d.%m.%Y')}{status_info}")
