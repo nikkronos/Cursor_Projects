@@ -276,7 +276,9 @@ def rate_limit(
                 
                 # Отправляем предупреждение пользователю
                 try:
-                    bot.send_message(
+                    from loader import bot
+                    safe_send_message(
+                        bot,
                         user_id,
                         f"⚠️ Вы превысили лимит запросов ({max_requests} запросов за {time_window} секунд). "
                         f"Пожалуйста, подождите {int(block_duration)} секунд."
@@ -286,7 +288,9 @@ def rate_limit(
                 
                 # Уведомляем администратора
                 try:
-                    bot.send_message(
+                    from loader import bot
+                    safe_send_message(
+                        bot,
                         ADMIN_ID,
                         f"⚠️ Rate limit exceeded by user {user_id} ({message.from_user.first_name}, "
                         f"@{message.from_user.username}). {max_requests} requests in {time_window}s "
