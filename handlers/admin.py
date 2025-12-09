@@ -7,7 +7,8 @@ from datetime import datetime
 from loader import bot, logger, ADMIN_ID, GROUP_CHAT_ID
 from database import get_db_connection, format_db_date
 from utils import retry_telegram_api
-from handlers.helpers import send_admin_menu
+from handlers.helpers import send_admin_menu, send_users_filter_menu
+from database import get_users_by_status, get_all_users_for_check
 
 
 @bot.message_handler(commands=['admin'])
@@ -122,3 +123,168 @@ def handle_migrate_user(message: types.Message) -> None:
         error_msg = f"Ошибка при миграции пользователя {user_id}: {e}"
         logger.error(error_msg)
         bot.send_message(ADMIN_ID, error_msg)
+
+
+@bot.message_handler(func=lambda message: message.text == "🕒 Изменить дни")
+def handle_manage_days_menu(message: types.Message) -> None:
+    """Обработчик кнопки '🕒 Изменить дни'"""
+    if message.from_user.id != ADMIN_ID:
+        return
+    bot.send_message(ADMIN_ID, "Используйте команды:\n/add_days <user_id> <days>\n/remove_days <user_id> <days>")
+
+
+@bot.message_handler(func=lambda message: message.text == "👥 Все участники")
+def handle_all_users_button(message: types.Message) -> None:
+    """Обработчик кнопки '👥 Все участники'"""
+    if message.from_user.id != ADMIN_ID:
+        return
+    send_users_filter_menu(message.chat.id)
+
+
+@bot.message_handler(func=lambda message: message.text == "✅ Текущие участники")
+def handle_active_users_button(message: types.Message) -> None:
+    """Обработчик кнопки '✅ Текущие участники'"""
+    if message.from_user.id != ADMIN_ID:
+        return
+    get_users_by_status(message, 'active')
+
+
+@bot.message_handler(func=lambda message: message.text == "❌ Бывшие участники")
+def handle_inactive_users_button(message: types.Message) -> None:
+    """Обработчик кнопки '❌ Бывшие участники'"""
+    if message.from_user.id != ADMIN_ID:
+        return
+    get_users_by_status(message, 'inactive')
+
+
+@bot.message_handler(func=lambda message: message.text == "💰 Неподтверждённые оплаты")
+def handle_pending_payments_button(message: types.Message) -> None:
+    """Обработчик кнопки '💰 Неподтверждённые оплаты'"""
+    if message.from_user.id != ADMIN_ID:
+        return
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT u.telegram_id, u.first_name, u.username, r.file_id, r.file_type, r.created_at
+                FROM receipts r
+                JOIN users u ON r.user_id = u.telegram_id
+                WHERE u.payment_status = 'pending_review'
+                ORDER BY r.created_at DESC
+                LIMIT 20
+            """)
+            receipts = cursor.fetchall()
+        
+        if receipts:
+            for receipt in receipts:
+                user_id = receipt['telegram_id']
+                first_name = receipt['first_name'] or 'Unknown'
+                username = receipt['username'] or 'нет username'
+                file_id = receipt['file_id']
+                file_type = receipt['file_type']
+                
+                markup = types.InlineKeyboardMarkup()
+                btn_confirm = types.InlineKeyboardButton("✅ Подтвердить", callback_data=f"confirm_pay_{user_id}")
+                btn_reject = types.InlineKeyboardButton("❌ Отклонить", callback_data=f"reject_pay_{user_id}")
+                markup.add(btn_confirm, btn_reject)
+                
+                if file_type == 'photo':
+                    bot.send_photo(ADMIN_ID, file_id, 
+                                 caption=f"Чек от {first_name} (@{username if username != 'нет username' else 'N/A'})",
+                                 reply_markup=markup)
+                else:
+                    bot.send_document(ADMIN_ID, file_id,
+                                    caption=f"Чек от {first_name} (@{username if username != 'нет username' else 'N/A'})",
+                                    reply_markup=markup)
+        else:
+            bot.send_message(ADMIN_ID, "Нет неподтверждённых оплат.")
+    except Exception as e:
+        logger.error(f"Error getting pending payments: {e}")
+        bot.send_message(ADMIN_ID, f"Ошибка при получении неподтверждённых оплат: {e}")
+
+
+@bot.message_handler(func=lambda message: message.text == "🧾 Чеки и оплаты")
+def handle_receipts_menu_button(message: types.Message) -> None:
+    """Обработчик кнопки '🧾 Чеки и оплаты'"""
+    if message.from_user.id != ADMIN_ID:
+        return
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT COUNT(*) as count FROM receipts
+            """)
+            total = cursor.fetchone()['count']
+        
+        markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+        btn_show = types.KeyboardButton("👁 Показать чеки")
+        btn_delete = types.KeyboardButton("🗑 Удалить старые чеки")
+        btn_back = types.KeyboardButton("⬅️ Главное меню")
+        markup.add(btn_show, btn_delete, btn_back)
+        
+        bot.send_message(ADMIN_ID, f"Всего чеков в базе: {total}", reply_markup=markup)
+    except Exception as e:
+        logger.error(f"Error in receipts menu: {e}")
+        bot.send_message(ADMIN_ID, f"Ошибка: {e}")
+
+
+@bot.message_handler(func=lambda message: message.text == "👁 Показать чеки")
+def handle_show_receipts_button(message: types.Message) -> None:
+    """Обработчик кнопки '👁 Показать чеки'"""
+    if message.from_user.id != ADMIN_ID:
+        return
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT u.telegram_id, u.first_name, u.username, r.file_id, r.file_type, r.created_at
+                FROM receipts r
+                JOIN users u ON r.user_id = u.telegram_id
+                ORDER BY r.created_at DESC
+                LIMIT 10
+            """)
+            receipts = cursor.fetchall()
+        
+        if receipts:
+            for receipt in receipts:
+                user_id = receipt['telegram_id']
+                first_name = receipt['first_name'] or 'Unknown'
+                username = receipt['username'] or 'нет username'
+                file_id = receipt['file_id']
+                file_type = receipt['file_type']
+                created_at = receipt['created_at']
+                
+                if file_type == 'photo':
+                    bot.send_photo(ADMIN_ID, file_id, 
+                                 caption=f"Чек от {first_name} (@{username if username != 'нет username' else 'N/A'})\nДата: {created_at}")
+                else:
+                    bot.send_document(ADMIN_ID, file_id,
+                                    caption=f"Чек от {first_name} (@{username if username != 'нет username' else 'N/A'})\nДата: {created_at}")
+        else:
+            bot.send_message(ADMIN_ID, "Нет чеков в базе.")
+    except Exception as e:
+        logger.error(f"Error showing receipts: {e}")
+        bot.send_message(ADMIN_ID, f"Ошибка при показе чеков: {e}")
+
+
+@bot.message_handler(func=lambda message: message.text == "🗑 Удалить старые чеки")
+def handle_delete_old_receipts_button(message: types.Message) -> None:
+    """Обработчик кнопки '🗑 Удалить старые чеки'"""
+    if message.from_user.id != ADMIN_ID:
+        return
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            # Удаляем чеки старше 30 дней
+            cursor.execute("""
+                DELETE FROM receipts 
+                WHERE created_at < datetime('now', '-30 days')
+            """)
+            deleted = cursor.rowcount
+            conn.commit()
+        
+        bot.send_message(ADMIN_ID, f"Удалено старых чеков: {deleted}")
+        send_admin_menu(ADMIN_ID)
+    except Exception as e:
+        logger.error(f"Error deleting old receipts: {e}")
+        bot.send_message(ADMIN_ID, f"Ошибка при удалении чеков: {e}")
