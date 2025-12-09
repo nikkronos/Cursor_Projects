@@ -7,7 +7,7 @@ import logging
 from typing import Callable, Any, Optional, Dict, List, Tuple
 from functools import wraps
 from collections import defaultdict, deque
-from loader import ADMIN_ID, bot, logger
+from loader import ADMIN_ID, logger
 
 # Rate limiting storage
 _rate_limit_history: Dict[int, deque] = defaultdict(lambda: deque())
@@ -160,12 +160,14 @@ def rate_limit(max_requests: int = 10, time_window: float = 15.0, block_duration
                     
                     # Send notification to admin
                     try:
+                        from loader import bot
                         bot.send_message(ADMIN_ID, warning_msg)
                     except Exception as e:
                         logger.error(f"Failed to send rate limit notification to admin: {e}")
                     
                     # Send warning to user
                     try:
+                        from loader import bot
                         bot.send_message(
                             user_id,
                             f"Вы превысили лимит запросов. Пожалуйста, подождите {block_duration:.0f} секунд."
