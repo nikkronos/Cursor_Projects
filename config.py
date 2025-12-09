@@ -7,5 +7,6 @@ def load_config() -> Dict[str, Optional[str]]:
     return {
         'BOT_TOKEN': os.getenv('BOT_TOKEN'),
         'GROUP_CHAT_ID': os.getenv('GROUP_CHAT_ID'),
-        'ADMIN_ID': os.getenv('ADMIN_ID')
+        'ADMIN_ID': os.getenv('ADMIN_ID'),
+        'GROUP_INVITE_LINK': os.getenv('GROUP_INVITE_LINK', '')
     }
