@@ -9,6 +9,8 @@ from database import get_db_connection, format_db_date
 from utils import retry_telegram_api
 from handlers.helpers import send_admin_menu, send_users_filter_menu
 from database import get_users_by_status, get_all_users_for_check
+from services import add_subscription_days_logic, remove_subscription_days_logic, remove_user_from_group
+from validators import validate_user_id, validate_days
 
 
 @bot.message_handler(commands=['admin'])
@@ -27,16 +29,16 @@ def handle_admin_button(message: types.Message) -> None:
     send_admin_menu(message.chat.id)
 
 
-@bot.message_handler(commands=['migrate_user'])
+@bot.message_handler(commands=['migrate_user', 'update_user'])
 def handle_migrate_user(message: types.Message) -> None:
-    """Команда для выдачи подписки существующим участникам группы"""
+    """Команда для выдачи подписки существующим участникам группы или обновления данных пользователя"""
     if message.from_user.id != ADMIN_ID:
         return
     
     # Парсим user_id из аргументов команды
     command_parts = message.text.split()
     if len(command_parts) < 2:
-        bot.send_message(ADMIN_ID, "Использование: /migrate_user <user_id>")
+        bot.send_message(ADMIN_ID, "Использование: /migrate_user <user_id> или /update_user <user_id>")
         return
     
     try:
@@ -76,7 +78,42 @@ def handle_migrate_user(message: types.Message) -> None:
     if not username:
         username = None
     
-    # Добавляем/обновляем пользователя в БД с подпиской до конца месяца
+    # Проверяем, существует ли пользователь в БД
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT subscription_end_date FROM users WHERE telegram_id = ?", (user_id,))
+        existing_user = cursor.fetchone()
+    
+    # Если команда /update_user и пользователь существует - только обновляем данные
+    if command_parts[0] == '/update_user' and existing_user:
+        try:
+            with get_db_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("""
+                    UPDATE users 
+                    SET first_name = ?, username = ?
+                    WHERE telegram_id = ?
+                """, (first_name, username, user_id))
+                conn.commit()
+            
+            logger.info(f"User {user_id} data updated: {first_name}, @{username if username else 'N/A'}")
+            
+            username_str = f"@{username}" if username else "нет username"
+            response = (
+                f"Данные пользователя обновлены:\n\n"
+                f"ID: {user_id}\n"
+                f"Имя: {first_name}\n"
+                f"Username: {username_str}"
+            )
+            bot.send_message(ADMIN_ID, response)
+            return
+        except Exception as e:
+            error_msg = f"Ошибка при обновлении данных пользователя {user_id}: {e}"
+            logger.error(error_msg)
+            bot.send_message(ADMIN_ID, error_msg)
+            return
+    
+    # Для /migrate_user - добавляем/обновляем пользователя в БД с подпиской до конца месяца
     try:
         now = datetime.now()
         if now.month == 12:
@@ -130,7 +167,13 @@ def handle_manage_days_menu(message: types.Message) -> None:
     """Обработчик кнопки '🕒 Изменить дни'"""
     if message.from_user.id != ADMIN_ID:
         return
-    bot.send_message(ADMIN_ID, "Используйте команды:\n/add_days <user_id> <days>\n/remove_days <user_id> <days>")
+    markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+    btn_add = types.KeyboardButton("➕ Добавить дни")
+    btn_remove = types.KeyboardButton("➖ Вычесть дни")
+    btn_delete = types.KeyboardButton("🗑 Удалить участника")
+    btn_back = types.KeyboardButton("🔙 Назад в админку")
+    markup.add(btn_add, btn_remove, btn_delete, btn_back)
+    bot.send_message(ADMIN_ID, "Выберите действие:", reply_markup=markup)
 
 
 @bot.message_handler(func=lambda message: message.text == "👥 Все участники")
@@ -288,3 +331,117 @@ def handle_delete_old_receipts_button(message: types.Message) -> None:
     except Exception as e:
         logger.error(f"Error deleting old receipts: {e}")
         bot.send_message(ADMIN_ID, f"Ошибка при удалении чеков: {e}")
+
+
+@bot.message_handler(func=lambda message: message.text == "➕ Добавить дни")
+def handle_add_days_button(message: types.Message) -> None:
+    """Обработчик кнопки '➕ Добавить дни'"""
+    if message.from_user.id != ADMIN_ID:
+        return
+    msg = bot.send_message(ADMIN_ID, "Введите ID пользователя и количество дней через пробел:\nНапример: 123456789 30")
+    bot.register_next_step_handler(msg, process_add_days)
+
+
+def process_add_days(message: types.Message) -> None:
+    """Обработка добавления дней"""
+    if message.from_user.id != ADMIN_ID:
+        return
+    
+    if message.text == "🔙 Назад в админку":
+        send_admin_menu(ADMIN_ID)
+        return
+    
+    try:
+        parts = message.text.split()
+        if len(parts) != 2:
+            bot.send_message(ADMIN_ID, "Неверный формат. Введите: <user_id> <days>")
+            return
+        
+        user_id = validate_user_id(parts[0])
+        days = validate_days(parts[1])
+        
+        add_subscription_days_logic(user_id, days, ADMIN_ID)
+    except Exception as e:
+        logger.error(f"Error in process_add_days: {e}")
+        bot.send_message(ADMIN_ID, f"Ошибка: {e}")
+
+
+@bot.message_handler(func=lambda message: message.text == "➖ Вычесть дни")
+def handle_remove_days_button(message: types.Message) -> None:
+    """Обработчик кнопки '➖ Вычесть дни'"""
+    if message.from_user.id != ADMIN_ID:
+        return
+    msg = bot.send_message(ADMIN_ID, "Введите ID пользователя и количество дней через пробел:\nНапример: 123456789 7")
+    bot.register_next_step_handler(msg, process_remove_days)
+
+
+def process_remove_days(message: types.Message) -> None:
+    """Обработка вычитания дней"""
+    if message.from_user.id != ADMIN_ID:
+        return
+    
+    if message.text == "🔙 Назад в админку":
+        send_admin_menu(ADMIN_ID)
+        return
+    
+    try:
+        parts = message.text.split()
+        if len(parts) != 2:
+            bot.send_message(ADMIN_ID, "Неверный формат. Введите: <user_id> <days>")
+            return
+        
+        user_id = validate_user_id(parts[0])
+        days = validate_days(parts[1])
+        
+        remove_subscription_days_logic(user_id, days, ADMIN_ID)
+    except Exception as e:
+        logger.error(f"Error in process_remove_days: {e}")
+        bot.send_message(ADMIN_ID, f"Ошибка: {e}")
+
+
+@bot.message_handler(func=lambda message: message.text == "🗑 Удалить участника")
+def handle_delete_user_button(message: types.Message) -> None:
+    """Обработчик кнопки '🗑 Удалить участника'"""
+    if message.from_user.id != ADMIN_ID:
+        return
+    msg = bot.send_message(ADMIN_ID, "Введите ID пользователя для удаления:")
+    bot.register_next_step_handler(msg, process_delete_user)
+
+
+def process_delete_user(message: types.Message) -> None:
+    """Обработка удаления пользователя"""
+    if message.from_user.id != ADMIN_ID:
+        return
+    
+    if message.text == "🔙 Назад в админку":
+        send_admin_menu(ADMIN_ID)
+        return
+    
+    try:
+        user_id = validate_user_id(message.text)
+        
+        # Удаляем из группы
+        if GROUP_CHAT_ID:
+            remove_user_from_group(user_id, GROUP_CHAT_ID)
+        
+        # Удаляем из БД
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM users WHERE telegram_id = ?", (user_id,))
+            cursor.execute("DELETE FROM receipts WHERE user_id = ?", (user_id,))
+            cursor.execute("DELETE FROM tariff_answers WHERE user_id = ?", (user_id,))
+            conn.commit()
+        
+        bot.send_message(ADMIN_ID, f"Пользователь {user_id} удален из базы данных и группы.")
+        send_admin_menu(ADMIN_ID)
+    except Exception as e:
+        logger.error(f"Error in process_delete_user: {e}")
+        bot.send_message(ADMIN_ID, f"Ошибка: {e}")
+
+
+@bot.message_handler(func=lambda message: message.text == "🔙 Назад в админку")
+def handle_back_to_admin_menu(message: types.Message) -> None:
+    """Обработчик кнопки '🔙 Назад в админку'"""
+    if message.from_user.id != ADMIN_ID:
+        return
+    send_admin_menu(message.chat.id)
