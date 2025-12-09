@@ -7,6 +7,23 @@ from datetime import datetime
 from loader import bot, logger, ADMIN_ID, GROUP_CHAT_ID
 from database import get_db_connection, format_db_date
 from utils import retry_telegram_api
+from handlers.helpers import send_admin_menu
+
+
+@bot.message_handler(commands=['admin'])
+def handle_admin_command(message: types.Message) -> None:
+    """Обработчик команды /admin"""
+    if message.from_user.id != ADMIN_ID:
+        return
+    send_admin_menu(message.chat.id)
+
+
+@bot.message_handler(func=lambda message: message.text == "⚙️ Админ")
+def handle_admin_button(message: types.Message) -> None:
+    """Обработчик кнопки '⚙️ Админ'"""
+    if message.from_user.id != ADMIN_ID:
+        return
+    send_admin_menu(message.chat.id)
 
 
 @bot.message_handler(commands=['migrate_user'])

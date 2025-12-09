@@ -77,6 +77,29 @@ def handle_restart_bot(message: types.Message) -> None:
     handle_start(message)
 
 
+@bot.message_handler(func=lambda message: message.text == "Тариф")
+@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+def send_tariff_active(message: types.Message) -> None:
+    """Обработчик кнопки 'Тариф' для активных участников"""
+    user_id = message.from_user.id
+    user_data = get_user_status(user_id)
+    
+    # Если у пользователя есть активная подписка - показываем кнопку "Остаться в Сообществе"
+    if user_data and user_data['subscription_status'] == 'active':
+        markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+        btn_payment = types.KeyboardButton("Остаться в Сообществе")
+        back_button = types.KeyboardButton("Вернутся в главное меню🏡")
+        markup.add(btn_payment, back_button)
+        bot.send_message(message.chat.id,
+                         "*Тарифы*\n\n" 
+                         "Для продления подписки нажмите кнопку 'Остаться в Сообществе'.",
+                         parse_mode='Markdown',
+                         reply_markup=markup)
+    else:
+        # Если подписка неактивна, перенаправляем в тарифы
+        send_tariffs(message)
+
+
 @bot.message_handler(func=lambda message: message.text == "Тарифы")
 @rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
 def send_tariffs(message: types.Message) -> None:
