@@ -52,23 +52,37 @@ def handle_migrate_user(message: types.Message) -> None:
     username = None
     
     try:
-        # Пробуем получить через get_chat
-        try:
-            chat = bot.get_chat(user_id)
-            first_name = chat.first_name
-            username = chat.username
-        except Exception as e:
-            logger.warning(f"Could not get user info via get_chat({user_id}): {e}")
-            # Пробуем через get_chat_member если пользователь в группе
-            if GROUP_CHAT_ID:
+        # Сначала пробуем через get_chat_member (если пользователь в группе) - это более надежный способ
+        # Используем прямой вызов, как в handlers/user.py, где это работает
+        if GROUP_CHAT_ID:
+            try:
+                member = bot.get_chat_member(GROUP_CHAT_ID, user_id)
+                first_name = member.user.first_name
+                username = member.user.username
+                logger.info(f"Successfully got user info via get_chat_member for {user_id}: {first_name}")
+            except Exception as e2:
+                error_msg = str(e2)
+                logger.warning(f"Could not get user info via get_chat_member({GROUP_CHAT_ID}, {user_id}): {e2}")
+                # Если ошибка 401 - возможно, бот не является администратором группы
+                if "401" in error_msg or "Unauthorized" in error_msg:
+                    logger.warning(f"Bot may not be an administrator of the group {GROUP_CHAT_ID}")
+                # Если get_chat_member не сработал, пробуем get_chat
                 try:
-                    def get_member():
-                        return bot.get_chat_member(GROUP_CHAT_ID, user_id)
-                    member = retry_telegram_api(get_member, max_attempts=2)
-                    first_name = member.user.first_name
-                    username = member.user.username
-                except Exception as e2:
-                    logger.warning(f"Could not get user info via get_chat_member({GROUP_CHAT_ID}, {user_id}): {e2}")
+                    chat = bot.get_chat(user_id)
+                    first_name = chat.first_name
+                    username = chat.username
+                    logger.info(f"Successfully got user info via get_chat for {user_id}: {first_name}")
+                except Exception as e:
+                    logger.warning(f"Could not get user info via get_chat({user_id}): {e}")
+        else:
+            # Если GROUP_CHAT_ID не установлен, пробуем только get_chat
+            try:
+                chat = bot.get_chat(user_id)
+                first_name = chat.first_name
+                username = chat.username
+                logger.info(f"Successfully got user info via get_chat for {user_id}: {first_name}")
+            except Exception as e:
+                logger.warning(f"Could not get user info via get_chat({user_id}): {e}")
     except Exception as e:
         logger.error(f"Error getting user info for {user_id}: {e}")
     
@@ -498,6 +512,41 @@ def handle_back_to_admin_menu(message: types.Message) -> None:
     if message.from_user.id != ADMIN_ID:
         return
     send_admin_menu(message.chat.id)
+
+
+@bot.message_handler(commands=['test_get_member'])
+def handle_test_get_member(message: types.Message) -> None:
+    """Тестовая команда для проверки работы get_chat_member"""
+    if message.from_user.id != ADMIN_ID:
+        return
+    
+    try:
+        # Пробуем получить информацию о самом админе через get_chat_member
+        if GROUP_CHAT_ID:
+            try:
+                member = bot.get_chat_member(GROUP_CHAT_ID, ADMIN_ID)
+                response = (
+                    f"✅ get_chat_member работает!\n\n"
+                    f"GROUP_CHAT_ID: {GROUP_CHAT_ID}\n"
+                    f"Ваш статус в группе: {member.status}\n"
+                    f"Ваше имя: {member.user.first_name}\n"
+                    f"Ваш username: @{member.user.username if member.user.username else 'нет'}"
+                )
+                bot.send_message(ADMIN_ID, response)
+            except Exception as e:
+                error_msg = str(e)
+                response = (
+                    f"❌ Ошибка при get_chat_member:\n\n"
+                    f"GROUP_CHAT_ID: {GROUP_CHAT_ID}\n"
+                    f"Ошибка: {error_msg}\n\n"
+                )
+                if "401" in error_msg or "Unauthorized" in error_msg:
+                    response += "⚠️ Ошибка 401: Проверьте, что бот является администратором группы"
+                bot.send_message(ADMIN_ID, response)
+        else:
+            bot.send_message(ADMIN_ID, "❌ GROUP_CHAT_ID не установлен")
+    except Exception as e:
+        bot.send_message(ADMIN_ID, f"❌ Критическая ошибка: {e}")
 
 
 @bot.message_handler(commands=['fix_subscription_dates'])
