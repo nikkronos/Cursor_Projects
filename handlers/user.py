@@ -367,8 +367,17 @@ def send_about_us(message: types.Message) -> None:
     
     file_id_1 = 'AgACAgIAAxkBAAIEVWktlnhZ-lksHTT_8mMF_rMBZ1juAAJsEGsbhNZoSU0rol3-wvFxAQADAgADeQADNgQ'
     file_id_2 = 'AgACAgIAAxkBAAIEV2ktlpFww7VEv6Sb3xRCKDOQ13NTAAJwEGsbhNZoSRonbqyrw44MAQADAgADeQADNgQ'
-    bot.send_photo(message.chat.id, file_id_1)
-    bot.send_photo(message.chat.id, file_id_2)
+    
+    # Отправка фото с обработкой ошибок
+    try:
+        bot.send_photo(message.chat.id, file_id_1)
+    except Exception as e:
+        logger.error(f"Error sending photo 1 in send_about_us: {e}")
+    
+    try:
+        bot.send_photo(message.chat.id, file_id_2)
+    except Exception as e:
+        logger.error(f"Error sending photo 2 in send_about_us: {e}")
     
     bot.send_message(message.chat.id,
                      "*О Нас*\n\n" 
@@ -395,7 +404,12 @@ def handle_reviews(message: types.Message) -> None:
     markup.add(back_button)
     
     file_id_screen1 = 'AgACAgIAAxkBAAIEU2ktlk9Bu7e5xcSYQrSt9mx5I4e4AAJrEGsbhNZoSdThsmpCxUMJAQADAgADeAADNgQ'
-    bot.send_photo(message.chat.id, file_id_screen1)
+    
+    # Отправка фото с обработкой ошибок
+    try:
+        bot.send_photo(message.chat.id, file_id_screen1)
+    except Exception as e:
+        logger.error(f"Error sending photo in handle_reviews: {e}")
 
     bot.send_message(message.chat.id, "Больше отзывов здесь: https://t.me/feedbacktradetherapy", reply_markup=markup)
 
@@ -543,38 +557,38 @@ def handle_payment_confirmation(message: types.Message) -> None:
         return
     
     # Обрабатываем чек (личное сообщение, не пересланное, фото/документ)
-    try:
-        with get_db_connection() as conn:
-            conn.execute("UPDATE users SET payment_status = 'pending_review' WHERE telegram_id = ?", (message.from_user.id,))
-            conn.commit()
-    except Exception as e:
-        logger.error(f"Error updating payment status: {e}")
+             try:
+                 with get_db_connection() as conn:
+                     conn.execute("UPDATE users SET payment_status = 'pending_review' WHERE telegram_id = ?", (message.from_user.id,))
+                     conn.commit()
+             except Exception as e:
+                 logger.error(f"Error updating payment status: {e}")
 
-    try:
-        file_id = None
-        file_type = 'unknown'
-        
-        if message.content_type == 'photo':
-            file_id = message.photo[-1].file_id
-            file_type = 'photo'
-        elif message.content_type == 'document':
-            file_id = message.document.file_id
-            file_type = 'document'
-        
-        if file_id:
-            with get_db_connection() as conn:
-                conn.execute("INSERT INTO receipts (user_id, file_id, file_type) VALUES (?, ?, ?)", (message.from_user.id, file_id, file_type))
-                conn.commit()
-    except Exception as e:
-        logger.error(f"Error saving receipt: {e}")
+             try:
+                 file_id = None
+                 file_type = 'unknown'
+                 
+                 if message.content_type == 'photo':
+                     file_id = message.photo[-1].file_id
+                     file_type = 'photo'
+                 elif message.content_type == 'document':
+                     file_id = message.document.file_id
+                     file_type = 'document'
+                 
+                 if file_id:
+                     with get_db_connection() as conn:
+                         conn.execute("INSERT INTO receipts (user_id, file_id, file_type) VALUES (?, ?, ?)", (message.from_user.id, file_id, file_type))
+                         conn.commit()
+             except Exception as e:
+                 logger.error(f"Error saving receipt: {e}")
 
-    markup = types.InlineKeyboardMarkup()
-    btn_confirm = types.InlineKeyboardButton("✅ Подтвердить", callback_data=f"confirm_pay_{message.from_user.id}")
-    btn_reject = types.InlineKeyboardButton("❌ Отклонить", callback_data=f"reject_pay_{message.from_user.id}")
-    markup.add(btn_confirm, btn_reject)
-    
-    bot.forward_message(ADMIN_ID, message.chat.id, message.message_id)
-    
-    bot.send_message(ADMIN_ID, f"Пользователь {message.from_user.first_name} прислал чек.", reply_markup=markup)
-    
-    bot.send_message(message.chat.id, "Ваше подтверждение отправлено администратору. Ожидайте активации.")
+             markup = types.InlineKeyboardMarkup()
+             btn_confirm = types.InlineKeyboardButton("✅ Подтвердить", callback_data=f"confirm_pay_{message.from_user.id}")
+             btn_reject = types.InlineKeyboardButton("❌ Отклонить", callback_data=f"reject_pay_{message.from_user.id}")
+             markup.add(btn_confirm, btn_reject)
+             
+             bot.forward_message(ADMIN_ID, message.chat.id, message.message_id)
+             
+             bot.send_message(ADMIN_ID, f"Пользователь {message.from_user.first_name} прислал чек.", reply_markup=markup)
+             
+             bot.send_message(message.chat.id, "Ваше подтверждение отправлено администратору. Ожидайте активации.")

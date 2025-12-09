@@ -1,402 +1,208 @@
 """
-Утилиты для работы с Telegram Bot API.
-Содержит механизмы retry, rate limiting и безопасной отправки сообщений.
+Utility functions for TradeTherapyBot.
+Contains retry mechanisms, rate limiting, and safe message sending.
 """
 import time
-import re
-from typing import Callable, Any, Optional, Dict, List
+import logging
+from typing import Callable, Any, Optional, Dict, List, Tuple
 from functools import wraps
-from loader import logger, ADMIN_ID
+from collections import defaultdict, deque
+from loader import ADMIN_ID, bot, logger
+
+# Rate limiting storage
+_rate_limit_history: Dict[int, deque] = defaultdict(lambda: deque())
+_user_blocks: Dict[int, float] = {}  # {user_id: block_until_timestamp}
 
 
-# ==================== Retry механизм ====================
-
-def retry_telegram_api(
-    func: Callable,
-    max_attempts: int = 3,
-    base_delay: float = 1.0,
-    *args: Any,
-    **kwargs: Any
-) -> Any:
+def retry_telegram_api(func: Callable, max_attempts: int = 3, base_delay: float = 1.0, **kwargs) -> Any:
     """
-    Выполняет функцию с автоматическими повторами при временных ошибках.
+    Retry mechanism for Telegram API calls with exponential backoff.
     
     Args:
-        func: Функция для выполнения
-        max_attempts: Максимальное количество попыток (по умолчанию 3)
-        base_delay: Базовая задержка для экспоненциальной задержки (по умолчанию 1.0 сек)
-        *args: Позиционные аргументы для функции
-        **kwargs: Именованные аргументы для функции
+        func: Function to call
+        max_attempts: Maximum number of retry attempts
+        base_delay: Base delay in seconds for exponential backoff
+        **kwargs: Arguments to pass to the function
     
     Returns:
-        Результат выполнения функции
+        Result of the function call
     
     Raises:
-        Исключение после исчерпания всех попыток
+        Exception: If all retry attempts fail
     """
     last_exception = None
     
-    for attempt in range(1, max_attempts + 1):
+    for attempt in range(max_attempts):
         try:
-            result = func(*args, **kwargs)
-            if attempt > 1:
-                logger.info(f"Retry успешен на попытке {attempt} для функции {func.__name__}")
-            return result
-        except Exception as e:
+            return func(**kwargs)
+        except (ConnectionError, TimeoutError) as e:
             last_exception = e
-            error_message = str(e)
-            
-            # Проверка на rate limiting (429 ошибка)
-            if "429" in error_message or "Too Many Requests" in error_message:
-                retry_after = extract_retry_after(error_message)
-                if retry_after:
-                    logger.warning(f"Rate limit detected. Waiting {retry_after} seconds before retry.")
-                    time.sleep(retry_after)
-                    continue
-            
-            # Проверка на временные ошибки (ConnectionError, TimeoutError, и т.д.)
-            if is_retryable_error(e):
-                if attempt < max_attempts:
-                    delay = base_delay * (2 ** (attempt - 1))
-                    logger.warning(
-                        f"Временная ошибка при вызове {func.__name__} (попытка {attempt}/{max_attempts}): {e}. "
-                        f"Повтор через {delay} сек."
-                    )
-                    time.sleep(delay)
-                else:
-                    logger.error(f"Все попытки исчерпаны для {func.__name__}: {e}")
+            if attempt < max_attempts - 1:
+                delay = base_delay * (2 ** attempt)
+                logger.warning(f"Retry attempt {attempt + 1}/{max_attempts} after {delay}s: {e}")
+                time.sleep(delay)
             else:
-                # Некритичная ошибка - не повторяем
-                logger.error(f"Некритичная ошибка в {func.__name__}: {e}")
-                raise e
+                logger.error(f"All {max_attempts} retry attempts failed: {e}")
+                raise
+        except Exception as e:
+            error_str = str(e)
+            # Check for rate limit error (429)
+            if "429" in error_str or "Too Many Requests" in error_str:
+                # Try to extract retry_after from error message
+                retry_after = base_delay
+                if "retry_after:" in error_str:
+                    try:
+                        retry_after = float(error_str.split("retry_after:")[1].split()[0])
+                    except (ValueError, IndexError):
+                        pass
+                
+                if attempt < max_attempts - 1:
+                    logger.warning(f"Rate limit hit, waiting {retry_after}s before retry {attempt + 1}/{max_attempts}")
+                    time.sleep(retry_after)
+                    last_exception = e
+                    continue
+                else:
+                    logger.error(f"Rate limit error after {max_attempts} attempts: {e}")
+                    raise
+            else:
+                # Non-retryable error, raise immediately
+                raise
     
-    # Если дошли сюда - все попытки исчерпаны
-    logger.error(f"Все {max_attempts} попыток исчерпаны для {func.__name__}")
-    raise last_exception
+    if last_exception:
+        raise last_exception
 
 
-def is_retryable_error(error: Exception) -> bool:
+def safe_send_message(bot_instance: Any, chat_id: int, text: str, **kwargs) -> Optional[Any]:
     """
-    Проверяет, является ли ошибка временной и требует ли она повторной попытки.
+    Safely send a message with retry mechanism.
     
     Args:
-        error: Исключение для проверки
+        bot_instance: Bot instance
+        chat_id: Chat ID to send message to
+        text: Message text
+        **kwargs: Additional arguments for send_message
     
     Returns:
-        True если ошибка временная и требует retry, False иначе
+        Message object if successful, None if failed
     """
-    retryable_errors = (
-        ConnectionError,
-        TimeoutError,
-        OSError,
-    )
-    
-    if isinstance(error, retryable_errors):
-        return True
-    
-    error_message = str(error).lower()
-    retryable_keywords = [
-        "connection",
-        "timeout",
-        "network",
-        "temporary",
-        "unavailable",
-        "service",
-        "retry",
-    ]
-    
-    return any(keyword in error_message for keyword in retryable_keywords)
-
-
-def extract_retry_after(error_message: str) -> Optional[float]:
-    """
-    Извлекает значение retry_after из сообщения об ошибке rate limiting.
-    
-    Args:
-        error_message: Сообщение об ошибке
-    
-    Returns:
-        Количество секунд для ожидания или None
-    """
-    # Ищем паттерны типа "retry_after: 5" или "retry after 5"
-    patterns = [
-        r"retry[_\s]after[:\s]+(\d+)",
-        r"429.*?(\d+)",
-    ]
-    
-    for pattern in patterns:
-        match = re.search(pattern, error_message, re.IGNORECASE)
-        if match:
-            try:
-                return float(match.group(1))
-            except ValueError:
-                pass
-    
-    return None
-
-
-# ==================== Safe send message ====================
-
-def safe_send_message(
-    bot: Any,
-    chat_id: int,
-    text: str,
-    parse_mode: Optional[str] = None,
-    **kwargs: Any
-) -> Optional[Any]:
-    """
-    Безопасная отправка сообщения с автоматическими повторами при ошибках.
-    
-    Args:
-        bot: Экземпляр бота
-        chat_id: ID чата для отправки
-        text: Текст сообщения
-        parse_mode: Режим парсинга (Markdown, HTML и т.д.)
-        **kwargs: Дополнительные параметры для send_message
-    
-    Returns:
-        Результат отправки сообщения или None при ошибке
-    """
-    def send_func():
-        return bot.send_message(chat_id=chat_id, text=text, parse_mode=parse_mode, **kwargs)
+    def send_func(**send_kwargs):
+        return bot_instance.send_message(chat_id, text, **send_kwargs)
     
     try:
-        return retry_telegram_api(send_func, max_attempts=3)
+        return retry_telegram_api(send_func, max_attempts=3, **kwargs)
     except Exception as e:
-        logger.error(f"Не удалось отправить сообщение в чат {chat_id}: {e}")
+        logger.error(f"Failed to send message to {chat_id} after retries: {e}")
         return None
 
 
-def safe_send_photo(
-    bot: Any,
-    chat_id: int,
-    photo: str,
-    caption: Optional[str] = None,
-    notify_admin: bool = True,
-    **kwargs: Any
-) -> Optional[Any]:
+def rate_limit(max_requests: int = 10, time_window: float = 15.0, block_duration: float = 30.0):
     """
-    Безопасная отправка фото с автоматическими повторами при ошибках.
+    Decorator for rate limiting message handlers.
     
     Args:
-        bot: Экземпляр бота
-        chat_id: ID чата для отправки
-        photo: file_id или URL фото
-        caption: Подпись к фото
-        notify_admin: Уведомить администратора при ошибке (по умолчанию True)
-        **kwargs: Дополнительные параметры для send_photo
+        max_requests: Maximum number of requests allowed
+        time_window: Time window in seconds
+        block_duration: Duration to block user in seconds after exceeding limit
     
     Returns:
-        Результат отправки фото или None при ошибке
-    """
-    def send_func():
-        return bot.send_photo(chat_id=chat_id, photo=photo, caption=caption, **kwargs)
-    
-    try:
-        result = retry_telegram_api(send_func, max_attempts=3)
-        if result is None:
-            raise Exception("Фото не было отправлено (результат None)")
-        return result
-    except Exception as e:
-        error_message = str(e).lower()
-        is_file_not_found = any(keyword in error_message for keyword in [
-            "file not found", "bad file", "file_id", "file doesn't exist",
-            "wrong file_id", "file is too big", "file_unique_id"
-        ])
-        
-        if is_file_not_found:
-            logger.warning(f"⚠️ file_id устарел или недействителен для чата {chat_id}. file_id: {photo[:50]}...")
-            if notify_admin:
-                try:
-                    safe_send_message(
-                        bot,
-                        ADMIN_ID,
-                        f"⚠️ *Внимание!* file_id устарел или недействителен.\n\n"
-                        f"Чат: {chat_id}\n"
-                        f"file_id: `{photo[:50]}...`\n\n"
-                        f"Необходимо обновить file_id в коде.",
-                        parse_mode='Markdown'
-                    )
-                except Exception as admin_error:
-                    logger.error(f"Не удалось уведомить администратора: {admin_error}")
-        else:
-            logger.error(f"Не удалось отправить фото в чат {chat_id}: {e}")
-            if notify_admin:
-                try:
-                    safe_send_message(
-                        bot,
-                        ADMIN_ID,
-                        f"❌ Ошибка отправки фото в чат {chat_id}:\n`{str(e)[:200]}`",
-                        parse_mode='Markdown'
-                    )
-                except Exception as admin_error:
-                    logger.error(f"Не удалось уведомить администратора: {admin_error}")
-        
-        return None
-
-
-# ==================== Rate Limiting ====================
-
-# Хранилище истории запросов: {user_id: [timestamp1, timestamp2, ...]}
-_rate_limit_history: Dict[int, List[float]] = {}
-
-# Хранилище блокировок: {user_id: unblock_timestamp}
-_rate_limit_blocks: Dict[int, float] = {}
-
-
-def check_rate_limit(
-    user_id: int,
-    max_requests: int,
-    time_window: float
-) -> bool:
-    """
-    Проверяет, не превышен ли лимит запросов для пользователя.
-    
-    Args:
-        user_id: ID пользователя
-        max_requests: Максимальное количество запросов
-        time_window: Окно времени в секундах
-    
-    Returns:
-        True если лимит не превышен, False если превышен
-    """
-    # Администратор не ограничивается
-    if user_id == ADMIN_ID:
-        return True
-    
-    current_time = time.time()
-    
-    # Проверка блокировки
-    if user_id in _rate_limit_blocks:
-        unblock_time = _rate_limit_blocks[user_id]
-        if current_time < unblock_time:
-            return False
-        else:
-            # Блокировка истекла - удаляем
-            del _rate_limit_blocks[user_id]
-    
-    # Инициализация истории для пользователя
-    if user_id not in _rate_limit_history:
-        _rate_limit_history[user_id] = []
-    
-    # Очистка старых запросов (старше time_window)
-    cutoff_time = current_time - time_window
-    _rate_limit_history[user_id] = [
-        timestamp for timestamp in _rate_limit_history[user_id]
-        if timestamp > cutoff_time
-    ]
-    
-    # Проверка лимита
-    request_count = len(_rate_limit_history[user_id])
-    if request_count >= max_requests:
-        logger.warning(f"Rate limit exceeded by user {user_id}. {request_count} requests in {time_window}s (limit: {max_requests})")
-        return False
-    
-    # Добавляем текущий запрос
-    _rate_limit_history[user_id].append(current_time)
-    return True
-
-
-def rate_limit(
-    max_requests: int = 20,
-    time_window: float = 30.0,
-    block_duration: float = 30.0
-):
-    """
-    Декоратор для применения rate limiting к обработчикам.
-    
-    Args:
-        max_requests: Максимальное количество запросов
-        time_window: Окно времени в секундах
-        block_duration: Длительность блокировки в секундах при превышении лимита
-    
-    Returns:
-        Декорированная функция
+        Decorated function
     """
     def decorator(func: Callable) -> Callable:
         @wraps(func)
-        def wrapper(*args: Any, **kwargs: Any) -> Any:
-            # Получаем user_id из сообщения
-            message = None
-            if args and hasattr(args[0], 'from_user'):
-                message = args[0]
-            elif args and hasattr(args[0], 'message') and hasattr(args[0].message, 'from_user'):
-                message = args[0].message
+        def wrapper(message: Any, *args, **kwargs) -> Any:
+            # Skip rate limiting for admin
+            if hasattr(message, 'from_user') and message.from_user.id == ADMIN_ID:
+                return func(message, *args, **kwargs)
             
-            if not message:
-                # Если не можем определить пользователя - пропускаем
-                return func(*args, **kwargs)
+            # Skip rate limiting for non-private chats (groups, channels)
+            if hasattr(message, 'chat') and hasattr(message.chat, 'type'):
+                if message.chat.type != 'private':
+                    return func(message, *args, **kwargs)
             
-            user_id = message.from_user.id
+            user_id = message.from_user.id if hasattr(message, 'from_user') else None
+            if not user_id:
+                return func(message, *args, **kwargs)
             
-            # Проверка rate limit
-            if not check_rate_limit(user_id, max_requests, time_window):
-                # Превышен лимит - блокируем пользователя
-                current_time = time.time()
-                unblock_time = current_time + block_duration
-                _rate_limit_blocks[user_id] = unblock_time
+            current_time = time.time()
+            
+            # Check if user is blocked
+            if user_id in _user_blocks:
+                if current_time < _user_blocks[user_id]:
+                    # User is still blocked, ignore request
+                    return
+                else:
+                    # Block expired, remove it
+                    del _user_blocks[user_id]
+            
+            # Clean old entries and check rate limit
+            if user_id in _rate_limit_history:
+                # Remove entries older than time_window
+                while _rate_limit_history[user_id] and current_time - _rate_limit_history[user_id][0] > time_window:
+                    _rate_limit_history[user_id].popleft()
                 
-                logger.warning(
-                    f"Rate limit exceeded by user {user_id} ({message.from_user.first_name}, "
-                    f"@{message.from_user.username}). {max_requests} requests in {time_window}s "
-                    f"(limit: {max_requests}). Blocked for {block_duration} seconds."
-                )
-                
-                # Отправляем предупреждение пользователю
-                try:
-                    from loader import bot
-                    safe_send_message(
-                        bot,
-                        user_id,
-                        f"⚠️ Вы превысили лимит запросов ({max_requests} запросов за {time_window} секунд). "
-                        f"Пожалуйста, подождите {int(block_duration)} секунд."
+                # Check if limit exceeded
+                if len(_rate_limit_history[user_id]) >= max_requests:
+                    # Block user
+                    block_until = current_time + block_duration
+                    _user_blocks[user_id] = block_until
+                    
+                    # Log and notify admin
+                    user_name = getattr(message.from_user, 'first_name', 'Unknown')
+                    username = getattr(message.from_user, 'username', None)
+                    username_str = f"@{username}" if username else "нет username"
+                    
+                    warning_msg = (
+                        f"Rate limit exceeded by user {user_id} ({user_name}, {username_str}). "
+                        f"{len(_rate_limit_history[user_id])} requests in {time_window:.1f}s (limit: {max_requests}). "
+                        f"Blocked for {block_duration:.1f} seconds."
                     )
-                except Exception as e:
-                    logger.error(f"Не удалось отправить предупреждение о rate limit пользователю {user_id}: {e}")
-                
-                # Уведомляем администратора
-                try:
-                    from loader import bot
-                    safe_send_message(
-                        bot,
-                        ADMIN_ID,
-                        f"⚠️ Rate limit exceeded by user {user_id} ({message.from_user.first_name}, "
-                        f"@{message.from_user.username}). {max_requests} requests in {time_window}s "
-                        f"(limit: {max_requests}). Blocked for {block_duration} seconds."
-                    )
-                except Exception as e:
-                    logger.error(f"Не удалось отправить уведомление администратору о rate limit: {e}")
-                
-                # Не выполняем обработчик
-                return None
+                    logger.warning(warning_msg)
+                    
+                    # Send notification to admin
+                    try:
+                        bot.send_message(ADMIN_ID, warning_msg)
+                    except Exception as e:
+                        logger.error(f"Failed to send rate limit notification to admin: {e}")
+                    
+                    # Send warning to user
+                    try:
+                        bot.send_message(
+                            user_id,
+                            f"Вы превысили лимит запросов. Пожалуйста, подождите {block_duration:.0f} секунд."
+                        )
+                    except Exception as e:
+                        logger.error(f"Failed to send rate limit warning to user {user_id}: {e}")
+                    
+                    return
             
-            # Лимит не превышен - выполняем обработчик
-            return func(*args, **kwargs)
+            # Add current request to history
+            if user_id not in _rate_limit_history:
+                _rate_limit_history[user_id] = deque()
+            _rate_limit_history[user_id].append(current_time)
+            
+            # Call the original function
+            return func(message, *args, **kwargs)
         
         return wrapper
     return decorator
 
 
-# ==================== Markdown escaping ====================
-
 def escape_markdown(text: str) -> str:
     """
-    Экранирует специальные символы Markdown в тексте.
+    Escape special Markdown characters in text.
     
     Args:
-        text: Текст для экранирования
+        text: Text to escape
     
     Returns:
-        Текст с экранированными символами Markdown
+        Escaped text safe for Markdown
     """
     if not text:
         return text
     
-    # Символы, которые нужно экранировать в Markdown
-    escape_chars = ['*', '_', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!']
-    
-    result = text
+    # Escape special Markdown characters: _ * [ ] ( ) ~ ` > # + - = | { } . !
+    escape_chars = r'_*[]()~`>#+-=|{}.!'
     for char in escape_chars:
-        result = result.replace(char, f'\\{char}')
+        text = text.replace(char, f'\\{char}')
     
-    return result
+    return text
