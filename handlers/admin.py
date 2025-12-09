@@ -9,7 +9,7 @@ from database import get_db_connection, format_db_date
 from utils import retry_telegram_api
 from handlers.helpers import send_admin_menu, send_users_filter_menu
 from database import get_users_by_status, get_all_users_for_check
-from services import add_subscription_days_logic, remove_subscription_days_logic, remove_user_from_group
+from services import add_subscription_days_logic, remove_subscription_days_logic, remove_user_from_group, get_next_month_end
 from validators import validate_user_id, validate_days
 
 
@@ -113,15 +113,11 @@ def handle_migrate_user(message: types.Message) -> None:
             bot.send_message(ADMIN_ID, error_msg)
             return
     
-    # Для /migrate_user - добавляем/обновляем пользователя в БД с подпиской до конца месяца
+    # Для /migrate_user - добавляем/обновляем пользователя в БД с подпиской до конца следующего месяца
     try:
         now = datetime.now()
-        if now.month == 12:
-            next_month = now.replace(year=now.year+1, month=1, day=1, hour=23, minute=59, second=59)
-        else:
-            next_month = now.replace(month=now.month+1, day=1, hour=23, minute=59, second=59)
-        
-        end_date = next_month
+        # Используем функцию get_next_month_end для правильного расчета даты конца следующего месяца
+        end_date = get_next_month_end(now)
         now_str = format_db_date(now)
         end_date_str = format_db_date(end_date)
         
@@ -502,3 +498,34 @@ def handle_back_to_admin_menu(message: types.Message) -> None:
     if message.from_user.id != ADMIN_ID:
         return
     send_admin_menu(message.chat.id)
+
+
+@bot.message_handler(commands=['fix_subscription_dates'])
+def handle_fix_subscription_dates(message: types.Message) -> None:
+    """Команда для установки единой даты окончания подписки всем активным пользователям"""
+    if message.from_user.id != ADMIN_ID:
+        return
+    
+    try:
+        # Устанавливаем дату окончания на 01.01.2026 12:00
+        target_date = datetime(2026, 1, 1, 12, 0, 0)
+        target_date_str = format_db_date(target_date)
+        
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            # Обновляем только активных пользователей
+            cursor.execute("""
+                UPDATE users 
+                SET subscription_end_date = ?
+                WHERE subscription_status = 'active'
+            """, (target_date_str,))
+            updated_count = cursor.rowcount
+            conn.commit()
+        
+        logger.info(f"Updated subscription end date to 01.01.2026 12:00 for {updated_count} active users")
+        bot.send_message(ADMIN_ID, f"✅ Обновлено дат окончания подписки для {updated_count} активных пользователей.\nНовая дата окончания: 01.01.2026 12:00")
+        
+    except Exception as e:
+        error_msg = f"Ошибка при обновлении дат окончания подписки: {e}"
+        logger.error(error_msg)
+        bot.send_message(ADMIN_ID, error_msg)
