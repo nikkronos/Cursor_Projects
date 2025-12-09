@@ -318,14 +318,24 @@ def handle_delete_old_receipts_button(message: types.Message) -> None:
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
+            # Сначала проверяем, сколько чеков будет удалено (для логирования)
+            cursor.execute("""
+                SELECT COUNT(*) as count FROM receipts 
+                WHERE datetime(created_at) < datetime('now', '-30 days')
+            """)
+            count_result = cursor.fetchone()
+            count_to_delete = count_result['count'] if count_result else 0
+            
             # Удаляем чеки старше 30 дней
-            # Используем julianday для корректного сравнения дат
+            # Используем datetime для корректного сравнения
             cursor.execute("""
                 DELETE FROM receipts 
-                WHERE julianday('now') - julianday(created_at) > 30
+                WHERE datetime(created_at) < datetime('now', '-30 days')
             """)
             deleted = cursor.rowcount
             conn.commit()
+            
+            logger.info(f"Deleted {deleted} old receipts (found {count_to_delete} to delete)")
         
         bot.send_message(ADMIN_ID, f"Удалено старых чеков: {deleted}")
         send_admin_menu(ADMIN_ID)
