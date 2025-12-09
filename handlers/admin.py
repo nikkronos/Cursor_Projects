@@ -261,9 +261,10 @@ def handle_receipts_menu_button(message: types.Message) -> None:
         
         markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
         btn_show = types.KeyboardButton("👁 Показать чеки")
-        btn_delete = types.KeyboardButton("🗑 Удалить старые чеки")
+        btn_delete_old = types.KeyboardButton("🗑 Удалить старые чеки (30+ дней)")
+        btn_delete_all = types.KeyboardButton("🗑 Удалить все чеки")
         btn_back = types.KeyboardButton("⬅️ Главное меню")
-        markup.add(btn_show, btn_delete, btn_back)
+        markup.add(btn_show, btn_delete_old, btn_delete_all, btn_back)
         
         bot.send_message(ADMIN_ID, f"Всего чеков в базе: {total}", reply_markup=markup)
     except Exception as e:
@@ -310,73 +311,83 @@ def handle_show_receipts_button(message: types.Message) -> None:
         bot.send_message(ADMIN_ID, f"Ошибка при показе чеков: {e}")
 
 
-@bot.message_handler(func=lambda message: message.text == "🗑 Удалить старые чеки")
+@bot.message_handler(func=lambda message: message.text == "🗑 Удалить старые чеки (30+ дней)")
 def handle_delete_old_receipts_button(message: types.Message) -> None:
-    """Обработчик кнопки '🗑 Удалить старые чеки'"""
+    """Обработчик кнопки '🗑 Удалить старые чеки (30+ дней)'"""
     if message.from_user.id != ADMIN_ID:
         return
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
             
-            # Сначала получаем все чеки с датами для отладки
-            cursor.execute("SELECT id, created_at FROM receipts ORDER BY created_at DESC LIMIT 10")
-            all_receipts = cursor.fetchall()
-            
-            # Логируем формат дат для отладки
-            if all_receipts:
-                sample_dates = [str(r['created_at']) for r in all_receipts[:3]]
-                logger.info(f"Sample receipt dates: {sample_dates}")
-            
-            # Проверяем, сколько чеков старше 30 дней разными способами
-            # Способ 1: через datetime
-            cursor.execute("""
-                SELECT COUNT(*) as count FROM receipts 
-                WHERE datetime(created_at) < datetime('now', '-30 days')
-            """)
-            count1 = cursor.fetchone()['count']
-            
-            # Способ 2: через julianday
-            cursor.execute("""
-                SELECT COUNT(*) as count FROM receipts 
-                WHERE julianday('now') - julianday(created_at) > 30
-            """)
-            count2 = cursor.fetchone()['count']
-            
-            # Способ 3: через strftime (если дата в формате YYYY-MM-DD HH:MM:SS)
-            cursor.execute("""
-                SELECT COUNT(*) as count FROM receipts 
-                WHERE strftime('%s', created_at) < strftime('%s', 'now', '-30 days')
-            """)
-            count3 = cursor.fetchone()['count']
-            
-            logger.info(f"Receipts to delete - datetime: {count1}, julianday: {count2}, strftime: {count3}")
-            
-            # Пробуем удалить через datetime (самый надежный способ)
+            # Удаляем чеки старше 30 дней
             cursor.execute("""
                 DELETE FROM receipts 
                 WHERE datetime(created_at) < datetime('now', '-30 days')
             """)
             deleted = cursor.rowcount
-            
-            # Если не удалилось через datetime, пробуем через julianday
-            if deleted == 0 and count2 > 0:
-                logger.info("Trying julianday method...")
-                cursor.execute("""
-                    DELETE FROM receipts 
-                    WHERE julianday('now') - julianday(created_at) > 30
-                """)
-                deleted = cursor.rowcount
-            
             conn.commit()
             
-            logger.info(f"Deleted {deleted} old receipts")
+            logger.info(f"Deleted {deleted} old receipts (30+ days)")
         
-        bot.send_message(ADMIN_ID, f"Удалено старых чеков: {deleted}")
+        bot.send_message(ADMIN_ID, f"Удалено старых чеков (30+ дней): {deleted}")
         send_admin_menu(ADMIN_ID)
     except Exception as e:
         logger.error(f"Error deleting old receipts: {e}", exc_info=True)
         bot.send_message(ADMIN_ID, f"Ошибка при удалении чеков: {e}")
+
+
+@bot.message_handler(func=lambda message: message.text == "🗑 Удалить все чеки")
+def handle_delete_all_receipts_button(message: types.Message) -> None:
+    """Обработчик кнопки '🗑 Удалить все чеки'"""
+    if message.from_user.id != ADMIN_ID:
+        return
+    
+    # Запрашиваем подтверждение
+    markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
+    btn_confirm = types.KeyboardButton("✅ Да, удалить все")
+    btn_cancel = types.KeyboardButton("❌ Отмена")
+    markup.add(btn_confirm, btn_cancel)
+    
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT COUNT(*) as count FROM receipts")
+            total = cursor.fetchone()['count']
+        
+        bot.send_message(ADMIN_ID, f"⚠️ Внимание! Вы собираетесь удалить ВСЕ чеки ({total} шт.).\n\nПодтвердите действие:", reply_markup=markup)
+        bot.register_next_step_handler(message, process_delete_all_receipts_confirmation)
+    except Exception as e:
+        logger.error(f"Error in delete all receipts: {e}")
+        bot.send_message(ADMIN_ID, f"Ошибка: {e}")
+
+
+def process_delete_all_receipts_confirmation(message: types.Message) -> None:
+    """Обработка подтверждения удаления всех чеков"""
+    if message.from_user.id != ADMIN_ID:
+        return
+    
+    if message.text == "✅ Да, удалить все":
+        try:
+            with get_db_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("DELETE FROM receipts")
+                deleted = cursor.rowcount
+                conn.commit()
+            
+            logger.info(f"Deleted all receipts: {deleted}")
+            bot.send_message(ADMIN_ID, f"✅ Удалено всех чеков: {deleted}")
+            send_admin_menu(ADMIN_ID)
+        except Exception as e:
+            logger.error(f"Error deleting all receipts: {e}", exc_info=True)
+            bot.send_message(ADMIN_ID, f"Ошибка при удалении чеков: {e}")
+            send_admin_menu(ADMIN_ID)
+    elif message.text == "❌ Отмена":
+        bot.send_message(ADMIN_ID, "❌ Удаление отменено.")
+        send_admin_menu(ADMIN_ID)
+    else:
+        bot.send_message(ADMIN_ID, "Используйте кнопки для подтверждения или отмены.")
+        send_admin_menu(ADMIN_ID)
 
 
 @bot.message_handler(func=lambda message: message.text == "➕ Добавить дни")
