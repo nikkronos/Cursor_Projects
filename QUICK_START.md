@@ -29,6 +29,12 @@ pip3 install -r requirements.txt
 nano env_vars.txt
 ```
 
+**Важно о GROUP_CHAT_ID:**
+- `GROUP_CHAT_ID` должен быть актуальным (бот должен быть администратором в этой группе)
+- Для групп ID начинается с `-100` (например, `-1002346216181`)
+- При смене группы обязательно обновить `GROUP_CHAT_ID` на сервере и перезапустить бота
+- Ошибка 403 Forbidden: "bot was kicked from the supergroup chat" означает, что `GROUP_CHAT_ID` указывает на старую группу
+
 ### 4. Настройка systemd
 
 ```bash

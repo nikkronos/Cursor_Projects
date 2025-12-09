@@ -549,6 +549,101 @@ def handle_test_get_member(message: types.Message) -> None:
         bot.send_message(ADMIN_ID, f"❌ Критическая ошибка: {e}")
 
 
+@bot.message_handler(commands=['update_all_unknown'])
+def handle_update_all_unknown(message: types.Message) -> None:
+    """Команда для массового обновления данных всех пользователей с именем 'Unknown'"""
+    if message.from_user.id != ADMIN_ID:
+        return
+    
+    try:
+        # Получаем всех пользователей с именем "Unknown"
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT telegram_id, first_name, username 
+                FROM users 
+                WHERE first_name = 'Unknown' OR first_name IS NULL
+                ORDER BY telegram_id
+            """)
+            unknown_users = cursor.fetchall()
+        
+        if not unknown_users:
+            bot.send_message(ADMIN_ID, "✅ Пользователей с именем 'Unknown' не найдено!")
+            return
+        
+        total = len(unknown_users)
+        bot.send_message(ADMIN_ID, f"Найдено пользователей с именем 'Unknown': {total}\nНачинаю обновление...")
+        
+        updated_count = 0
+        failed_count = 0
+        skipped_count = 0
+        
+        for i, user in enumerate(unknown_users, 1):
+            user_id = user['telegram_id']
+            
+            # Получаем информацию о пользователе
+            first_name = None
+            username = None
+            
+            try:
+                # Сначала пробуем через get_chat_member (если пользователь в группе)
+                if GROUP_CHAT_ID:
+                    try:
+                        member = bot.get_chat_member(GROUP_CHAT_ID, user_id)
+                        first_name = member.user.first_name
+                        username = member.user.username
+                    except Exception as e2:
+                        # Если get_chat_member не сработал, пробуем get_chat
+                        try:
+                            chat = bot.get_chat(user_id)
+                            first_name = chat.first_name
+                            username = chat.username
+                        except Exception as e:
+                            pass
+            except Exception as e:
+                pass
+            
+            if first_name and first_name != "Unknown":
+                # Обновляем данные
+                try:
+                    with get_db_connection() as conn:
+                        cursor = conn.cursor()
+                        cursor.execute("""
+                            UPDATE users 
+                            SET first_name = ?, username = ?
+                            WHERE telegram_id = ?
+                        """, (first_name, username, user_id))
+                        conn.commit()
+                    
+                    updated_count += 1
+                    logger.info(f"User {user_id} data updated: {first_name}, @{username if username else 'N/A'}")
+                except Exception as e:
+                    failed_count += 1
+                    logger.error(f"Error updating user {user_id}: {e}")
+            else:
+                skipped_count += 1
+            
+            # Отправляем прогресс каждые 10 пользователей
+            if i % 10 == 0:
+                bot.send_message(ADMIN_ID, f"Обработано: {i}/{total} (обновлено: {updated_count}, пропущено: {skipped_count})")
+        
+        # Отправляем итоговый отчет
+        response = (
+            f"✅ Обновление завершено!\n\n"
+            f"📊 Итоги:\n"
+            f"✅ Успешно обновлено: {updated_count}\n"
+            f"⏭️ Пропущено (не удалось получить данные): {skipped_count}\n"
+            f"❌ Ошибок: {failed_count}\n"
+            f"📊 Всего обработано: {total}"
+        )
+        bot.send_message(ADMIN_ID, response)
+        
+    except Exception as e:
+        error_msg = f"Ошибка при массовом обновлении данных: {e}"
+        logger.error(error_msg, exc_info=True)
+        bot.send_message(ADMIN_ID, error_msg)
+
+
 @bot.message_handler(commands=['fix_subscription_dates'])
 def handle_fix_subscription_dates(message: types.Message) -> None:
     """Команда для установки единой даты окончания подписки всем активным пользователям"""
