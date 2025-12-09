@@ -319,9 +319,10 @@ def handle_delete_old_receipts_button(message: types.Message) -> None:
         with get_db_connection() as conn:
             cursor = conn.cursor()
             # Удаляем чеки старше 30 дней
+            # Используем julianday для корректного сравнения дат
             cursor.execute("""
                 DELETE FROM receipts 
-                WHERE created_at < datetime('now', '-30 days')
+                WHERE julianday('now') - julianday(created_at) > 30
             """)
             deleted = cursor.rowcount
             conn.commit()

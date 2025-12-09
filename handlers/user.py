@@ -82,12 +82,11 @@ def handle_restart_bot(message: types.Message) -> None:
 def send_tariff_active(message: types.Message) -> None:
     """Обработчик кнопки 'Тариф' для активных участников - заглушка"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-    btn_payment = types.KeyboardButton("Остаться в Сообществе")
     back_button = types.KeyboardButton("Вернутся в главное меню🏡")
-    markup.add(btn_payment, back_button)
+    markup.add(back_button)
     bot.send_message(message.chat.id,
                      "*Тарифы*\n\n" 
-                     "Для продления подписки нажмите кнопку 'Остаться в Сообществе'.",
+                     "Информация появится здесь 25 декабря.",
                      parse_mode='Markdown',
                      reply_markup=markup)
 
