@@ -318,29 +318,64 @@ def handle_delete_old_receipts_button(message: types.Message) -> None:
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
-            # Сначала проверяем, сколько чеков будет удалено (для логирования)
+            
+            # Сначала получаем все чеки с датами для отладки
+            cursor.execute("SELECT id, created_at FROM receipts ORDER BY created_at DESC LIMIT 10")
+            all_receipts = cursor.fetchall()
+            
+            # Логируем формат дат для отладки
+            if all_receipts:
+                sample_dates = [str(r['created_at']) for r in all_receipts[:3]]
+                logger.info(f"Sample receipt dates: {sample_dates}")
+            
+            # Проверяем, сколько чеков старше 30 дней разными способами
+            # Способ 1: через datetime
             cursor.execute("""
                 SELECT COUNT(*) as count FROM receipts 
                 WHERE datetime(created_at) < datetime('now', '-30 days')
             """)
-            count_result = cursor.fetchone()
-            count_to_delete = count_result['count'] if count_result else 0
+            count1 = cursor.fetchone()['count']
             
-            # Удаляем чеки старше 30 дней
-            # Используем datetime для корректного сравнения
+            # Способ 2: через julianday
+            cursor.execute("""
+                SELECT COUNT(*) as count FROM receipts 
+                WHERE julianday('now') - julianday(created_at) > 30
+            """)
+            count2 = cursor.fetchone()['count']
+            
+            # Способ 3: через strftime (если дата в формате YYYY-MM-DD HH:MM:SS)
+            cursor.execute("""
+                SELECT COUNT(*) as count FROM receipts 
+                WHERE strftime('%s', created_at) < strftime('%s', 'now', '-30 days')
+            """)
+            count3 = cursor.fetchone()['count']
+            
+            logger.info(f"Receipts to delete - datetime: {count1}, julianday: {count2}, strftime: {count3}")
+            
+            # Пробуем удалить через datetime (самый надежный способ)
             cursor.execute("""
                 DELETE FROM receipts 
                 WHERE datetime(created_at) < datetime('now', '-30 days')
             """)
             deleted = cursor.rowcount
+            
+            # Если не удалилось через datetime, пробуем через julianday
+            if deleted == 0 and count2 > 0:
+                logger.info("Trying julianday method...")
+                cursor.execute("""
+                    DELETE FROM receipts 
+                    WHERE julianday('now') - julianday(created_at) > 30
+                """)
+                deleted = cursor.rowcount
+            
             conn.commit()
             
-            logger.info(f"Deleted {deleted} old receipts (found {count_to_delete} to delete)")
+            logger.info(f"Deleted {deleted} old receipts")
         
         bot.send_message(ADMIN_ID, f"Удалено старых чеков: {deleted}")
         send_admin_menu(ADMIN_ID)
     except Exception as e:
-        logger.error(f"Error deleting old receipts: {e}")
+        logger.error(f"Error deleting old receipts: {e}", exc_info=True)
         bot.send_message(ADMIN_ID, f"Ошибка при удалении чеков: {e}")
 
 
