@@ -644,6 +644,66 @@ def handle_update_all_unknown(message: types.Message) -> None:
         bot.send_message(ADMIN_ID, error_msg)
 
 
+@bot.message_handler(commands=['test_callbacks'])
+def handle_test_callbacks(message: types.Message) -> None:
+    """Тестовая команда для проверки работы callback handlers для оплаты"""
+    if message.from_user.id != ADMIN_ID:
+        return
+    
+    try:
+        # Создаем тестовое сообщение с кнопками подтверждения/отклонения оплаты
+        # Используем ADMIN_ID как тестовый user_id
+        test_user_id = ADMIN_ID
+        
+        # Получаем информацию о тестовом пользователе (админе)
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT first_name, username, subscription_end_date, payment_status
+                FROM users 
+                WHERE telegram_id = ?
+            """, (test_user_id,))
+            user = cursor.fetchone()
+        
+        if not user:
+            bot.send_message(ADMIN_ID, "❌ Тестовый пользователь не найден в базе данных.")
+            return
+        
+        first_name = user['first_name'] or 'Test User'
+        username = user['username'] or 'test_user'
+        subscription_end = user['subscription_end_date']
+        payment_status = user['payment_status']
+        
+        # Создаем тестовое сообщение
+        test_message = (
+            f"🧪 ТЕСТОВОЕ СООБЩЕНИЕ ДЛЯ ПРОВЕРКИ CALLBACK HANDLERS\n\n"
+            f"Пользователь: {first_name} (@{username})\n"
+            f"ID: {test_user_id}\n"
+            f"Текущий статус оплаты: {payment_status}\n"
+            f"Дата окончания подписки: {subscription_end}\n\n"
+            f"Нажмите кнопки ниже для тестирования:"
+        )
+        
+        # Создаем кнопки
+        markup = types.InlineKeyboardMarkup()
+        btn_confirm = types.InlineKeyboardButton("✅ Подтвердить", callback_data=f"confirm_pay_{test_user_id}")
+        btn_reject = types.InlineKeyboardButton("❌ Отклонить", callback_data=f"reject_pay_{test_user_id}")
+        markup.add(btn_confirm, btn_reject)
+        
+        bot.send_message(ADMIN_ID, test_message, reply_markup=markup)
+        bot.send_message(ADMIN_ID, 
+                        "ℹ️ После нажатия кнопок проверьте:\n"
+                        "1. Кнопки должны исчезнуть\n"
+                        "2. Должно прийти сообщение с результатом\n"
+                        "3. Статус оплаты должен измениться в базе данных\n"
+                        "4. Дата окончания подписки должна обновиться (при подтверждении)")
+        
+    except Exception as e:
+        error_msg = f"Ошибка при создании тестового сообщения: {e}"
+        logger.error(error_msg, exc_info=True)
+        bot.send_message(ADMIN_ID, error_msg)
+
+
 @bot.message_handler(commands=['fix_subscription_dates'])
 def handle_fix_subscription_dates(message: types.Message) -> None:
     """Команда для установки единой даты окончания подписки всем активным пользователям"""
