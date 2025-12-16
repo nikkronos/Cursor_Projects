@@ -3,11 +3,13 @@ Callback query handlers for TradeTherapyBot.
 Handles inline keyboard button callbacks (confirm/reject payments, tariffs, etc.)
 """
 from telebot import types
-from datetime import datetime
+from datetime import datetime, timedelta
+import calendar
 from loader import bot, logger, ADMIN_ID
 from database import get_db_connection, format_db_date, get_user_status
 from services import add_subscription_days_logic
 from utils import safe_send_message
+from handlers.helpers import send_main_menu
 
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('confirm_pay_'))
@@ -28,14 +30,23 @@ def handle_confirm_payment(call: types.CallbackQuery) -> None:
             bot.answer_callback_query(call.id, "Пользователь не найден в базе данных.", show_alert=True)
             return
         
-        # Вычисляем дату до 1-го числа следующего месяца
+        # Вычисляем дату до последнего дня следующего месяца до 23:00
         now = datetime.now()
         if now.month == 12:
-            next_month = now.replace(year=now.year + 1, month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+            # Если декабрь, следующий месяц - январь следующего года
+            next_month_num = 1
+            next_year = now.year + 1
         else:
-            next_month = now.replace(month=now.month + 1, day=1, hour=0, minute=0, second=0, microsecond=0)
+            next_month_num = now.month + 1
+            next_year = now.year
         
-        next_month_str = format_db_date(next_month)
+        # Получаем последний день следующего месяца
+        last_day = calendar.monthrange(next_year, next_month_num)[1]
+        
+        # Устанавливаем дату на последний день следующего месяца в 23:00
+        end_date = datetime(next_year, next_month_num, last_day, 23, 0, 0, 0)
+        
+        end_date_str = format_db_date(end_date)
         now_str = format_db_date(now)
         
         # Обновляем подписку в БД
@@ -50,18 +61,20 @@ def handle_confirm_payment(call: types.CallbackQuery) -> None:
                     payment_status = 'paid',
                     last_notification_level = NULL
                 WHERE telegram_id = ?
-            """, (next_month_str, now_str, user_id))
+            """, (end_date_str, now_str, user_id))
             conn.commit()
         
-        logger.info(f"Оплата подтверждена для пользователя {user_id}. Подписка продлена до {next_month.strftime('%d.%m.%Y')}")
+        logger.info(f"Оплата подтверждена для пользователя {user_id}. Подписка продлена до {end_date.strftime('%d.%m.%Y %H:%M')}")
         
-        # Отправляем уведомление пользователю
+        # Отправляем уведомление пользователю и показываем главное меню
         first_name = user_data['first_name'] if user_data['first_name'] else 'Пользователь'
         try:
             safe_send_message(bot, user_id, 
                 f"✅ Ваша оплата подтверждена, {first_name}!\n\n"
-                f"Подписка продлена до {next_month.strftime('%d.%m.%Y')}.\n\n"
+                f"Подписка продлена до {end_date.strftime('%d.%m.%Y %H:%M')}.\n\n"
                 f"Спасибо за поддержку сообщества!")
+            # Показываем главное меню пользователю
+            send_main_menu(user_id, user_id, first_name)
         except Exception as e:
             logger.error(f"Не удалось отправить уведомление пользователю {user_id}: {e}")
         
@@ -72,7 +85,7 @@ def handle_confirm_payment(call: types.CallbackQuery) -> None:
             message_id=call.message.message_id,
             reply_markup=None
         )
-        bot.send_message(ADMIN_ID, f"✅ Оплата пользователя {user_id} ({first_name}) подтверждена. Подписка продлена до {next_month.strftime('%d.%m.%Y')}")
+        bot.send_message(ADMIN_ID, f"✅ Оплата пользователя {user_id} ({first_name}) подтверждена. Подписка продлена до {end_date.strftime('%d.%m.%Y %H:%M')}")
         
     except ValueError:
         bot.answer_callback_query(call.id, "Ошибка: неверный формат данных.", show_alert=True)
@@ -107,12 +120,17 @@ def handle_reject_payment(call: types.CallbackQuery) -> None:
         
         logger.info(f"Оплата отклонена для пользователя {user_id}")
         
-        # Отправляем уведомление пользователю
+        # Отправляем уведомление пользователю с кнопкой "Обратная связь"
         first_name = user_data['first_name'] if user_data['first_name'] else 'Пользователь'
         try:
-            safe_send_message(bot, user_id, 
+            markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+            feedback_btn = types.KeyboardButton("Обратная связь")
+            markup.add(feedback_btn)
+            
+            bot.send_message(user_id, 
                 f"❌ Ваша оплата была отклонена, {first_name}.\n\n"
-                f"Если у вас есть вопросы, свяжитесь с администратором через форму обратной связи.")
+                f"Если у вас есть вопросы, свяжитесь с администратором через форму обратной связи.",
+                reply_markup=markup)
         except Exception as e:
             logger.error(f"Не удалось отправить уведомление пользователю {user_id}: {e}")
         
@@ -131,3 +149,205 @@ def handle_reject_payment(call: types.CallbackQuery) -> None:
     except Exception as e:
         bot.answer_callback_query(call.id, f"Ошибка при отклонении оплаты: {e}", show_alert=True)
         logger.error(f"Ошибка при отклонении оплаты: {e}")
+
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith('confirm_reason_trading_'))
+def handle_confirm_reason_trading(call: types.CallbackQuery) -> None:
+    """Обработчик подтверждения причины 'Я не торгую' - выдает тестовый доступ +30 дней"""
+    # Проверяем, что это админ
+    if call.from_user.id != ADMIN_ID:
+        bot.answer_callback_query(call.id, "Только администратор может подтверждать.", show_alert=True)
+        return
+    
+    try:
+        # Извлекаем user_id из callback_data
+        user_id = int(call.data.split('_')[-1])
+        
+        # Получаем информацию о пользователе
+        user_data = get_user_status(user_id)
+        if not user_data:
+            bot.answer_callback_query(call.id, "Пользователь не найден в базе данных.", show_alert=True)
+            return
+        
+        # Выдаем тестовый доступ +30 дней
+        add_subscription_days_logic(user_id, 30, ADMIN_ID)
+        
+        first_name = user_data['first_name'] if user_data['first_name'] else 'Пользователь'
+        logger.info(f"Причина 'Я не торгую' подтверждена для пользователя {user_id}. Выдан тестовый доступ +30 дней")
+        
+        # Отправляем уведомление пользователю и показываем главное меню
+        try:
+            safe_send_message(bot, user_id, 
+                f"✅ Ваша причина принята, {first_name}!\n\n"
+                f"Вам предоставлен тестовый доступ на 30 дней.")
+            send_main_menu(user_id, user_id, first_name)
+        except Exception as e:
+            logger.error(f"Не удалось отправить уведомление пользователю {user_id}: {e}")
+        
+        # Обновляем сообщение админу
+        bot.answer_callback_query(call.id, "✅ Причина подтверждена")
+        bot.edit_message_reply_markup(
+            chat_id=call.message.chat.id,
+            message_id=call.message.message_id,
+            reply_markup=None
+        )
+        bot.send_message(ADMIN_ID, f"✅ Причина 'Я не торгую' пользователя {user_id} ({first_name}) подтверждена. Выдан тестовый доступ +30 дней.")
+        
+    except ValueError:
+        bot.answer_callback_query(call.id, "Ошибка: неверный формат данных.", show_alert=True)
+        logger.error(f"Ошибка при парсинге user_id из callback_data: {call.data}")
+    except Exception as e:
+        bot.answer_callback_query(call.id, f"Ошибка при подтверждении: {e}", show_alert=True)
+        logger.error(f"Ошибка при подтверждении причины 'Я не торгую': {e}")
+
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith('reject_reason_trading_'))
+def handle_reject_reason_trading(call: types.CallbackQuery) -> None:
+    """Обработчик отклонения причины 'Я не торгую'"""
+    # Проверяем, что это админ
+    if call.from_user.id != ADMIN_ID:
+        bot.answer_callback_query(call.id, "Только администратор может отклонять.", show_alert=True)
+        return
+    
+    try:
+        # Извлекаем user_id из callback_data
+        user_id = int(call.data.split('_')[-1])
+        
+        # Получаем информацию о пользователе
+        user_data = get_user_status(user_id)
+        if not user_data:
+            bot.answer_callback_query(call.id, "Пользователь не найден в базе данных.", show_alert=True)
+            return
+        
+        logger.info(f"Причина 'Я не торгую' отклонена для пользователя {user_id}")
+        
+        # Отправляем уведомление пользователю с кнопкой "Обратная связь"
+        first_name = user_data['first_name'] if user_data['first_name'] else 'Пользователь'
+        try:
+            markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+            feedback_btn = types.KeyboardButton("Обратная связь")
+            markup.add(feedback_btn)
+            
+            bot.send_message(user_id, 
+                f"❌ Ваша причина была отклонена, {first_name}.\n\n"
+                f"Если у вас есть вопросы, свяжитесь с администратором через форму обратной связи.",
+                reply_markup=markup)
+        except Exception as e:
+            logger.error(f"Не удалось отправить уведомление пользователю {user_id}: {e}")
+        
+        # Обновляем сообщение админу
+        bot.answer_callback_query(call.id, "❌ Причина отклонена")
+        bot.edit_message_reply_markup(
+            chat_id=call.message.chat.id,
+            message_id=call.message.message_id,
+            reply_markup=None
+        )
+        bot.send_message(ADMIN_ID, f"❌ Причина 'Я не торгую' пользователя {user_id} ({first_name}) отклонена.")
+        
+    except ValueError:
+        bot.answer_callback_query(call.id, "Ошибка: неверный формат данных.", show_alert=True)
+        logger.error(f"Ошибка при парсинге user_id из callback_data: {call.data}")
+    except Exception as e:
+        bot.answer_callback_query(call.id, f"Ошибка при отклонении: {e}", show_alert=True)
+        logger.error(f"Ошибка при отклонении причины 'Я не торгую': {e}")
+
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith('confirm_reason_other_'))
+def handle_confirm_reason_other(call: types.CallbackQuery) -> None:
+    """Обработчик подтверждения причины 'Не буду платить по другой причине' - выдает тестовый доступ +30 дней"""
+    # Проверяем, что это админ
+    if call.from_user.id != ADMIN_ID:
+        bot.answer_callback_query(call.id, "Только администратор может подтверждать.", show_alert=True)
+        return
+    
+    try:
+        # Извлекаем user_id из callback_data
+        user_id = int(call.data.split('_')[-1])
+        
+        # Получаем информацию о пользователе
+        user_data = get_user_status(user_id)
+        if not user_data:
+            bot.answer_callback_query(call.id, "Пользователь не найден в базе данных.", show_alert=True)
+            return
+        
+        # Выдаем тестовый доступ +30 дней
+        add_subscription_days_logic(user_id, 30, ADMIN_ID)
+        
+        first_name = user_data['first_name'] if user_data['first_name'] else 'Пользователь'
+        logger.info(f"Причина 'Другая причина' подтверждена для пользователя {user_id}. Выдан тестовый доступ +30 дней")
+        
+        # Отправляем уведомление пользователю и показываем главное меню
+        try:
+            safe_send_message(bot, user_id, 
+                f"✅ Ваша причина принята, {first_name}!\n\n"
+                f"Вам предоставлен тестовый доступ на 30 дней.")
+            send_main_menu(user_id, user_id, first_name)
+        except Exception as e:
+            logger.error(f"Не удалось отправить уведомление пользователю {user_id}: {e}")
+        
+        # Обновляем сообщение админу
+        bot.answer_callback_query(call.id, "✅ Причина подтверждена")
+        bot.edit_message_reply_markup(
+            chat_id=call.message.chat.id,
+            message_id=call.message.message_id,
+            reply_markup=None
+        )
+        bot.send_message(ADMIN_ID, f"✅ Причина 'Другая причина' пользователя {user_id} ({first_name}) подтверждена. Выдан тестовый доступ +30 дней.")
+        
+    except ValueError:
+        bot.answer_callback_query(call.id, "Ошибка: неверный формат данных.", show_alert=True)
+        logger.error(f"Ошибка при парсинге user_id из callback_data: {call.data}")
+    except Exception as e:
+        bot.answer_callback_query(call.id, f"Ошибка при подтверждении: {e}", show_alert=True)
+        logger.error(f"Ошибка при подтверждении причины 'Другая причина': {e}")
+
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith('reject_reason_other_'))
+def handle_reject_reason_other(call: types.CallbackQuery) -> None:
+    """Обработчик отклонения причины 'Не буду платить по другой причине'"""
+    # Проверяем, что это админ
+    if call.from_user.id != ADMIN_ID:
+        bot.answer_callback_query(call.id, "Только администратор может отклонять.", show_alert=True)
+        return
+    
+    try:
+        # Извлекаем user_id из callback_data
+        user_id = int(call.data.split('_')[-1])
+        
+        # Получаем информацию о пользователе
+        user_data = get_user_status(user_id)
+        if not user_data:
+            bot.answer_callback_query(call.id, "Пользователь не найден в базе данных.", show_alert=True)
+            return
+        
+        logger.info(f"Причина 'Другая причина' отклонена для пользователя {user_id}")
+        
+        # Отправляем уведомление пользователю с кнопкой "Обратная связь"
+        first_name = user_data['first_name'] if user_data['first_name'] else 'Пользователь'
+        try:
+            markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+            feedback_btn = types.KeyboardButton("Обратная связь")
+            markup.add(feedback_btn)
+            
+            bot.send_message(user_id, 
+                f"❌ Ваша причина была отклонена, {first_name}.\n\n"
+                f"Если у вас есть вопросы, свяжитесь с администратором через форму обратной связи.",
+                reply_markup=markup)
+        except Exception as e:
+            logger.error(f"Не удалось отправить уведомление пользователю {user_id}: {e}")
+        
+        # Обновляем сообщение админу
+        bot.answer_callback_query(call.id, "❌ Причина отклонена")
+        bot.edit_message_reply_markup(
+            chat_id=call.message.chat.id,
+            message_id=call.message.message_id,
+            reply_markup=None
+        )
+        bot.send_message(ADMIN_ID, f"❌ Причина 'Другая причина' пользователя {user_id} ({first_name}) отклонена.")
+        
+    except ValueError:
+        bot.answer_callback_query(call.id, "Ошибка: неверный формат данных.", show_alert=True)
+        logger.error(f"Ошибка при парсинге user_id из callback_data: {call.data}")
+    except Exception as e:
+        bot.answer_callback_query(call.id, f"Ошибка при отклонении: {e}", show_alert=True)
+        logger.error(f"Ошибка при отклонении причины 'Другая причина': {e}")
