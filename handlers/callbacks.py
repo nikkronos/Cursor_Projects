@@ -49,6 +49,7 @@ def handle_confirm_payment(call: types.CallbackQuery) -> None:
         # Вычисляем дату до последнего дня следующего месяца до 23:00
         end_date = calculate_subscription_end_date()
         end_date_str = format_db_date(end_date)
+        now = datetime.now()
         now_str = format_db_date(now)
         
         # Обновляем подписку в БД
