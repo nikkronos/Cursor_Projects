@@ -9,7 +9,7 @@ from database import get_db_connection, format_db_date
 from utils import retry_telegram_api
 from handlers.helpers import send_admin_menu, send_users_filter_menu
 from database import get_users_by_status, get_all_users_for_check
-from services import add_subscription_days_logic, remove_subscription_days_logic, remove_user_from_group, get_next_month_end
+from services import add_subscription_days_logic, remove_subscription_days_logic, remove_user_from_group
 from validators import validate_user_id, validate_days
 
 
@@ -52,37 +52,23 @@ def handle_migrate_user(message: types.Message) -> None:
     username = None
     
     try:
-        # Сначала пробуем через get_chat_member (если пользователь в группе) - это более надежный способ
-        # Используем прямой вызов, как в handlers/user.py, где это работает
-        if GROUP_CHAT_ID:
-            try:
-                member = bot.get_chat_member(GROUP_CHAT_ID, user_id)
-                first_name = member.user.first_name
-                username = member.user.username
-                logger.info(f"Successfully got user info via get_chat_member for {user_id}: {first_name}")
-            except Exception as e2:
-                error_msg = str(e2)
-                logger.warning(f"Could not get user info via get_chat_member({GROUP_CHAT_ID}, {user_id}): {e2}")
-                # Если ошибка 401 - возможно, бот не является администратором группы
-                if "401" in error_msg or "Unauthorized" in error_msg:
-                    logger.warning(f"Bot may not be an administrator of the group {GROUP_CHAT_ID}")
-                # Если get_chat_member не сработал, пробуем get_chat
+        # Пробуем получить через get_chat
+        try:
+            chat = bot.get_chat(user_id)
+            first_name = chat.first_name
+            username = chat.username
+        except Exception as e:
+            logger.warning(f"Could not get user info via get_chat({user_id}): {e}")
+            # Пробуем через get_chat_member если пользователь в группе
+            if GROUP_CHAT_ID:
                 try:
-                    chat = bot.get_chat(user_id)
-                    first_name = chat.first_name
-                    username = chat.username
-                    logger.info(f"Successfully got user info via get_chat for {user_id}: {first_name}")
-                except Exception as e:
-                    logger.warning(f"Could not get user info via get_chat({user_id}): {e}")
-        else:
-            # Если GROUP_CHAT_ID не установлен, пробуем только get_chat
-            try:
-                chat = bot.get_chat(user_id)
-                first_name = chat.first_name
-                username = chat.username
-                logger.info(f"Successfully got user info via get_chat for {user_id}: {first_name}")
-            except Exception as e:
-                logger.warning(f"Could not get user info via get_chat({user_id}): {e}")
+                    def get_member():
+                        return bot.get_chat_member(GROUP_CHAT_ID, user_id)
+                    member = retry_telegram_api(get_member, max_attempts=2)
+                    first_name = member.user.first_name
+                    username = member.user.username
+                except Exception as e2:
+                    logger.warning(f"Could not get user info via get_chat_member({GROUP_CHAT_ID}, {user_id}): {e2}")
     except Exception as e:
         logger.error(f"Error getting user info for {user_id}: {e}")
     
@@ -127,11 +113,15 @@ def handle_migrate_user(message: types.Message) -> None:
             bot.send_message(ADMIN_ID, error_msg)
             return
     
-    # Для /migrate_user - добавляем/обновляем пользователя в БД с подпиской до конца следующего месяца
+    # Для /migrate_user - добавляем/обновляем пользователя в БД с подпиской до конца месяца
     try:
         now = datetime.now()
-        # Используем функцию get_next_month_end для правильного расчета даты конца следующего месяца
-        end_date = get_next_month_end(now)
+        if now.month == 12:
+            next_month = now.replace(year=now.year+1, month=1, day=1, hour=23, minute=59, second=59)
+        else:
+            next_month = now.replace(month=now.month+1, day=1, hour=23, minute=59, second=59)
+        
+        end_date = next_month
         now_str = format_db_date(now)
         end_date_str = format_db_date(end_date)
         
@@ -512,224 +502,3 @@ def handle_back_to_admin_menu(message: types.Message) -> None:
     if message.from_user.id != ADMIN_ID:
         return
     send_admin_menu(message.chat.id)
-
-
-@bot.message_handler(commands=['test_get_member'])
-def handle_test_get_member(message: types.Message) -> None:
-    """Тестовая команда для проверки работы get_chat_member"""
-    if message.from_user.id != ADMIN_ID:
-        return
-    
-    try:
-        # Пробуем получить информацию о самом админе через get_chat_member
-        if GROUP_CHAT_ID:
-            try:
-                member = bot.get_chat_member(GROUP_CHAT_ID, ADMIN_ID)
-                response = (
-                    f"✅ get_chat_member работает!\n\n"
-                    f"GROUP_CHAT_ID: {GROUP_CHAT_ID}\n"
-                    f"Ваш статус в группе: {member.status}\n"
-                    f"Ваше имя: {member.user.first_name}\n"
-                    f"Ваш username: @{member.user.username if member.user.username else 'нет'}"
-                )
-                bot.send_message(ADMIN_ID, response)
-            except Exception as e:
-                error_msg = str(e)
-                response = (
-                    f"❌ Ошибка при get_chat_member:\n\n"
-                    f"GROUP_CHAT_ID: {GROUP_CHAT_ID}\n"
-                    f"Ошибка: {error_msg}\n\n"
-                )
-                if "401" in error_msg or "Unauthorized" in error_msg:
-                    response += "⚠️ Ошибка 401: Проверьте, что бот является администратором группы"
-                bot.send_message(ADMIN_ID, response)
-        else:
-            bot.send_message(ADMIN_ID, "❌ GROUP_CHAT_ID не установлен")
-    except Exception as e:
-        bot.send_message(ADMIN_ID, f"❌ Критическая ошибка: {e}")
-
-
-@bot.message_handler(commands=['update_all_unknown'])
-def handle_update_all_unknown(message: types.Message) -> None:
-    """Команда для массового обновления данных всех пользователей с именем 'Unknown'"""
-    if message.from_user.id != ADMIN_ID:
-        return
-    
-    try:
-        # Получаем всех пользователей с именем "Unknown"
-        with get_db_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute("""
-                SELECT telegram_id, first_name, username 
-                FROM users 
-                WHERE first_name = 'Unknown' OR first_name IS NULL
-                ORDER BY telegram_id
-            """)
-            unknown_users = cursor.fetchall()
-        
-        if not unknown_users:
-            bot.send_message(ADMIN_ID, "✅ Пользователей с именем 'Unknown' не найдено!")
-            return
-        
-        total = len(unknown_users)
-        bot.send_message(ADMIN_ID, f"Найдено пользователей с именем 'Unknown': {total}\nНачинаю обновление...")
-        
-        updated_count = 0
-        failed_count = 0
-        skipped_count = 0
-        
-        for i, user in enumerate(unknown_users, 1):
-            user_id = user['telegram_id']
-            
-            # Получаем информацию о пользователе
-            first_name = None
-            username = None
-            
-            try:
-                # Сначала пробуем через get_chat_member (если пользователь в группе)
-                if GROUP_CHAT_ID:
-                    try:
-                        member = bot.get_chat_member(GROUP_CHAT_ID, user_id)
-                        first_name = member.user.first_name
-                        username = member.user.username
-                    except Exception as e2:
-                        # Если get_chat_member не сработал, пробуем get_chat
-                        try:
-                            chat = bot.get_chat(user_id)
-                            first_name = chat.first_name
-                            username = chat.username
-                        except Exception as e:
-                            pass
-            except Exception as e:
-                pass
-            
-            if first_name and first_name != "Unknown":
-                # Обновляем данные
-                try:
-                    with get_db_connection() as conn:
-                        cursor = conn.cursor()
-                        cursor.execute("""
-                            UPDATE users 
-                            SET first_name = ?, username = ?
-                            WHERE telegram_id = ?
-                        """, (first_name, username, user_id))
-                        conn.commit()
-                    
-                    updated_count += 1
-                    logger.info(f"User {user_id} data updated: {first_name}, @{username if username else 'N/A'}")
-                except Exception as e:
-                    failed_count += 1
-                    logger.error(f"Error updating user {user_id}: {e}")
-            else:
-                skipped_count += 1
-            
-            # Отправляем прогресс каждые 10 пользователей
-            if i % 10 == 0:
-                bot.send_message(ADMIN_ID, f"Обработано: {i}/{total} (обновлено: {updated_count}, пропущено: {skipped_count})")
-        
-        # Отправляем итоговый отчет
-        response = (
-            f"✅ Обновление завершено!\n\n"
-            f"📊 Итоги:\n"
-            f"✅ Успешно обновлено: {updated_count}\n"
-            f"⏭️ Пропущено (не удалось получить данные): {skipped_count}\n"
-            f"❌ Ошибок: {failed_count}\n"
-            f"📊 Всего обработано: {total}"
-        )
-        bot.send_message(ADMIN_ID, response)
-        
-    except Exception as e:
-        error_msg = f"Ошибка при массовом обновлении данных: {e}"
-        logger.error(error_msg, exc_info=True)
-        bot.send_message(ADMIN_ID, error_msg)
-
-
-@bot.message_handler(commands=['test_callbacks'])
-def handle_test_callbacks(message: types.Message) -> None:
-    """Тестовая команда для проверки работы callback handlers для оплаты"""
-    if message.from_user.id != ADMIN_ID:
-        return
-    
-    try:
-        # Создаем тестовое сообщение с кнопками подтверждения/отклонения оплаты
-        # Используем ADMIN_ID как тестовый user_id
-        test_user_id = ADMIN_ID
-        
-        # Получаем информацию о тестовом пользователе (админе)
-        with get_db_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute("""
-                SELECT first_name, username, subscription_end_date, payment_status
-                FROM users 
-                WHERE telegram_id = ?
-            """, (test_user_id,))
-            user = cursor.fetchone()
-        
-        if not user:
-            bot.send_message(ADMIN_ID, "❌ Тестовый пользователь не найден в базе данных.")
-            return
-        
-        first_name = user['first_name'] or 'Test User'
-        username = user['username'] or 'test_user'
-        subscription_end = user['subscription_end_date']
-        payment_status = user['payment_status']
-        
-        # Создаем тестовое сообщение
-        test_message = (
-            f"🧪 ТЕСТОВОЕ СООБЩЕНИЕ ДЛЯ ПРОВЕРКИ CALLBACK HANDLERS\n\n"
-            f"Пользователь: {first_name} (@{username})\n"
-            f"ID: {test_user_id}\n"
-            f"Текущий статус оплаты: {payment_status}\n"
-            f"Дата окончания подписки: {subscription_end}\n\n"
-            f"Нажмите кнопки ниже для тестирования:"
-        )
-        
-        # Создаем кнопки
-        markup = types.InlineKeyboardMarkup()
-        btn_confirm = types.InlineKeyboardButton("✅ Подтвердить", callback_data=f"confirm_pay_{test_user_id}")
-        btn_reject = types.InlineKeyboardButton("❌ Отклонить", callback_data=f"reject_pay_{test_user_id}")
-        markup.add(btn_confirm, btn_reject)
-        
-        bot.send_message(ADMIN_ID, test_message, reply_markup=markup)
-        bot.send_message(ADMIN_ID, 
-                        "ℹ️ После нажатия кнопок проверьте:\n"
-                        "1. Кнопки должны исчезнуть\n"
-                        "2. Должно прийти сообщение с результатом\n"
-                        "3. Статус оплаты должен измениться в базе данных\n"
-                        "4. Дата окончания подписки должна обновиться (при подтверждении)")
-        
-    except Exception as e:
-        error_msg = f"Ошибка при создании тестового сообщения: {e}"
-        logger.error(error_msg, exc_info=True)
-        bot.send_message(ADMIN_ID, error_msg)
-
-
-@bot.message_handler(commands=['fix_subscription_dates'])
-def handle_fix_subscription_dates(message: types.Message) -> None:
-    """Команда для установки единой даты окончания подписки всем активным пользователям"""
-    if message.from_user.id != ADMIN_ID:
-        return
-    
-    try:
-        # Устанавливаем дату окончания на 01.01.2026 12:00
-        target_date = datetime(2026, 1, 1, 12, 0, 0)
-        target_date_str = format_db_date(target_date)
-        
-        with get_db_connection() as conn:
-            cursor = conn.cursor()
-            # Обновляем только активных пользователей
-            cursor.execute("""
-                UPDATE users 
-                SET subscription_end_date = ?
-                WHERE subscription_status = 'active'
-            """, (target_date_str,))
-            updated_count = cursor.rowcount
-            conn.commit()
-        
-        logger.info(f"Updated subscription end date to 01.01.2026 12:00 for {updated_count} active users")
-        bot.send_message(ADMIN_ID, f"✅ Обновлено дат окончания подписки для {updated_count} активных пользователей.\nНовая дата окончания: 01.01.2026 12:00")
-        
-    except Exception as e:
-        error_msg = f"Ошибка при обновлении дат окончания подписки: {e}"
-        logger.error(error_msg)
-        bot.send_message(ADMIN_ID, error_msg)

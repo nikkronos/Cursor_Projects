@@ -1,33 +1,9 @@
 from datetime import datetime, timedelta
 from typing import Any
-from calendar import monthrange
 from apscheduler.schedulers.background import BackgroundScheduler
 from loader import bot, logger, ADMIN_ID, GROUP_CHAT_ID, GROUP_INVITE_LINK
 from database import get_db_connection, parse_db_date, format_db_date, get_all_users_for_check, get_user_status
 from utils import safe_send_message, retry_telegram_api
-
-def get_next_month_end(base_date: datetime) -> datetime:
-    """
-    Возвращает дату конца следующего месяца (последний день следующего месяца 23:59:59).
-    
-    Args:
-        base_date: Базовая дата для расчета
-        
-    Returns:
-        datetime: Дата конца следующего месяца (31.XX.XXXX 23:59:59)
-    """
-    if base_date.month == 12:
-        # Если декабрь, следующий месяц - январь следующего года
-        next_year = base_date.year + 1
-        last_day = monthrange(next_year, 1)[1]
-        return datetime(next_year, 1, last_day, 23, 59, 59)
-    else:
-        # Получаем следующий месяц
-        next_month = base_date.month + 1
-        next_year = base_date.year
-        # Получаем последний день следующего месяца (учитывает високосные годы)
-        last_day = monthrange(next_year, next_month)[1]
-        return datetime(next_year, next_month, last_day, 23, 59, 59)
 
 def remove_user_from_group(user_id: int, chat_id: int) -> bool:
     if user_id == ADMIN_ID:

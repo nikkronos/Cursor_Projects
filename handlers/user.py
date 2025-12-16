@@ -91,6 +91,14 @@ def send_tariff_active(message: types.Message) -> None:
                      reply_markup=markup)
 
 
+@bot.message_handler(func=lambda message: message.text == "Тест")
+@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
+def send_test_button(message: types.Message) -> None:
+    """Обработчик кнопки 'Тест' для активных участников - дублирует 'Тариф'"""
+    # Вызываем тот же обработчик, что и для "Тариф"
+    send_tariff_active(message)
+
+
 @bot.message_handler(func=lambda message: message.text == "Тарифы")
 @rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
 def send_tariffs(message: types.Message) -> None:

@@ -55,7 +55,13 @@ def send_main_menu(user_id: int, chat_id: int, first_name: str) -> None:
     btn5 = types.KeyboardButton("Статус подписки")
     btn6 = types.KeyboardButton("Отзывы")
     btn7 = types.KeyboardButton("Публичная оферта")
-    markup.add(btn1, btn2, btn3, btn4, btn5, btn6, btn7)
+    
+    # Для активных участников добавляем тестовую кнопку "Тест"
+    if is_active:
+        btn_test = types.KeyboardButton("Тест")
+        markup.add(btn1, btn_test, btn2, btn3, btn4, btn5, btn6, btn7)
+    else:
+        markup.add(btn1, btn2, btn3, btn4, btn5, btn6, btn7)
     
     if user_id == ADMIN_ID:
         btn_admin = types.KeyboardButton("⚙️ Админ")
