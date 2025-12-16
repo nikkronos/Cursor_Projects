@@ -77,27 +77,30 @@ def handle_restart_bot(message: types.Message) -> None:
     handle_start(message)
 
 
-@bot.message_handler(func=lambda message: message.text == "Тариф")
+@bot.message_handler(func=lambda message: message.text == "Тариф для участника")
 @rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
 def send_tariff_active(message: types.Message) -> None:
-    """Обработчик кнопки 'Тариф' для активных участников - заглушка"""
-    markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-    back_button = types.KeyboardButton("Вернутся в главное меню🏡")
-    markup.add(back_button)
-    bot.send_message(message.chat.id,
-                     "*Тарифы*\n\n" 
-                     "Информация появится здесь 25 декабря.",
-                     parse_mode='Markdown',
-                     reply_markup=markup)
-
-
-@bot.message_handler(func=lambda message: message.text == "Тест")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
-def send_test_button(message: types.Message) -> None:
-    """Обработчик кнопки 'Тест' для активных участников - показывает функционал оплаты для тестирования чеков"""
-    # Показываем реквизиты для оплаты (для тестирования чеков)
-    # Для активных участников amount не используется, передаем 0
-    send_payment_info(message, 0)
+    """Обработчик кнопки 'Тариф для участника' для активных участников"""
+    from datetime import datetime
+    
+    # Проверяем дату: если до 25 декабря до 12:00 - показываем заглушку
+    now = datetime.now()
+    deadline = datetime(now.year, 12, 25, 12, 0, 0)
+    
+    if now < deadline:
+        # Показываем заглушку до 25 декабря до 12:00
+        markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+        back_button = types.KeyboardButton("Вернутся в главное меню🏡")
+        markup.add(back_button)
+        bot.send_message(message.chat.id,
+                         "*Тарифы*\n\n" 
+                         "Информация появится здесь 25 декабря.",
+                         parse_mode='Markdown',
+                         reply_markup=markup)
+    else:
+        # После 25 декабря до 12:00 показываем функционал оплаты
+        # Для активных участников amount не используется, передаем 0
+        send_payment_info(message, 0)
 
 
 @bot.message_handler(func=lambda message: message.text == "Тарифы")

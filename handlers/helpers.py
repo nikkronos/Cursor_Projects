@@ -47,28 +47,22 @@ def send_main_menu(user_id: int, chat_id: int, first_name: str) -> None:
     is_active = user_data and user_data['subscription_status'] == 'active'
     
     markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
-    # Для активных - "Тариф", для неактивных - "Тарифы"
-    btn1 = types.KeyboardButton("Тариф" if is_active else "Тарифы")
+    # Для активных - "Тариф для участника", для неактивных - "Тарифы"
+    btn1 = types.KeyboardButton("Тариф для участника" if is_active else "Тарифы")
     btn2 = types.KeyboardButton("Правила Клуба")
     btn3 = types.KeyboardButton("О Нас")
     btn4 = types.KeyboardButton("Обратная связь")
     btn5 = types.KeyboardButton("Статус подписки")
     btn6 = types.KeyboardButton("Отзывы")
     btn7 = types.KeyboardButton("Публичная оферта")
-    
-    # Для активных участников добавляем тестовую кнопку "Тест"
-    if is_active:
-        btn_test = types.KeyboardButton("Тест")
-        markup.add(btn1, btn_test, btn2, btn3, btn4, btn5, btn6, btn7)
-    else:
-        markup.add(btn1, btn2, btn3, btn4, btn5, btn6, btn7)
+    markup.add(btn1, btn2, btn3, btn4, btn5, btn6, btn7)
     
     if user_id == ADMIN_ID:
         btn_admin = types.KeyboardButton("⚙️ Админ")
         markup.add(btn_admin)
 
     # Текст в описании тоже меняем в зависимости от статуса
-    tariff_text = "*Тариф*" if is_active else "*Тарифы*"
+    tariff_text = "*Тариф для участника*" if is_active else "*Тарифы*"
     
     bot.send_message(chat_id, 
                      f"Здравствуйте, {first_name} !\n\n" 
