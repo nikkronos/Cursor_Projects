@@ -537,7 +537,7 @@ def handle_status_button(message: types.Message) -> None:
 
 
 @bot.message_handler(content_types=['text', 'photo', 'document'])
-@rate_limit(max_requests=3, time_window=60.0, block_duration=60.0)
+@rate_limit(max_requests=5, time_window=60.0, block_duration=60.0)
 def handle_payment_confirmation(message: types.Message) -> None:
     """Обработчик отправки чека для подтверждения оплаты"""
     # Игнорировать сообщения от админа

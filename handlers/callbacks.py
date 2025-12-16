@@ -56,7 +56,7 @@ def handle_confirm_payment(call: types.CallbackQuery) -> None:
         logger.info(f"Оплата подтверждена для пользователя {user_id}. Подписка продлена до {next_month.strftime('%d.%m.%Y')}")
         
         # Отправляем уведомление пользователю
-        first_name = user_data.get('first_name', 'Пользователь')
+        first_name = user_data['first_name'] if user_data['first_name'] else 'Пользователь'
         try:
             safe_send_message(bot, user_id, 
                 f"✅ Ваша оплата подтверждена, {first_name}!\n\n"
@@ -108,7 +108,7 @@ def handle_reject_payment(call: types.CallbackQuery) -> None:
         logger.info(f"Оплата отклонена для пользователя {user_id}")
         
         # Отправляем уведомление пользователю
-        first_name = user_data.get('first_name', 'Пользователь')
+        first_name = user_data['first_name'] if user_data['first_name'] else 'Пользователь'
         try:
             safe_send_message(bot, user_id, 
                 f"❌ Ваша оплата была отклонена, {first_name}.\n\n"
