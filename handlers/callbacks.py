@@ -4,14 +4,13 @@ Handles inline keyboard button callbacks (confirm/reject payments, tariffs, etc.
 """
 from telebot import types
 from datetime import datetime
-import calendar
 from loader import bot, logger, ADMIN_ID
 from database import get_db_connection, format_db_date, get_user_status
 from utils import safe_send_message
 
 
 def calculate_subscription_end_date() -> datetime:
-    """Вычисляет дату окончания подписки: последний день следующего месяца до 23:00"""
+    """Вычисляет дату окончания подписки: первое число следующего месяца до 23:00"""
     now = datetime.now()
     if now.month == 12:
         # Если декабрь, следующий месяц - январь следующего года
@@ -21,11 +20,8 @@ def calculate_subscription_end_date() -> datetime:
         next_month_num = now.month + 1
         next_year = now.year
     
-    # Получаем последний день следующего месяца
-    last_day = calendar.monthrange(next_year, next_month_num)[1]
-    
-    # Устанавливаем дату на последний день следующего месяца в 23:00
-    return datetime(next_year, next_month_num, last_day, 23, 0, 0, 0)
+    # Устанавливаем дату на первое число следующего месяца в 23:00
+    return datetime(next_year, next_month_num, 1, 23, 0, 0, 0)
 
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('confirm_pay_'))
