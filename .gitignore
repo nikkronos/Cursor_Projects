@@ -1,7 +1,14 @@
+env_vars.txt
+.env
+__pycache__/
+logs/
+*.log
+bot.db
+*.db
+
 # Временный проект - не коммитить
 ParentChildResearch/
 
 # Игнорируем другие временные файлы и папки
 *.tmp
 *.temp
-

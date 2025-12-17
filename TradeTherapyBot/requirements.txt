@@ -1,0 +1,4 @@
+pyTelegramBotAPI
+python-dotenv
+APScheduler
+pytest>=7.0.0
