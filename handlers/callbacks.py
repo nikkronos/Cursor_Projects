@@ -55,8 +55,13 @@ def handle_payment_callback(call: types.CallbackQuery) -> None:
             
             # Отправляем уведомление пользователю
             try:
+                markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+                back_button = types.KeyboardButton("Вернуться в главное меню🏡")
+                markup.add(back_button)
+                
                 safe_send_message(bot, user_id, 
-                    f"✅ Ваша оплата подтверждена! Подписка продлена до {end_date.strftime('%d.%m.%Y')} до 23:00.")
+                    f"✅ Ваша оплата подтверждена! Подписка продлена до {end_date.strftime('%d.%m.%Y')} до 23:00.",
+                    reply_markup=markup)
                 
                 # Проверяем, в группе ли пользователь
                 try:
@@ -86,8 +91,13 @@ def handle_payment_callback(call: types.CallbackQuery) -> None:
             
             # Уведомление пользователю
             try:
+                markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+                feedback_button = types.KeyboardButton("Обратная связь")
+                markup.add(feedback_button)
+                
                 safe_send_message(bot, user_id, 
-                    "❌ Ваша оплата была отклонена. Пожалуйста, свяжитесь с администратором для уточнения.")
+                    "❌ Ваша оплата была отклонена. Пожалуйста, свяжитесь с администратором для уточнения.",
+                    reply_markup=markup)
             except Exception as e:
                 logger.error(f"Не удалось отправить уведомление пользователю {user_id}: {e}")
             
@@ -152,8 +162,13 @@ def handle_tariff_callback(call: types.CallbackQuery) -> None:
             
             # Отправляем уведомление пользователю
             try:
+                markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+                back_button = types.KeyboardButton("Вернуться в главное меню🏡")
+                markup.add(back_button)
+                
                 safe_send_message(bot, user_id, 
-                    f"✅ Ваши ответы подтверждены! Подписка активирована до {end_date.strftime('%d.%m.%Y')} до 23:00.")
+                    f"✅ Ваши ответы подтверждены! Подписка активирована до {end_date.strftime('%d.%m.%Y')} до 23:00.",
+                    reply_markup=markup)
                 
                 # Проверяем, в группе ли пользователь
                 try:
@@ -181,8 +196,13 @@ def handle_tariff_callback(call: types.CallbackQuery) -> None:
             
             # Уведомление пользователю
             try:
+                markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+                feedback_button = types.KeyboardButton("Обратная связь")
+                markup.add(feedback_button)
+                
                 safe_send_message(bot, user_id, 
-                    "❌ Ваши ответы были отклонены. Пожалуйста, свяжитесь с администратором для уточнения.")
+                    "❌ Ваши ответы были отклонены. Пожалуйста, свяжитесь с администратором для уточнения.",
+                    reply_markup=markup)
             except Exception as e:
                 logger.error(f"Не удалось отправить уведомление пользователю {user_id}: {e}")
             
@@ -244,8 +264,13 @@ def handle_reason_trading_callback(call: types.CallbackQuery) -> None:
             
             # Отправляем уведомление пользователю
             try:
+                markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+                back_button = types.KeyboardButton("Вернуться в главное меню🏡")
+                markup.add(back_button)
+                
                 safe_send_message(bot, user_id, 
-                    f"✅ Ваша причина подтверждена! Подписка активирована до {end_date.strftime('%d.%m.%Y')} до 23:00.")
+                    f"✅ Ваша причина подтверждена! Подписка активирована до {end_date.strftime('%d.%m.%Y')} до 23:00.",
+                    reply_markup=markup)
                 
                 # Проверяем, в группе ли пользователь
                 try:
@@ -271,8 +296,13 @@ def handle_reason_trading_callback(call: types.CallbackQuery) -> None:
             # Отклонение причины
             # Уведомление пользователю
             try:
+                markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+                feedback_button = types.KeyboardButton("Обратная связь")
+                markup.add(feedback_button)
+                
                 safe_send_message(bot, user_id, 
-                    "❌ Ваша причина была отклонена. Пожалуйста, свяжитесь с администратором для уточнения.")
+                    "❌ Ваша причина была отклонена. Пожалуйста, свяжитесь с администратором для уточнения.",
+                    reply_markup=markup)
             except Exception as e:
                 logger.error(f"Не удалось отправить уведомление пользователю {user_id}: {e}")
             
@@ -334,8 +364,13 @@ def handle_reason_other_callback(call: types.CallbackQuery) -> None:
             
             # Отправляем уведомление пользователю
             try:
+                markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+                back_button = types.KeyboardButton("Вернуться в главное меню🏡")
+                markup.add(back_button)
+                
                 safe_send_message(bot, user_id, 
-                    f"✅ Ваша причина подтверждена! Подписка активирована до {end_date.strftime('%d.%m.%Y')} до 23:00.")
+                    f"✅ Ваша причина подтверждена! Подписка активирована до {end_date.strftime('%d.%m.%Y')} до 23:00.",
+                    reply_markup=markup)
                 
                 # Проверяем, в группе ли пользователь
                 try:
@@ -361,8 +396,13 @@ def handle_reason_other_callback(call: types.CallbackQuery) -> None:
             # Отклонение причины
             # Уведомление пользователю
             try:
+                markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+                feedback_button = types.KeyboardButton("Обратная связь")
+                markup.add(feedback_button)
+                
                 safe_send_message(bot, user_id, 
-                    "❌ Ваша причина была отклонена. Пожалуйста, свяжитесь с администратором для уточнения.")
+                    "❌ Ваша причина была отклонена. Пожалуйста, свяжитесь с администратором для уточнения.",
+                    reply_markup=markup)
             except Exception as e:
                 logger.error(f"Не удалось отправить уведомление пользователю {user_id}: {e}")
             
