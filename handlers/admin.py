@@ -261,10 +261,9 @@ def handle_receipts_menu_button(message: types.Message) -> None:
         
         markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
         btn_show = types.KeyboardButton("👁 Показать чеки")
-        btn_delete_old = types.KeyboardButton("🗑 Удалить старые чеки (30+ дней)")
         btn_delete_all = types.KeyboardButton("🗑 Удалить все чеки")
         btn_back = types.KeyboardButton("⬅️ Главное меню")
-        markup.add(btn_show, btn_delete_old, btn_delete_all, btn_back)
+        markup.add(btn_show, btn_delete_all, btn_back)
         
         bot.send_message(ADMIN_ID, f"Всего чеков в базе: {total}", reply_markup=markup)
     except Exception as e:
@@ -309,32 +308,6 @@ def handle_show_receipts_button(message: types.Message) -> None:
     except Exception as e:
         logger.error(f"Error showing receipts: {e}")
         bot.send_message(ADMIN_ID, f"Ошибка при показе чеков: {e}")
-
-
-@bot.message_handler(func=lambda message: message.text == "🗑 Удалить старые чеки (30+ дней)")
-def handle_delete_old_receipts_button(message: types.Message) -> None:
-    """Обработчик кнопки '🗑 Удалить старые чеки (30+ дней)'"""
-    if message.from_user.id != ADMIN_ID:
-        return
-    try:
-        with get_db_connection() as conn:
-            cursor = conn.cursor()
-            
-            # Удаляем чеки старше 30 дней
-            cursor.execute("""
-                DELETE FROM receipts 
-                WHERE datetime(created_at) < datetime('now', '-30 days')
-            """)
-            deleted = cursor.rowcount
-            conn.commit()
-            
-            logger.info(f"Deleted {deleted} old receipts (30+ days)")
-        
-        bot.send_message(ADMIN_ID, f"Удалено старых чеков (30+ дней): {deleted}")
-        send_admin_menu(ADMIN_ID)
-    except Exception as e:
-        logger.error(f"Error deleting old receipts: {e}", exc_info=True)
-        bot.send_message(ADMIN_ID, f"Ошибка при удалении чеков: {e}")
 
 
 @bot.message_handler(func=lambda message: message.text == "🗑 Удалить все чеки")

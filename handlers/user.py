@@ -69,38 +69,12 @@ def handle_back_to_main_menu(message: types.Message) -> None:
     send_main_menu(message.from_user.id, message.chat.id, message.from_user.first_name)
 
 
-@bot.message_handler(func=lambda message: message.text == "Вернутся в главное меню🏡")
+@bot.message_handler(func=lambda message: message.text == "Вернуться в главное меню🏡")
 @bot.message_handler(func=lambda message: message.text == "🔄 Перезагрузить бота")  # оставляем для совместимости
 @rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
 def handle_restart_bot(message: types.Message) -> None:
-    """Обработчик кнопки 'Вернутся в главное меню🏡' и '🔄 Перезагрузить бота'"""
+    """Обработчик кнопки 'Вернуться в главное меню🏡' и '🔄 Перезагрузить бота'"""
     handle_start(message)
-
-
-@bot.message_handler(func=lambda message: message.text == "Тариф для участника")
-@rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
-def send_tariff_active(message: types.Message) -> None:
-    """Обработчик кнопки 'Тариф для участника' для активных участников"""
-    from datetime import datetime
-    
-    # Проверяем дату: если до 25 декабря до 12:00 - показываем заглушку
-    now = datetime.now()
-    deadline = datetime(now.year, 12, 25, 12, 0, 0)
-    
-    if now < deadline:
-        # Показываем заглушку до 25 декабря до 12:00
-        markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-        back_button = types.KeyboardButton("Вернутся в главное меню🏡")
-        markup.add(back_button)
-        bot.send_message(message.chat.id,
-                         "*Тарифы*\n\n" 
-                         "Информация появится здесь 25 декабря.",
-                         parse_mode='Markdown',
-                         reply_markup=markup)
-    else:
-        # После 25 декабря до 12:00 показываем функционал оплаты
-        # Для активных участников amount не используется, передаем 0
-        send_payment_info(message, 0)
 
 
 @bot.message_handler(func=lambda message: message.text == "Тарифы")
@@ -114,7 +88,7 @@ def send_tariffs(message: types.Message) -> None:
     if user_data and user_data['subscription_status'] == 'active':
         markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
         btn_payment = types.KeyboardButton("Остаться в Сообществе")
-        back_button = types.KeyboardButton("Вернутся в главное меню🏡")
+        back_button = types.KeyboardButton("Вернуться в главное меню🏡")
         markup.add(btn_payment, back_button)
         bot.send_message(message.chat.id,
                          "*Тарифы*\n\n" 
@@ -134,7 +108,7 @@ def send_tariffs(message: types.Message) -> None:
         markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
         btn_agree = types.KeyboardButton("Я согласен")
         btn_already_answered = types.KeyboardButton("Я уже отвечал на вопросы")
-        back_button = types.KeyboardButton("Вернутся в главное меню🏡")
+        back_button = types.KeyboardButton("Вернуться в главное меню🏡")
         markup.add(btn_agree, btn_already_answered, back_button)
         
         bot.send_message(message.chat.id, tariff_text, parse_mode='Markdown', reply_markup=markup)
@@ -151,7 +125,7 @@ def ask_tariff_question(message: types.Message, question_index: int) -> None:
         
         # Пользователю отправляем сообщение об ожидании
         markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-        home_btn = types.KeyboardButton("Вернутся в главное меню🏡")
+        home_btn = types.KeyboardButton("Вернуться в главное меню🏡")
         markup.add(home_btn)
         bot.send_message(user_id, "Ожидайте, лидер сообщества изучает ваши ответы", reply_markup=markup)
         return
@@ -160,7 +134,7 @@ def ask_tariff_question(message: types.Message, question_index: int) -> None:
     question_text = TARIFF_QUESTIONS[question_index]
     
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-    home_btn = types.KeyboardButton("Вернутся в главное меню🏡")
+    home_btn = types.KeyboardButton("Вернуться в главное меню🏡")
     markup.add(home_btn)
     
     msg = bot.send_message(user_id, f"Вопрос {question_num} из {len(TARIFF_QUESTIONS)}:\n{question_text}", reply_markup=markup)
@@ -170,7 +144,7 @@ def ask_tariff_question(message: types.Message, question_index: int) -> None:
 @rate_limit(max_requests=15, time_window=10.0, block_duration=30.0)
 def process_tariff_answer(message: types.Message, question_index: int) -> None:
     """Обработать ответ на вопрос"""
-    if message.text == "Вернутся в главное меню🏡":
+    if message.text == "Вернуться в главное меню🏡":
         handle_start(message)
         return
     
@@ -209,13 +183,13 @@ def handle_already_answered(message: types.Message) -> None:
         send_answers_to_admin(user_id, message.from_user.first_name, username)
         
         markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-        home_btn = types.KeyboardButton("Вернутся в главное меню🏡")
+        home_btn = types.KeyboardButton("Вернуться в главное меню🏡")
         markup.add(home_btn)
         bot.send_message(user_id, "Ваши ответы отправлены на повторное рассмотрение. Ожидайте, лидер сообщества изучает ваши ответы.", reply_markup=markup)
     else:
         # Если ответов нет, начинаем опрос заново
         markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-        home_btn = types.KeyboardButton("Вернутся в главное меню🏡")
+        home_btn = types.KeyboardButton("Вернуться в главное меню🏡")
         markup.add(home_btn)
         msg = bot.send_message(user_id, "Ответы не найдены. Давайте начнем опрос заново. Первый вопрос:", reply_markup=markup)
         clear_user_tariff_answers(user_id)
@@ -259,7 +233,7 @@ def handle_wont_pay_menu(message: types.Message) -> None:
     reason1 = types.KeyboardButton("Я не торгую")
     reason2 = types.KeyboardButton("Не буду платить по другой причине")
     back_btn = types.KeyboardButton("Назад 🔙")
-    home_btn = types.KeyboardButton("Вернутся в главное меню🏡")
+    home_btn = types.KeyboardButton("Вернуться в главное меню🏡")
     markup.add(reason1, reason2, back_btn, home_btn)
     bot.send_message(message.chat.id, "Почему вы решили не платить?", reply_markup=markup)
 
@@ -270,7 +244,7 @@ def handle_reason_trading(message: types.Message) -> None:
     """Обработчик кнопки 'Я не торгую'"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
     back_btn = types.KeyboardButton("Назад 🔙")
-    home_btn = types.KeyboardButton("Вернутся в главное меню🏡")
+    home_btn = types.KeyboardButton("Вернуться в главное меню🏡")
     markup.add(back_btn, home_btn)
     msg = bot.send_message(message.chat.id, "Напиши, пожалуйста, подробно, чем ты занимаешься и когда вернёшься в рынок?", reply_markup=markup)
     bot.register_next_step_handler(msg, process_reason_trading)
@@ -279,7 +253,7 @@ def handle_reason_trading(message: types.Message) -> None:
 @rate_limit(max_requests=15, time_window=10.0, block_duration=30.0)
 def process_reason_trading(message: types.Message) -> None:
     """Обработка ответа на вопрос 'Я не торгую'"""
-    if message.text == "Вернутся в главное меню🏡" or message.text == "Назад 🔙":
+    if message.text == "Вернуться в главное меню🏡" or message.text == "Назад 🔙":
         if message.text == "Назад 🔙":
             handle_wont_pay_menu(message)
         else:
@@ -305,7 +279,7 @@ def process_reason_trading(message: types.Message) -> None:
     
     # После ответа - только кнопка в главное меню
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-    home_btn = types.KeyboardButton("Вернутся в главное меню🏡")
+    home_btn = types.KeyboardButton("Вернуться в главное меню🏡")
     markup.add(home_btn)
     bot.send_message(message.chat.id, "Ожидайте, лидер сообщества изучает ваш ответ.", reply_markup=markup)
 
@@ -316,7 +290,7 @@ def handle_reason_other(message: types.Message) -> None:
     """Обработчик кнопки 'Не буду платить по другой причине'"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
     back_btn = types.KeyboardButton("Назад 🔙")
-    home_btn = types.KeyboardButton("Вернутся в главное меню🏡")
+    home_btn = types.KeyboardButton("Вернуться в главное меню🏡")
     markup.add(back_btn, home_btn)
     msg = bot.send_message(message.chat.id, "Напиши, пожалуйста, подробно, почему ты не будешь платить. Плюсы и минусы сообщества. Какая твоя роль в нём?", reply_markup=markup)
     bot.register_next_step_handler(msg, process_reason_other)
@@ -325,7 +299,7 @@ def handle_reason_other(message: types.Message) -> None:
 @rate_limit(max_requests=15, time_window=10.0, block_duration=30.0)
 def process_reason_other(message: types.Message) -> None:
     """Обработка ответа на вопрос 'Не буду платить по другой причине'"""
-    if message.text == "Вернутся в главное меню🏡" or message.text == "Назад 🔙":
+    if message.text == "Вернуться в главное меню🏡" or message.text == "Назад 🔙":
         if message.text == "Назад 🔙":
             handle_wont_pay_menu(message)
         else:
@@ -351,7 +325,7 @@ def process_reason_other(message: types.Message) -> None:
     
     # После ответа - только кнопка в главное меню
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-    home_btn = types.KeyboardButton("Вернутся в главное меню🏡")
+    home_btn = types.KeyboardButton("Вернуться в главное меню🏡")
     markup.add(home_btn)
     bot.send_message(message.chat.id, "Ожидайте, лидер сообщества изучает ваш ответ.", reply_markup=markup)
 
@@ -368,7 +342,7 @@ def handle_back_button(message: types.Message) -> None:
 def send_rules(message: types.Message) -> None:
     """Показать правила клуба"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-    back_button = types.KeyboardButton("Вернутся в главное меню🏡")
+    back_button = types.KeyboardButton("Вернуться в главное меню🏡")
     markup.add(back_button)
     bot.send_message(message.chat.id,
                      "*Правила Клуба*\n\n" 
@@ -388,7 +362,7 @@ def send_rules(message: types.Message) -> None:
 def send_about_us(message: types.Message) -> None:
     """Показать информацию о сообществе"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-    back_button = types.KeyboardButton("Вернутся в главное меню🏡")
+    back_button = types.KeyboardButton("Вернуться в главное меню🏡")
     markup.add(back_button)
     
     file_id_1 = 'AgACAgIAAxkBAAIEVWktlnhZ-lksHTT_8mMF_rMBZ1juAAJsEGsbhNZoSU0rol3-wvFxAQADAgADeQADNgQ'
@@ -426,7 +400,7 @@ def send_about_us(message: types.Message) -> None:
 def handle_reviews(message: types.Message) -> None:
     """Показать отзывы"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-    back_button = types.KeyboardButton("Вернутся в главное меню🏡")
+    back_button = types.KeyboardButton("Вернуться в главное меню🏡")
     markup.add(back_button)
     
     file_id_screen1 = 'AgACAgIAAxkBAAIEU2ktlk9Bu7e5xcSYQrSt9mx5I4e4AAJrEGsbhNZoSdThsmpCxUMJAQADAgADeAADNgQ'
@@ -437,7 +411,7 @@ def handle_reviews(message: types.Message) -> None:
     except Exception as e:
         logger.error(f"Error sending photo in handle_reviews: {e}")
 
-    bot.send_message(message.chat.id, "Больше отзывов здесь: https://t.me/feedbacktradetherapy", reply_markup=markup)
+    bot.send_message(message.chat.id, "Отзывы здесь: https://t.me/feedbacktradetherapy", reply_markup=markup)
 
 
 @bot.message_handler(func=lambda message: message.text == "Обратная связь")
@@ -445,7 +419,7 @@ def handle_reviews(message: types.Message) -> None:
 def send_feedback_contact(message: types.Message) -> None:
     """Показать контакты для обратной связи"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-    back_button = types.KeyboardButton("Вернутся в главное меню🏡")
+    back_button = types.KeyboardButton("Вернуться в главное меню🏡")
     markup.add(back_button)
     bot.send_message(message.chat.id, "*Обратная связь*\n\n" 
                      "Если у вас есть вопросы, претензии или предложения, свяжитесь со мной: @nikkronos",
@@ -458,7 +432,7 @@ def send_feedback_contact(message: types.Message) -> None:
 def send_oferta(message: types.Message) -> None:
     """Показать публичную оферту"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-    back_button = types.KeyboardButton("Вернутся в главное меню🏡")
+    back_button = types.KeyboardButton("Вернуться в главное меню🏡")
     markup.add(back_button)
     bot.send_message(message.chat.id, "*Публичная оферта*\n\n"
                      "Документ будет добавлен позже.", 
@@ -524,7 +498,7 @@ def handle_status_command(message: types.Message) -> None:
          btn_tariffs = types.KeyboardButton("Тарифы")
          markup.add(btn_tariffs)
     
-    back_button = types.KeyboardButton("Вернутся в главное меню🏡")
+    back_button = types.KeyboardButton("Вернуться в главное меню🏡")
     markup.add(back_button)
     bot.send_message(message.chat.id, "*Статус подписки*\n\n" 
                      + status_message,
@@ -540,7 +514,7 @@ def handle_status_button(message: types.Message) -> None:
 
 
 @bot.message_handler(content_types=['text', 'photo', 'document'])
-@rate_limit(max_requests=5, time_window=60.0, block_duration=60.0)
+@rate_limit(max_requests=3, time_window=60.0, block_duration=60.0)
 def handle_payment_confirmation(message: types.Message) -> None:
     """Обработчик отправки чека для подтверждения оплаты"""
     # Игнорировать сообщения от админа
