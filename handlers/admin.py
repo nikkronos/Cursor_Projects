@@ -502,3 +502,46 @@ def handle_back_to_admin_menu(message: types.Message) -> None:
     if message.from_user.id != ADMIN_ID:
         return
     send_admin_menu(message.chat.id)
+
+
+@bot.message_handler(commands=['update_all_subscriptions'])
+def handle_update_all_subscriptions(message: types.Message) -> None:
+    """Команда для массового обновления всех активных участников до 30.12.2025 23:00"""
+    if message.from_user.id != ADMIN_ID:
+        return
+    
+    try:
+        target_date = datetime(2025, 12, 30, 23, 0, 0)
+        target_date_str = format_db_date(target_date)
+        
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            # Находим всех активных пользователей
+            cursor.execute("SELECT telegram_id, first_name FROM users WHERE subscription_status = 'active'")
+            active_users = cursor.fetchall()
+            
+            if not active_users:
+                bot.send_message(ADMIN_ID, "Нет активных пользователей для обновления.")
+                return
+            
+            # Обновляем дату окончания подписки
+            cursor.execute("""
+                UPDATE users 
+                SET subscription_end_date = ? 
+                WHERE subscription_status = 'active'
+            """, (target_date_str,))
+            
+            updated_count = cursor.rowcount
+            conn.commit()
+        
+        logger.info(f"Mass update: {updated_count} active users updated to 30.12.2025 23:00")
+        
+        bot.send_message(ADMIN_ID, 
+            f"✅ Массовое обновление завершено.\n"
+            f"Обновлено пользователей: {updated_count}\n"
+            f"Новая дата окончания: 30.12.2025 23:00")
+        
+    except Exception as e:
+        error_msg = f"Ошибка при массовом обновлении подписок: {e}"
+        logger.error(error_msg)
+        bot.send_message(ADMIN_ID, error_msg)

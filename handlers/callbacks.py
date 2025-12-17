@@ -1,395 +1,379 @@
 """
-Callback query handlers for TradeTherapyBot.
-Handles inline keyboard button callbacks (confirm/reject payments, tariffs, etc.)
+Callback handlers for TradeTherapyBot.
+Contains all callback query handlers for inline buttons.
 """
 from telebot import types
 from datetime import datetime
-from loader import bot, logger, ADMIN_ID
-from database import get_db_connection, format_db_date, get_user_status
-from utils import safe_send_message
+from loader import bot, logger, ADMIN_ID, GROUP_CHAT_ID, GROUP_INVITE_LINK
+from database import get_db_connection, format_db_date, update_tariff_answers_status, clear_user_tariff_answers
+from services import get_next_month_end_date
+from utils import safe_send_message, retry_telegram_api
 
 
-def calculate_subscription_end_date() -> datetime:
-    """Вычисляет дату окончания подписки: первое число следующего месяца до 23:00"""
-    now = datetime.now()
-    if now.month == 12:
-        # Если декабрь, следующий месяц - январь следующего года
-        next_month_num = 1
-        next_year = now.year + 1
-    else:
-        next_month_num = now.month + 1
-        next_year = now.year
-    
-    # Устанавливаем дату на первое число следующего месяца в 23:00
-    return datetime(next_year, next_month_num, 1, 23, 0, 0, 0)
-
-
-@bot.callback_query_handler(func=lambda call: call.data.startswith('confirm_pay_'))
-def handle_confirm_payment(call: types.CallbackQuery) -> None:
-    """Обработчик подтверждения оплаты"""
-    # Проверяем, что это админ
+@bot.callback_query_handler(func=lambda call: call.data.startswith('confirm_pay_') or call.data.startswith('reject_pay_'))
+def handle_payment_callback(call: types.CallbackQuery) -> None:
+    """Обработчик callback'ов для подтверждения/отклонения оплаты"""
     if call.from_user.id != ADMIN_ID:
-        bot.answer_callback_query(call.id, "Только администратор может подтверждать оплаты.", show_alert=True)
+        bot.answer_callback_query(call.id, "Только администратор может подтверждать оплаты.")
         return
     
     try:
-        # Извлекаем user_id из callback_data
         user_id = int(call.data.split('_')[-1])
         
-        # Получаем информацию о пользователе
-        user_data = get_user_status(user_id)
-        if not user_data:
-            bot.answer_callback_query(call.id, "Пользователь не найден в базе данных.", show_alert=True)
-            return
-        
-        # Вычисляем дату до последнего дня следующего месяца до 23:00
-        end_date = calculate_subscription_end_date()
-        end_date_str = format_db_date(end_date)
-        now = datetime.now()
-        now_str = format_db_date(now)
-        
-        # Обновляем подписку в БД
-        with get_db_connection() as conn:
-            cursor = conn.cursor()
-            # Обновляем статус подписки и дату окончания
-            cursor.execute("""
-                UPDATE users 
-                SET subscription_status = 'active', 
-                    subscription_end_date = ?,
-                    subscription_start_date = COALESCE(subscription_start_date, ?),
-                    payment_status = 'paid',
-                    last_notification_level = NULL
-                WHERE telegram_id = ?
-            """, (end_date_str, now_str, user_id))
-            conn.commit()
-        
-        logger.info(f"Оплата подтверждена для пользователя {user_id}. Подписка продлена до {end_date.strftime('%d.%m.%Y %H:%M')}")
-        
-        # Отправляем уведомление пользователю со стандартной кнопкой
-        first_name = user_data['first_name'] if user_data['first_name'] else 'Пользователь'
-        try:
-            markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-            back_button = types.KeyboardButton("Вернутся в главное меню🏡")
-            markup.add(back_button)
+        if call.data.startswith('confirm_pay_'):
+            # Подтверждение оплаты
+            now = datetime.now()
+            end_date = get_next_month_end_date(now)
+            end_date_str = format_db_date(end_date)
+            now_str = format_db_date(now)
             
-            bot.send_message(user_id, 
-                f"✅ Ваша оплата подтверждена, {first_name}!\n\n"
-                f"Подписка продлена до {end_date.strftime('%d.%m.%Y %H:%M')}.\n\n"
-                f"Спасибо за поддержку сообщества!",
-                reply_markup=markup)
-        except Exception as e:
-            logger.error(f"Не удалось отправить уведомление пользователю {user_id}: {e}")
-        
-        # Обновляем сообщение админу
-        bot.answer_callback_query(call.id, "✅ Оплата подтверждена")
-        bot.edit_message_reply_markup(
-            chat_id=call.message.chat.id,
-            message_id=call.message.message_id,
-            reply_markup=None
-        )
-        bot.send_message(ADMIN_ID, f"✅ Оплата пользователя {user_id} ({first_name}) подтверждена. Подписка продлена до {end_date.strftime('%d.%m.%Y %H:%M')}")
-        
+            with get_db_connection() as conn:
+                cursor = conn.cursor()
+                # Проверяем, существует ли пользователь
+                cursor.execute("SELECT first_name FROM users WHERE telegram_id = ?", (user_id,))
+                user = cursor.fetchone()
+                
+                if user:
+                    cursor.execute("""
+                        UPDATE users 
+                        SET subscription_status = 'active', 
+                            subscription_end_date = ?, 
+                            payment_status = 'paid',
+                            subscription_start_date = ?,
+                            last_notification_level = NULL
+                        WHERE telegram_id = ?
+                    """, (end_date_str, now_str, user_id))
+                else:
+                    # Если пользователя нет, создаем его
+                    cursor.execute("""
+                        INSERT INTO users (telegram_id, subscription_status, subscription_start_date, 
+                                         subscription_end_date, payment_status, last_notification_level)
+                        VALUES (?, 'active', ?, ?, 'paid', NULL)
+                    """, (user_id, now_str, end_date_str))
+                
+                conn.commit()
+            
+            # Отправляем уведомление пользователю
+            try:
+                safe_send_message(bot, user_id, 
+                    f"✅ Ваша оплата подтверждена! Подписка продлена до {end_date.strftime('%d.%m.%Y')} до 23:00.")
+                
+                # Проверяем, в группе ли пользователь
+                try:
+                    def get_member():
+                        return bot.get_chat_member(GROUP_CHAT_ID, user_id)
+                    member = retry_telegram_api(get_member, max_attempts=2)
+                    if member.status not in ['creator', 'administrator', 'member']:
+                        safe_send_message(bot, user_id, 
+                            f"Теперь вы можете вступить в группу по ссылке: {GROUP_INVITE_LINK}")
+                except Exception:
+                    safe_send_message(bot, user_id, 
+                        f"Теперь вы можете вступить в группу по ссылке: {GROUP_INVITE_LINK}")
+            except Exception as e:
+                logger.error(f"Не удалось отправить уведомление пользователю {user_id}: {e}")
+            
+            # Уведомление админу
+            safe_send_message(bot, ADMIN_ID, 
+                f"✅ Оплата пользователя {user_id} подтверждена. Подписка до {end_date.strftime('%d.%m.%Y')} 23:00.")
+            
+            bot.answer_callback_query(call.id, "Оплата подтверждена")
+            
+        elif call.data.startswith('reject_pay_'):
+            # Отклонение оплаты
+            with get_db_connection() as conn:
+                conn.execute("UPDATE users SET payment_status = 'rejected' WHERE telegram_id = ?", (user_id,))
+                conn.commit()
+            
+            # Уведомление пользователю
+            try:
+                safe_send_message(bot, user_id, 
+                    "❌ Ваша оплата была отклонена. Пожалуйста, свяжитесь с администратором для уточнения.")
+            except Exception as e:
+                logger.error(f"Не удалось отправить уведомление пользователю {user_id}: {e}")
+            
+            # Уведомление админу
+            safe_send_message(bot, ADMIN_ID, f"❌ Оплата пользователя {user_id} отклонена.")
+            
+            bot.answer_callback_query(call.id, "Оплата отклонена")
+            
     except ValueError:
-        bot.answer_callback_query(call.id, "Ошибка: неверный формат данных.", show_alert=True)
-        logger.error(f"Ошибка при парсинге user_id из callback_data: {call.data}")
+        logger.error(f"Неверный формат user_id в callback: {call.data}")
+        bot.answer_callback_query(call.id, "Ошибка: неверный формат данных")
     except Exception as e:
-        bot.answer_callback_query(call.id, f"Ошибка при подтверждении оплаты: {e}", show_alert=True)
-        logger.error(f"Ошибка при подтверждении оплаты: {e}")
+        logger.error(f"Ошибка при обработке callback оплаты: {e}")
+        bot.answer_callback_query(call.id, "Произошла ошибка")
 
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith('reject_pay_'))
-def handle_reject_payment(call: types.CallbackQuery) -> None:
-    """Обработчик отклонения оплаты"""
-    # Проверяем, что это админ
+@bot.callback_query_handler(func=lambda call: call.data.startswith('confirm_tariff_') or call.data.startswith('reject_tariff_'))
+def handle_tariff_callback(call: types.CallbackQuery) -> None:
+    """Обработчик callback'ов для подтверждения/отклонения ответов на вопросы тарифа"""
     if call.from_user.id != ADMIN_ID:
-        bot.answer_callback_query(call.id, "Только администратор может отклонять оплаты.", show_alert=True)
+        bot.answer_callback_query(call.id, "Только администратор может подтверждать ответы.")
         return
     
     try:
-        # Извлекаем user_id из callback_data
         user_id = int(call.data.split('_')[-1])
         
-        # Получаем информацию о пользователе
-        user_data = get_user_status(user_id)
-        if not user_data:
-            bot.answer_callback_query(call.id, "Пользователь не найден в базе данных.", show_alert=True)
-            return
-        
-        # Обновляем статус оплаты в БД
-        with get_db_connection() as conn:
-            conn.execute("UPDATE users SET payment_status = 'rejected' WHERE telegram_id = ?", (user_id,))
-            conn.commit()
-        
-        logger.info(f"Оплата отклонена для пользователя {user_id}")
-        
-        # Отправляем уведомление пользователю с кнопкой "Обратная связь"
-        first_name = user_data['first_name'] if user_data['first_name'] else 'Пользователь'
-        try:
-            markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-            feedback_btn = types.KeyboardButton("Обратная связь")
-            markup.add(feedback_btn)
+        if call.data.startswith('confirm_tariff_'):
+            # Подтверждение ответов на вопросы
+            now = datetime.now()
+            end_date = get_next_month_end_date(now)
+            end_date_str = format_db_date(end_date)
+            now_str = format_db_date(now)
             
-            bot.send_message(user_id, 
-                f"❌ Ваша оплата была отклонена, {first_name}.\n\n"
-                f"Если у вас есть вопросы, свяжитесь с администратором через форму обратной связи.",
-                reply_markup=markup)
-        except Exception as e:
-            logger.error(f"Не удалось отправить уведомление пользователю {user_id}: {e}")
-        
-        # Обновляем сообщение админу
-        bot.answer_callback_query(call.id, "❌ Оплата отклонена")
-        bot.edit_message_reply_markup(
-            chat_id=call.message.chat.id,
-            message_id=call.message.message_id,
-            reply_markup=None
-        )
-        bot.send_message(ADMIN_ID, f"❌ Оплата пользователя {user_id} ({first_name}) отклонена.")
-        
+            # Обновляем статус ответов
+            update_tariff_answers_status(user_id, 'approved')
+            
+            with get_db_connection() as conn:
+                cursor = conn.cursor()
+                # Проверяем, существует ли пользователь
+                cursor.execute("SELECT first_name FROM users WHERE telegram_id = ?", (user_id,))
+                user = cursor.fetchone()
+                
+                if user:
+                    cursor.execute("""
+                        UPDATE users 
+                        SET subscription_status = 'active', 
+                            subscription_end_date = ?, 
+                            subscription_start_date = ?,
+                            payment_status = 'paid',
+                            last_notification_level = NULL
+                        WHERE telegram_id = ?
+                    """, (end_date_str, now_str, user_id))
+                else:
+                    # Если пользователя нет, создаем его
+                    cursor.execute("""
+                        INSERT INTO users (telegram_id, subscription_status, subscription_start_date, 
+                                         subscription_end_date, payment_status, last_notification_level)
+                        VALUES (?, 'active', ?, ?, 'paid', NULL)
+                    """, (user_id, now_str, end_date_str))
+                
+                conn.commit()
+            
+            # Отправляем уведомление пользователю
+            try:
+                safe_send_message(bot, user_id, 
+                    f"✅ Ваши ответы подтверждены! Подписка активирована до {end_date.strftime('%d.%m.%Y')} до 23:00.")
+                
+                # Проверяем, в группе ли пользователь
+                try:
+                    def get_member():
+                        return bot.get_chat_member(GROUP_CHAT_ID, user_id)
+                    member = retry_telegram_api(get_member, max_attempts=2)
+                    if member.status not in ['creator', 'administrator', 'member']:
+                        safe_send_message(bot, user_id, 
+                            f"Теперь вы можете вступить в группу по ссылке: {GROUP_INVITE_LINK}")
+                except Exception:
+                    safe_send_message(bot, user_id, 
+                        f"Теперь вы можете вступить в группу по ссылке: {GROUP_INVITE_LINK}")
+            except Exception as e:
+                logger.error(f"Не удалось отправить уведомление пользователю {user_id}: {e}")
+            
+            # Уведомление админу
+            safe_send_message(bot, ADMIN_ID, 
+                f"✅ Ответы пользователя {user_id} подтверждены. Подписка до {end_date.strftime('%d.%m.%Y')} 23:00.")
+            
+            bot.answer_callback_query(call.id, "Ответы подтверждены")
+            
+        elif call.data.startswith('reject_tariff_'):
+            # Отклонение ответов
+            update_tariff_answers_status(user_id, 'rejected')
+            
+            # Уведомление пользователю
+            try:
+                safe_send_message(bot, user_id, 
+                    "❌ Ваши ответы были отклонены. Пожалуйста, свяжитесь с администратором для уточнения.")
+            except Exception as e:
+                logger.error(f"Не удалось отправить уведомление пользователю {user_id}: {e}")
+            
+            # Уведомление админу
+            safe_send_message(bot, ADMIN_ID, f"❌ Ответы пользователя {user_id} отклонены.")
+            
+            bot.answer_callback_query(call.id, "Ответы отклонены")
+            
     except ValueError:
-        bot.answer_callback_query(call.id, "Ошибка: неверный формат данных.", show_alert=True)
-        logger.error(f"Ошибка при парсинге user_id из callback_data: {call.data}")
+        logger.error(f"Неверный формат user_id в callback: {call.data}")
+        bot.answer_callback_query(call.id, "Ошибка: неверный формат данных")
     except Exception as e:
-        bot.answer_callback_query(call.id, f"Ошибка при отклонении оплаты: {e}", show_alert=True)
-        logger.error(f"Ошибка при отклонении оплаты: {e}")
+        logger.error(f"Ошибка при обработке callback тарифа: {e}")
+        bot.answer_callback_query(call.id, "Произошла ошибка")
 
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith('confirm_reason_trading_'))
-def handle_confirm_reason_trading(call: types.CallbackQuery) -> None:
-    """Обработчик подтверждения причины 'Я не торгую' - продлевает до последнего дня следующего месяца до 23:00"""
-    # Проверяем, что это админ
+@bot.callback_query_handler(func=lambda call: call.data.startswith('confirm_reason_trading_') or call.data.startswith('reject_reason_trading_'))
+def handle_reason_trading_callback(call: types.CallbackQuery) -> None:
+    """Обработчик callback'ов для подтверждения/отклонения причины 'Я не торгую'"""
     if call.from_user.id != ADMIN_ID:
-        bot.answer_callback_query(call.id, "Только администратор может подтверждать.", show_alert=True)
+        bot.answer_callback_query(call.id, "Только администратор может подтверждать причины.")
         return
     
     try:
-        # Извлекаем user_id из callback_data
         user_id = int(call.data.split('_')[-1])
         
-        # Получаем информацию о пользователе
-        user_data = get_user_status(user_id)
-        if not user_data:
-            bot.answer_callback_query(call.id, "Пользователь не найден в базе данных.", show_alert=True)
-            return
-        
-        # Вычисляем дату до последнего дня следующего месяца до 23:00
-        end_date = calculate_subscription_end_date()
-        end_date_str = format_db_date(end_date)
-        now_str = format_db_date(datetime.now())
-        
-        # Обновляем подписку в БД
-        with get_db_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute("""
-                UPDATE users 
-                SET subscription_status = 'active', 
-                    subscription_end_date = ?,
-                    subscription_start_date = COALESCE(subscription_start_date, ?),
-                    payment_status = 'paid',
-                    last_notification_level = NULL
-                WHERE telegram_id = ?
-            """, (end_date_str, now_str, user_id))
-            conn.commit()
-        
-        first_name = user_data['first_name'] if user_data['first_name'] else 'Пользователь'
-        logger.info(f"Причина 'Я не торгую' подтверждена для пользователя {user_id}. Подписка продлена до {end_date.strftime('%d.%m.%Y %H:%M')}")
-        
-        # Отправляем уведомление пользователю со стандартной кнопкой
-        try:
-            markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-            back_button = types.KeyboardButton("Вернутся в главное меню🏡")
-            markup.add(back_button)
+        if call.data.startswith('confirm_reason_trading_'):
+            # Подтверждение причины "Я не торгую"
+            now = datetime.now()
+            end_date = get_next_month_end_date(now)
+            end_date_str = format_db_date(end_date)
+            now_str = format_db_date(now)
             
-            bot.send_message(user_id, 
-                f"✅ Ваша причина принята, {first_name}!\n\n"
-                f"Подписка продлена до {end_date.strftime('%d.%m.%Y %H:%M')}.",
-                reply_markup=markup)
-        except Exception as e:
-            logger.error(f"Не удалось отправить уведомление пользователю {user_id}: {e}")
-        
-        # Обновляем сообщение админу
-        bot.answer_callback_query(call.id, "✅ Причина подтверждена")
-        bot.edit_message_reply_markup(
-            chat_id=call.message.chat.id,
-            message_id=call.message.message_id,
-            reply_markup=None
-        )
-        bot.send_message(ADMIN_ID, f"✅ Причина 'Я не торгую' пользователя {user_id} ({first_name}) подтверждена. Подписка продлена до {end_date.strftime('%d.%m.%Y %H:%M')}.")
-        
+            with get_db_connection() as conn:
+                cursor = conn.cursor()
+                # Проверяем, существует ли пользователь
+                cursor.execute("SELECT first_name FROM users WHERE telegram_id = ?", (user_id,))
+                user = cursor.fetchone()
+                
+                if user:
+                    cursor.execute("""
+                        UPDATE users 
+                        SET subscription_status = 'active', 
+                            subscription_end_date = ?, 
+                            subscription_start_date = ?,
+                            payment_status = 'paid',
+                            last_notification_level = NULL
+                        WHERE telegram_id = ?
+                    """, (end_date_str, now_str, user_id))
+                else:
+                    # Если пользователя нет, создаем его
+                    cursor.execute("""
+                        INSERT INTO users (telegram_id, subscription_status, subscription_start_date, 
+                                         subscription_end_date, payment_status, last_notification_level)
+                        VALUES (?, 'active', ?, ?, 'paid', NULL)
+                    """, (user_id, now_str, end_date_str))
+                
+                conn.commit()
+            
+            # Отправляем уведомление пользователю
+            try:
+                safe_send_message(bot, user_id, 
+                    f"✅ Ваша причина подтверждена! Подписка активирована до {end_date.strftime('%d.%m.%Y')} до 23:00.")
+                
+                # Проверяем, в группе ли пользователь
+                try:
+                    def get_member():
+                        return bot.get_chat_member(GROUP_CHAT_ID, user_id)
+                    member = retry_telegram_api(get_member, max_attempts=2)
+                    if member.status not in ['creator', 'administrator', 'member']:
+                        safe_send_message(bot, user_id, 
+                            f"Теперь вы можете вступить в группу по ссылке: {GROUP_INVITE_LINK}")
+                except Exception:
+                    safe_send_message(bot, user_id, 
+                        f"Теперь вы можете вступить в группу по ссылке: {GROUP_INVITE_LINK}")
+            except Exception as e:
+                logger.error(f"Не удалось отправить уведомление пользователю {user_id}: {e}")
+            
+            # Уведомление админу
+            safe_send_message(bot, ADMIN_ID, 
+                f"✅ Причина пользователя {user_id} ('Я не торгую') подтверждена. Подписка до {end_date.strftime('%d.%m.%Y')} 23:00.")
+            
+            bot.answer_callback_query(call.id, "Причина подтверждена")
+            
+        elif call.data.startswith('reject_reason_trading_'):
+            # Отклонение причины
+            # Уведомление пользователю
+            try:
+                safe_send_message(bot, user_id, 
+                    "❌ Ваша причина была отклонена. Пожалуйста, свяжитесь с администратором для уточнения.")
+            except Exception as e:
+                logger.error(f"Не удалось отправить уведомление пользователю {user_id}: {e}")
+            
+            # Уведомление админу
+            safe_send_message(bot, ADMIN_ID, f"❌ Причина пользователя {user_id} ('Я не торгую') отклонена.")
+            
+            bot.answer_callback_query(call.id, "Причина отклонена")
+            
     except ValueError:
-        bot.answer_callback_query(call.id, "Ошибка: неверный формат данных.", show_alert=True)
-        logger.error(f"Ошибка при парсинге user_id из callback_data: {call.data}")
+        logger.error(f"Неверный формат user_id в callback: {call.data}")
+        bot.answer_callback_query(call.id, "Ошибка: неверный формат данных")
     except Exception as e:
-        bot.answer_callback_query(call.id, f"Ошибка при подтверждении: {e}", show_alert=True)
-        logger.error(f"Ошибка при подтверждении причины 'Я не торгую': {e}")
+        logger.error(f"Ошибка при обработке callback причины 'Я не торгую': {e}")
+        bot.answer_callback_query(call.id, "Произошла ошибка")
 
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith('reject_reason_trading_'))
-def handle_reject_reason_trading(call: types.CallbackQuery) -> None:
-    """Обработчик отклонения причины 'Я не торгую'"""
-    # Проверяем, что это админ
+@bot.callback_query_handler(func=lambda call: call.data.startswith('confirm_reason_other_') or call.data.startswith('reject_reason_other_'))
+def handle_reason_other_callback(call: types.CallbackQuery) -> None:
+    """Обработчик callback'ов для подтверждения/отклонения причины 'По другой причине'"""
     if call.from_user.id != ADMIN_ID:
-        bot.answer_callback_query(call.id, "Только администратор может отклонять.", show_alert=True)
+        bot.answer_callback_query(call.id, "Только администратор может подтверждать причины.")
         return
     
     try:
-        # Извлекаем user_id из callback_data
         user_id = int(call.data.split('_')[-1])
         
-        # Получаем информацию о пользователе
-        user_data = get_user_status(user_id)
-        if not user_data:
-            bot.answer_callback_query(call.id, "Пользователь не найден в базе данных.", show_alert=True)
-            return
-        
-        logger.info(f"Причина 'Я не торгую' отклонена для пользователя {user_id}")
-        
-        # Отправляем уведомление пользователю с кнопкой "Обратная связь"
-        first_name = user_data['first_name'] if user_data['first_name'] else 'Пользователь'
-        try:
-            markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-            feedback_btn = types.KeyboardButton("Обратная связь")
-            markup.add(feedback_btn)
+        if call.data.startswith('confirm_reason_other_'):
+            # Подтверждение причины "По другой причине"
+            now = datetime.now()
+            end_date = get_next_month_end_date(now)
+            end_date_str = format_db_date(end_date)
+            now_str = format_db_date(now)
             
-            bot.send_message(user_id, 
-                f"❌ Ваша причина была отклонена, {first_name}.\n\n"
-                f"Если у вас есть вопросы, свяжитесь с администратором через форму обратной связи.",
-                reply_markup=markup)
-        except Exception as e:
-            logger.error(f"Не удалось отправить уведомление пользователю {user_id}: {e}")
-        
-        # Обновляем сообщение админу
-        bot.answer_callback_query(call.id, "❌ Причина отклонена")
-        bot.edit_message_reply_markup(
-            chat_id=call.message.chat.id,
-            message_id=call.message.message_id,
-            reply_markup=None
-        )
-        bot.send_message(ADMIN_ID, f"❌ Причина 'Я не торгую' пользователя {user_id} ({first_name}) отклонена.")
-        
-    except ValueError:
-        bot.answer_callback_query(call.id, "Ошибка: неверный формат данных.", show_alert=True)
-        logger.error(f"Ошибка при парсинге user_id из callback_data: {call.data}")
-    except Exception as e:
-        bot.answer_callback_query(call.id, f"Ошибка при отклонении: {e}", show_alert=True)
-        logger.error(f"Ошибка при отклонении причины 'Я не торгую': {e}")
-
-
-@bot.callback_query_handler(func=lambda call: call.data.startswith('confirm_reason_other_'))
-def handle_confirm_reason_other(call: types.CallbackQuery) -> None:
-    """Обработчик подтверждения причины 'Не буду платить по другой причине' - продлевает до последнего дня следующего месяца до 23:00"""
-    # Проверяем, что это админ
-    if call.from_user.id != ADMIN_ID:
-        bot.answer_callback_query(call.id, "Только администратор может подтверждать.", show_alert=True)
-        return
-    
-    try:
-        # Извлекаем user_id из callback_data
-        user_id = int(call.data.split('_')[-1])
-        
-        # Получаем информацию о пользователе
-        user_data = get_user_status(user_id)
-        if not user_data:
-            bot.answer_callback_query(call.id, "Пользователь не найден в базе данных.", show_alert=True)
-            return
-        
-        # Вычисляем дату до последнего дня следующего месяца до 23:00
-        end_date = calculate_subscription_end_date()
-        end_date_str = format_db_date(end_date)
-        now_str = format_db_date(datetime.now())
-        
-        # Обновляем подписку в БД
-        with get_db_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute("""
-                UPDATE users 
-                SET subscription_status = 'active', 
-                    subscription_end_date = ?,
-                    subscription_start_date = COALESCE(subscription_start_date, ?),
-                    payment_status = 'paid',
-                    last_notification_level = NULL
-                WHERE telegram_id = ?
-            """, (end_date_str, now_str, user_id))
-            conn.commit()
-        
-        first_name = user_data['first_name'] if user_data['first_name'] else 'Пользователь'
-        logger.info(f"Причина 'Другая причина' подтверждена для пользователя {user_id}. Подписка продлена до {end_date.strftime('%d.%m.%Y %H:%M')}")
-        
-        # Отправляем уведомление пользователю со стандартной кнопкой
-        try:
-            markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-            back_button = types.KeyboardButton("Вернутся в главное меню🏡")
-            markup.add(back_button)
+            with get_db_connection() as conn:
+                cursor = conn.cursor()
+                # Проверяем, существует ли пользователь
+                cursor.execute("SELECT first_name FROM users WHERE telegram_id = ?", (user_id,))
+                user = cursor.fetchone()
+                
+                if user:
+                    cursor.execute("""
+                        UPDATE users 
+                        SET subscription_status = 'active', 
+                            subscription_end_date = ?, 
+                            subscription_start_date = ?,
+                            payment_status = 'paid',
+                            last_notification_level = NULL
+                        WHERE telegram_id = ?
+                    """, (end_date_str, now_str, user_id))
+                else:
+                    # Если пользователя нет, создаем его
+                    cursor.execute("""
+                        INSERT INTO users (telegram_id, subscription_status, subscription_start_date, 
+                                         subscription_end_date, payment_status, last_notification_level)
+                        VALUES (?, 'active', ?, ?, 'paid', NULL)
+                    """, (user_id, now_str, end_date_str))
+                
+                conn.commit()
             
-            bot.send_message(user_id, 
-                f"✅ Ваша причина принята, {first_name}!\n\n"
-                f"Подписка продлена до {end_date.strftime('%d.%m.%Y %H:%M')}.",
-                reply_markup=markup)
-        except Exception as e:
-            logger.error(f"Не удалось отправить уведомление пользователю {user_id}: {e}")
-        
-        # Обновляем сообщение админу
-        bot.answer_callback_query(call.id, "✅ Причина подтверждена")
-        bot.edit_message_reply_markup(
-            chat_id=call.message.chat.id,
-            message_id=call.message.message_id,
-            reply_markup=None
-        )
-        bot.send_message(ADMIN_ID, f"✅ Причина 'Другая причина' пользователя {user_id} ({first_name}) подтверждена. Подписка продлена до {end_date.strftime('%d.%m.%Y %H:%M')}.")
-        
-    except ValueError:
-        bot.answer_callback_query(call.id, "Ошибка: неверный формат данных.", show_alert=True)
-        logger.error(f"Ошибка при парсинге user_id из callback_data: {call.data}")
-    except Exception as e:
-        bot.answer_callback_query(call.id, f"Ошибка при подтверждении: {e}", show_alert=True)
-        logger.error(f"Ошибка при подтверждении причины 'Другая причина': {e}")
-
-
-@bot.callback_query_handler(func=lambda call: call.data.startswith('reject_reason_other_'))
-def handle_reject_reason_other(call: types.CallbackQuery) -> None:
-    """Обработчик отклонения причины 'Не буду платить по другой причине'"""
-    # Проверяем, что это админ
-    if call.from_user.id != ADMIN_ID:
-        bot.answer_callback_query(call.id, "Только администратор может отклонять.", show_alert=True)
-        return
-    
-    try:
-        # Извлекаем user_id из callback_data
-        user_id = int(call.data.split('_')[-1])
-        
-        # Получаем информацию о пользователе
-        user_data = get_user_status(user_id)
-        if not user_data:
-            bot.answer_callback_query(call.id, "Пользователь не найден в базе данных.", show_alert=True)
-            return
-        
-        logger.info(f"Причина 'Другая причина' отклонена для пользователя {user_id}")
-        
-        # Отправляем уведомление пользователю с кнопкой "Обратная связь"
-        first_name = user_data['first_name'] if user_data['first_name'] else 'Пользователь'
-        try:
-            markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-            feedback_btn = types.KeyboardButton("Обратная связь")
-            markup.add(feedback_btn)
+            # Отправляем уведомление пользователю
+            try:
+                safe_send_message(bot, user_id, 
+                    f"✅ Ваша причина подтверждена! Подписка активирована до {end_date.strftime('%d.%m.%Y')} до 23:00.")
+                
+                # Проверяем, в группе ли пользователь
+                try:
+                    def get_member():
+                        return bot.get_chat_member(GROUP_CHAT_ID, user_id)
+                    member = retry_telegram_api(get_member, max_attempts=2)
+                    if member.status not in ['creator', 'administrator', 'member']:
+                        safe_send_message(bot, user_id, 
+                            f"Теперь вы можете вступить в группу по ссылке: {GROUP_INVITE_LINK}")
+                except Exception:
+                    safe_send_message(bot, user_id, 
+                        f"Теперь вы можете вступить в группу по ссылке: {GROUP_INVITE_LINK}")
+            except Exception as e:
+                logger.error(f"Не удалось отправить уведомление пользователю {user_id}: {e}")
             
-            bot.send_message(user_id, 
-                f"❌ Ваша причина была отклонена, {first_name}.\n\n"
-                f"Если у вас есть вопросы, свяжитесь с администратором через форму обратной связи.",
-                reply_markup=markup)
-        except Exception as e:
-            logger.error(f"Не удалось отправить уведомление пользователю {user_id}: {e}")
-        
-        # Обновляем сообщение админу
-        bot.answer_callback_query(call.id, "❌ Причина отклонена")
-        bot.edit_message_reply_markup(
-            chat_id=call.message.chat.id,
-            message_id=call.message.message_id,
-            reply_markup=None
-        )
-        bot.send_message(ADMIN_ID, f"❌ Причина 'Другая причина' пользователя {user_id} ({first_name}) отклонена.")
-        
+            # Уведомление админу
+            safe_send_message(bot, ADMIN_ID, 
+                f"✅ Причина пользователя {user_id} ('По другой причине') подтверждена. Подписка до {end_date.strftime('%d.%m.%Y')} 23:00.")
+            
+            bot.answer_callback_query(call.id, "Причина подтверждена")
+            
+        elif call.data.startswith('reject_reason_other_'):
+            # Отклонение причины
+            # Уведомление пользователю
+            try:
+                safe_send_message(bot, user_id, 
+                    "❌ Ваша причина была отклонена. Пожалуйста, свяжитесь с администратором для уточнения.")
+            except Exception as e:
+                logger.error(f"Не удалось отправить уведомление пользователю {user_id}: {e}")
+            
+            # Уведомление админу
+            safe_send_message(bot, ADMIN_ID, f"❌ Причина пользователя {user_id} ('По другой причине') отклонена.")
+            
+            bot.answer_callback_query(call.id, "Причина отклонена")
+            
     except ValueError:
-        bot.answer_callback_query(call.id, "Ошибка: неверный формат данных.", show_alert=True)
-        logger.error(f"Ошибка при парсинге user_id из callback_data: {call.data}")
+        logger.error(f"Неверный формат user_id в callback: {call.data}")
+        bot.answer_callback_query(call.id, "Ошибка: неверный формат данных")
     except Exception as e:
-        bot.answer_callback_query(call.id, f"Ошибка при отклонении: {e}", show_alert=True)
-        logger.error(f"Ошибка при отклонении причины 'Другая причина': {e}")
+        logger.error(f"Ошибка при обработке callback причины 'По другой причине': {e}")
+        bot.answer_callback_query(call.id, "Произошла ошибка")
