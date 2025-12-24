@@ -1,1 +1,15 @@
+# Telegram Bot Configuration
+BOT_TOKEN=your_bot_token_here
+ADMIN_ID=your_telegram_id
+GROUP_CHAT_ID=your_group_chat_id
+GROUP_INVITE_LINK=your_invite_link
 
+# N8N Configuration
+N8N_API_URL=https://your-instance.n8n.cloud
+N8N_API_KEY=your_n8n_api_key_here
+N8N_WEBHOOK_URL=https://your-instance.n8n.cloud/webhook
+
+# Server Configuration (Timeweb)
+SERVER_IP=your_server_ip
+SERVER_USER=root
+SERVER_PASSWORD=your_server_password

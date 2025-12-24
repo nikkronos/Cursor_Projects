@@ -6,3 +6,17 @@ logs/
 bot.db
 *.db
 
+# Временные проекты - не коммитить
+ParentChildResearch/
+PastuhiBot/
+TestN8N/
+
+# N8N credentials (секреты)
+n8n/credentials/*.json
+n8n/credentials/*.txt
+!n8n/credentials/.gitkeep
+!n8n/credentials/*.example.json
+
+# Игнорируем другие временные файлы и папки
+*.tmp
+*.temp
