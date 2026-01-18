@@ -69,11 +69,17 @@ def handle_payment_callback(call: types.CallbackQuery) -> None:
                         return bot.get_chat_member(GROUP_CHAT_ID, user_id)
                     member = retry_telegram_api(get_member, max_attempts=2)
                     if member.status not in ['creator', 'administrator', 'member']:
+                        if GROUP_INVITE_LINK:
+                            safe_send_message(bot, user_id, 
+                                f"Теперь вы можете вступить в группу по ссылке: {GROUP_INVITE_LINK}")
+                        else:
+                            logger.warning(f"GROUP_INVITE_LINK не установлен! Не удалось отправить ссылку пользователю {user_id}")
+                except Exception:
+                    if GROUP_INVITE_LINK:
                         safe_send_message(bot, user_id, 
                             f"Теперь вы можете вступить в группу по ссылке: {GROUP_INVITE_LINK}")
-                except Exception:
-                    safe_send_message(bot, user_id, 
-                        f"Теперь вы можете вступить в группу по ссылке: {GROUP_INVITE_LINK}")
+                    else:
+                        logger.warning(f"GROUP_INVITE_LINK не установлен! Не удалось отправить ссылку пользователю {user_id}")
             except Exception as e:
                 logger.error(f"Не удалось отправить уведомление пользователю {user_id}: {e}")
             
@@ -176,11 +182,17 @@ def handle_tariff_callback(call: types.CallbackQuery) -> None:
                         return bot.get_chat_member(GROUP_CHAT_ID, user_id)
                     member = retry_telegram_api(get_member, max_attempts=2)
                     if member.status not in ['creator', 'administrator', 'member']:
+                        if GROUP_INVITE_LINK:
+                            safe_send_message(bot, user_id, 
+                                f"Теперь вы можете вступить в группу по ссылке: {GROUP_INVITE_LINK}")
+                        else:
+                            logger.warning(f"GROUP_INVITE_LINK не установлен! Не удалось отправить ссылку пользователю {user_id}")
+                except Exception:
+                    if GROUP_INVITE_LINK:
                         safe_send_message(bot, user_id, 
                             f"Теперь вы можете вступить в группу по ссылке: {GROUP_INVITE_LINK}")
-                except Exception:
-                    safe_send_message(bot, user_id, 
-                        f"Теперь вы можете вступить в группу по ссылке: {GROUP_INVITE_LINK}")
+                    else:
+                        logger.warning(f"GROUP_INVITE_LINK не установлен! Не удалось отправить ссылку пользователю {user_id}")
             except Exception as e:
                 logger.error(f"Не удалось отправить уведомление пользователю {user_id}: {e}")
             
@@ -278,11 +290,17 @@ def handle_reason_trading_callback(call: types.CallbackQuery) -> None:
                         return bot.get_chat_member(GROUP_CHAT_ID, user_id)
                     member = retry_telegram_api(get_member, max_attempts=2)
                     if member.status not in ['creator', 'administrator', 'member']:
+                        if GROUP_INVITE_LINK:
+                            safe_send_message(bot, user_id, 
+                                f"Теперь вы можете вступить в группу по ссылке: {GROUP_INVITE_LINK}")
+                        else:
+                            logger.warning(f"GROUP_INVITE_LINK не установлен! Не удалось отправить ссылку пользователю {user_id}")
+                except Exception:
+                    if GROUP_INVITE_LINK:
                         safe_send_message(bot, user_id, 
                             f"Теперь вы можете вступить в группу по ссылке: {GROUP_INVITE_LINK}")
-                except Exception:
-                    safe_send_message(bot, user_id, 
-                        f"Теперь вы можете вступить в группу по ссылке: {GROUP_INVITE_LINK}")
+                    else:
+                        logger.warning(f"GROUP_INVITE_LINK не установлен! Не удалось отправить ссылку пользователю {user_id}")
             except Exception as e:
                 logger.error(f"Не удалось отправить уведомление пользователю {user_id}: {e}")
             
@@ -378,11 +396,17 @@ def handle_reason_other_callback(call: types.CallbackQuery) -> None:
                         return bot.get_chat_member(GROUP_CHAT_ID, user_id)
                     member = retry_telegram_api(get_member, max_attempts=2)
                     if member.status not in ['creator', 'administrator', 'member']:
+                        if GROUP_INVITE_LINK:
+                            safe_send_message(bot, user_id, 
+                                f"Теперь вы можете вступить в группу по ссылке: {GROUP_INVITE_LINK}")
+                        else:
+                            logger.warning(f"GROUP_INVITE_LINK не установлен! Не удалось отправить ссылку пользователю {user_id}")
+                except Exception:
+                    if GROUP_INVITE_LINK:
                         safe_send_message(bot, user_id, 
                             f"Теперь вы можете вступить в группу по ссылке: {GROUP_INVITE_LINK}")
-                except Exception:
-                    safe_send_message(bot, user_id, 
-                        f"Теперь вы можете вступить в группу по ссылке: {GROUP_INVITE_LINK}")
+                    else:
+                        logger.warning(f"GROUP_INVITE_LINK не установлен! Не удалось отправить ссылку пользователю {user_id}")
             except Exception as e:
                 logger.error(f"Не удалось отправить уведомление пользователю {user_id}: {e}")
             

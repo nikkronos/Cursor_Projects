@@ -9,6 +9,41 @@ bot.db
 # Временные проекты - не коммитить
 ParentChildResearch/
 PastuhiBot/
+TestN8N/
+HeadHunterAutomation/
+
+# N8N - не коммитить
+n8n/
+
+# N8N credentials (секреты) - оставляем для совместимости
+n8n/credentials/*.json
+n8n/credentials/*.txt
+!n8n/credentials/.gitkeep
+!n8n/credentials/*.example.json
+
+# Временные скрипты проверки БД - не коммитить
+check_db*.py
+check_db*.bat
+check_db*.ps1
+check_db*.sh
+check_db*.txt
+TradeTherapyBot/check_db*.py
+TradeTherapyBot/check_db*.bat
+TradeTherapyBot/check_db*.ps1
+TradeTherapyBot/check_db*.sh
+TradeTherapyBot/check_db*.txt
+
+# Временные скрипты и вспомогательные файлы
+transpose_helper.py
+analyze_correlations_full.py
+ROAD_MAP_AI.md
+
+# Временные документы testn8n - не коммитить
+docs/testn8n-*.md
+docs/why-files-yellow.md
+docs/yellow-files-explanation.md
+docs/work-plan-n8n-testing.md
+docs/session-completion-checklist.md
 
 # Игнорируем другие временные файлы и папки
 *.tmp

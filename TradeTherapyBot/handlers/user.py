@@ -265,6 +265,14 @@ def handle_wont_pay_menu(message: types.Message) -> None:
 @rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
 def handle_reason_trading(message: types.Message) -> None:
     """Обработчик кнопки 'Я не торгую'"""
+    # Игнорировать сообщения из группы
+    if GROUP_CHAT_ID is not None and message.chat.id == GROUP_CHAT_ID:
+        return
+    
+    # Обрабатывать только личные сообщения
+    if message.chat.type != 'private':
+        return
+    
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
     back_btn = types.KeyboardButton("Назад 🔙")
     home_btn = types.KeyboardButton("Вернуться в главное меню🏡")
@@ -276,6 +284,14 @@ def handle_reason_trading(message: types.Message) -> None:
 @rate_limit(max_requests=15, time_window=10.0, block_duration=30.0)
 def process_reason_trading(message: types.Message) -> None:
     """Обработка ответа на вопрос 'Я не торгую'"""
+    # Игнорировать сообщения из группы
+    if GROUP_CHAT_ID is not None and message.chat.id == GROUP_CHAT_ID:
+        return
+    
+    # Обрабатывать только личные сообщения
+    if message.chat.type != 'private':
+        return
+    
     if message.text == "Вернуться в главное меню🏡" or message.text == "Назад 🔙":
         if message.text == "Назад 🔙":
             handle_wont_pay_menu(message)
@@ -298,7 +314,9 @@ def process_reason_trading(message: types.Message) -> None:
     btn_reject = types.InlineKeyboardButton("❌ Отклонить", callback_data=f"reject_reason_trading_{user_id}")
     markup.add(btn_confirm, btn_reject)
     
-    bot.send_message(ADMIN_ID, response, reply_markup=markup)
+    # Используем safe_send_message для отправки админу
+    from utils import safe_send_message
+    safe_send_message(bot, ADMIN_ID, response, reply_markup=markup)
     
     # После ответа - только кнопка в главное меню
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
@@ -311,6 +329,14 @@ def process_reason_trading(message: types.Message) -> None:
 @rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
 def handle_reason_other(message: types.Message) -> None:
     """Обработчик кнопки 'Не буду платить по другой причине'"""
+    # Игнорировать сообщения из группы
+    if GROUP_CHAT_ID is not None and message.chat.id == GROUP_CHAT_ID:
+        return
+    
+    # Обрабатывать только личные сообщения
+    if message.chat.type != 'private':
+        return
+    
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
     back_btn = types.KeyboardButton("Назад 🔙")
     home_btn = types.KeyboardButton("Вернуться в главное меню🏡")
@@ -322,6 +348,14 @@ def handle_reason_other(message: types.Message) -> None:
 @rate_limit(max_requests=15, time_window=10.0, block_duration=30.0)
 def process_reason_other(message: types.Message) -> None:
     """Обработка ответа на вопрос 'Не буду платить по другой причине'"""
+    # Игнорировать сообщения из группы
+    if GROUP_CHAT_ID is not None and message.chat.id == GROUP_CHAT_ID:
+        return
+    
+    # Обрабатывать только личные сообщения
+    if message.chat.type != 'private':
+        return
+    
     if message.text == "Вернуться в главное меню🏡" or message.text == "Назад 🔙":
         if message.text == "Назад 🔙":
             handle_wont_pay_menu(message)
@@ -344,7 +378,9 @@ def process_reason_other(message: types.Message) -> None:
     btn_reject = types.InlineKeyboardButton("❌ Отклонить", callback_data=f"reject_reason_other_{user_id}")
     markup.add(btn_confirm, btn_reject)
     
-    bot.send_message(ADMIN_ID, response, reply_markup=markup)
+    # Используем safe_send_message для отправки админу
+    from utils import safe_send_message
+    safe_send_message(bot, ADMIN_ID, response, reply_markup=markup)
     
     # После ответа - только кнопка в главное меню
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)

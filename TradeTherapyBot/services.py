@@ -95,9 +95,15 @@ def add_subscription_days_logic(user_id: int, days_to_add: int, chat_id: int, mi
                 if member.status in ['creator', 'administrator', 'member']:
                     pass 
                 else:
-                     safe_send_message(bot, user_id, f"Теперь вы можете вступить в группу (если еще не там) по ссылке: {GROUP_INVITE_LINK}")
+                    if GROUP_INVITE_LINK:
+                        safe_send_message(bot, user_id, f"Теперь вы можете вступить в группу (если еще не там) по ссылке: {GROUP_INVITE_LINK}")
+                    else:
+                        logger.warning(f"GROUP_INVITE_LINK не установлен! Не удалось отправить ссылку пользователю {user_id}")
             except Exception:
-                safe_send_message(bot, user_id, f"Теперь вы можете вступить в группу (если еще не там) по ссылке: {GROUP_INVITE_LINK}")
+                if GROUP_INVITE_LINK:
+                    safe_send_message(bot, user_id, f"Теперь вы можете вступить в группу (если еще не там) по ссылке: {GROUP_INVITE_LINK}")
+                else:
+                    logger.warning(f"GROUP_INVITE_LINK не установлен! Не удалось отправить ссылку пользователю {user_id}")
 
         except Exception as e:
             logger.error(f"Не удалось отправить уведомление пользователю {user_id}: {e}")
