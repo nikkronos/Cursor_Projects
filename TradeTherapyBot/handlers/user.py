@@ -16,6 +16,12 @@ def handle_start(message: types.Message) -> None:
     """Обработчик команды /start - регистрация пользователя и показ главного меню"""
     # Обрабатывать только личные сообщения (не из групп/каналов)
     if message.chat.type != 'private':
+        # Убираем клавиатуру в группе, если она была отправлена ранее
+        try:
+            remove_keyboard = types.ReplyKeyboardRemove(selective=False)
+            bot.send_message(message.chat.id, "", reply_markup=remove_keyboard)
+        except Exception:
+            pass
         return
 
     user_id = message.from_user.id
@@ -674,6 +680,24 @@ def handle_payment_confirmation(message: types.Message) -> None:
     """Обработчик отправки чека для подтверждения оплаты"""
     # Игнорировать сообщения от админа
     if message.chat.id == ADMIN_ID:
+        return
+    
+    # Удаляем клавиатуру в группе, если это текстовая кнопка бота
+    if message.chat.type != 'private' and message.content_type == 'text':
+        button_texts = [
+            "Тариф для участника", "Тарифы", "Правила Клуба", "О Нас",
+            "Обратная связь", "Статус подписки", "Отзывы", "Публичная оферта",
+            "⬅️ Главное меню", "Вернуться в главное меню🏡", "🔄 Перезагрузить бота",
+            "Я согласен", "Я уже отвечал на вопросы", "Остаться в Сообществе",
+            "Не буду платить", "Я не торгую", "Не буду платить по другой причине",
+            "Назад 🔙", "⚙️ Админ"
+        ]
+        if message.text in button_texts:
+            try:
+                remove_keyboard = types.ReplyKeyboardRemove(selective=False)
+                bot.send_message(message.chat.id, "", reply_markup=remove_keyboard)
+            except Exception:
+                pass
         return
     
     # Игнорировать сообщения из группы (явная проверка по GROUP_CHAT_ID)

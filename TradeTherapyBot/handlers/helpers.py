@@ -42,6 +42,16 @@ def send_main_menu(user_id: int, chat_id: int, first_name: str) -> None:
     """Отправляет главное меню пользователю"""
     from database import get_user_status
     
+    # Не отправляем клавиатуру в групповые чаты
+    try:
+        chat_info = bot.get_chat(chat_id)
+        if chat_info.type != 'private':
+            # В группе не отправляем клавиатуру
+            return
+    except Exception:
+        # Если не удалось получить информацию о чате, пропускаем
+        pass
+    
     # Проверяем статус подписки для выбора правильной кнопки
     user_data = get_user_status(user_id)
     is_active = user_data and user_data['subscription_status'] == 'active'
