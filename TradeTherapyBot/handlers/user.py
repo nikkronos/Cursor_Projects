@@ -14,6 +14,10 @@ from utils import rate_limit
 @rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
 def handle_start(message: types.Message) -> None:
     """Обработчик команды /start - регистрация пользователя и показ главного меню"""
+    # Обрабатывать только личные сообщения (не из групп/каналов)
+    if message.chat.type != 'private':
+        return
+
     user_id = message.from_user.id
     first_name = message.from_user.first_name
     username = message.from_user.username
@@ -65,6 +69,10 @@ def handle_start(message: types.Message) -> None:
 @rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
 def handle_back_to_main_menu(message: types.Message) -> None:
     """Обработчик кнопки '⬅️ Главное меню'"""
+    # Обрабатывать только личные сообщения
+    if message.chat.type != 'private':
+        return
+
     logger.info(f"Back to main menu requested by {message.from_user.id}")
     send_main_menu(message.from_user.id, message.chat.id, message.from_user.first_name)
 
@@ -74,6 +82,10 @@ def handle_back_to_main_menu(message: types.Message) -> None:
 @rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
 def handle_restart_bot(message: types.Message) -> None:
     """Обработчик кнопки 'Вернуться в главное меню🏡' и '🔄 Перезагрузить бота'"""
+    # Обрабатывать только личные сообщения
+    if message.chat.type != 'private':
+        return
+
     handle_start(message)
 
 
@@ -81,6 +93,10 @@ def handle_restart_bot(message: types.Message) -> None:
 @rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
 def send_tariff_active(message: types.Message) -> None:
     """Обработчик кнопки 'Тариф для участника' для активных участников"""
+    # Обрабатывать только личные сообщения
+    if message.chat.type != 'private':
+        return
+
     user_id = message.from_user.id
     user_data = get_user_status(user_id)
     
@@ -104,6 +120,10 @@ def send_tariff_active(message: types.Message) -> None:
 @rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
 def send_tariffs(message: types.Message) -> None:
     """Показать информацию о тарифах"""
+    # Обрабатывать только личные сообщения
+    if message.chat.type != 'private':
+        return
+
     user_id = message.from_user.id
     user_data = get_user_status(user_id)
     
@@ -140,6 +160,10 @@ def send_tariffs(message: types.Message) -> None:
 @rate_limit(max_requests=15, time_window=10.0, block_duration=30.0)
 def ask_tariff_question(message: types.Message, question_index: int) -> None:
     """Задать вопрос из опроса"""
+    # Обрабатывать только личные сообщения
+    if message.chat.type != 'private':
+        return
+
     user_id = message.from_user.id
     
     if question_index >= len(TARIFF_QUESTIONS):
@@ -186,6 +210,10 @@ def process_tariff_answer(message: types.Message, question_index: int) -> None:
 @rate_limit(max_requests=15, time_window=10.0, block_duration=30.0)
 def handle_agree_button(message: types.Message) -> None:
     """Обработчик кнопки 'Я согласен' для начала опроса"""
+    # Обрабатывать только личные сообщения
+    if message.chat.type != 'private':
+        return
+
     user_id = message.from_user.id
     clear_user_tariff_answers(user_id)  # Очищаем старые ответы, если есть
     ask_tariff_question(message, 0)
@@ -195,6 +223,10 @@ def handle_agree_button(message: types.Message) -> None:
 @rate_limit(max_requests=15, time_window=10.0, block_duration=30.0)
 def handle_already_answered(message: types.Message) -> None:
     """Обработчик кнопки 'Я уже отвечал на вопросы'"""
+    # Обрабатывать только личные сообщения
+    if message.chat.type != 'private':
+        return
+
     user_id = message.from_user.id
     
     # Проверяем, есть ли у пользователя сохраненные ответы
@@ -223,6 +255,10 @@ def handle_already_answered(message: types.Message) -> None:
 @rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
 def handle_tariff_basic(message: types.Message) -> None:
     """Обработчик кнопки 'Тариф \"Базисный 🤝\"'"""
+    # Обрабатывать только личные сообщения
+    if message.chat.type != 'private':
+        return
+
     send_payment_info(message, 3000)
 
 
@@ -230,6 +266,10 @@ def handle_tariff_basic(message: types.Message) -> None:
 @rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
 def handle_tariff_brave(message: types.Message) -> None:
     """Обработчик кнопки 'Тариф \"Смелый✊\"'"""
+    # Обрабатывать только личные сообщения
+    if message.chat.type != 'private':
+        return
+
     send_payment_info(message, 9000)
 
 
@@ -237,6 +277,10 @@ def handle_tariff_brave(message: types.Message) -> None:
 @rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
 def handle_payment_button(message: types.Message) -> None:
     """Обработчик кнопки 'Остаться в Сообществе' для пользователей с активной подпиской"""
+    # Обрабатывать только личные сообщения
+    if message.chat.type != 'private':
+        return
+
     user_id = message.from_user.id
     user_data = get_user_status(user_id)
     
@@ -252,6 +296,10 @@ def handle_payment_button(message: types.Message) -> None:
 @rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
 def handle_wont_pay_menu(message: types.Message) -> None:
     """Меню выбора причины отказа от оплаты"""
+    # Обрабатывать только личные сообщения
+    if message.chat.type != 'private':
+        return
+
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
     reason1 = types.KeyboardButton("Я не торгую")
     reason2 = types.KeyboardButton("Не буду платить по другой причине")
@@ -393,6 +441,10 @@ def process_reason_other(message: types.Message) -> None:
 @rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
 def handle_back_button(message: types.Message) -> None:
     """Обработчик кнопки 'Назад 🔙' - возврат к тарифам"""
+    # Обрабатывать только личные сообщения
+    if message.chat.type != 'private':
+        return
+
     send_tariffs(message)
 
 
@@ -400,6 +452,10 @@ def handle_back_button(message: types.Message) -> None:
 @rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
 def send_rules(message: types.Message) -> None:
     """Показать правила клуба"""
+    # Обрабатывать только личные сообщения
+    if message.chat.type != 'private':
+        return
+
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
     back_button = types.KeyboardButton("Вернуться в главное меню🏡")
     markup.add(back_button)
@@ -420,6 +476,10 @@ def send_rules(message: types.Message) -> None:
 @rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
 def send_about_us(message: types.Message) -> None:
     """Показать информацию о сообществе"""
+    # Обрабатывать только личные сообщения
+    if message.chat.type != 'private':
+        return
+
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
     back_button = types.KeyboardButton("Вернуться в главное меню🏡")
     markup.add(back_button)
@@ -458,6 +518,10 @@ def send_about_us(message: types.Message) -> None:
 @rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
 def handle_reviews(message: types.Message) -> None:
     """Показать отзывы"""
+    # Обрабатывать только личные сообщения
+    if message.chat.type != 'private':
+        return
+
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
     back_button = types.KeyboardButton("Вернуться в главное меню🏡")
     markup.add(back_button)
@@ -477,6 +541,10 @@ def handle_reviews(message: types.Message) -> None:
 @rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
 def send_feedback_contact(message: types.Message) -> None:
     """Показать контакты для обратной связи"""
+    # Обрабатывать только личные сообщения
+    if message.chat.type != 'private':
+        return
+
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
     back_button = types.KeyboardButton("Вернуться в главное меню🏡")
     markup.add(back_button)
@@ -490,6 +558,10 @@ def send_feedback_contact(message: types.Message) -> None:
 @rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
 def send_oferta(message: types.Message) -> None:
     """Показать публичную оферту"""
+    # Обрабатывать только личные сообщения
+    if message.chat.type != 'private':
+        return
+
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
     back_button = types.KeyboardButton("Вернуться в главное меню🏡")
     markup.add(back_button)
@@ -503,6 +575,10 @@ def send_oferta(message: types.Message) -> None:
 @rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
 def handle_tariffs_command(message: types.Message) -> None:
     """Команда /tariffs"""
+    # Обрабатывать только личные сообщения
+    if message.chat.type != 'private':
+        return
+
     send_tariffs(message)
 
 
@@ -510,6 +586,10 @@ def handle_tariffs_command(message: types.Message) -> None:
 @rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
 def handle_rules_command(message: types.Message) -> None:
     """Команда /rules"""
+    # Обрабатывать только личные сообщения
+    if message.chat.type != 'private':
+        return
+
     send_rules(message)
 
 
@@ -517,6 +597,10 @@ def handle_rules_command(message: types.Message) -> None:
 @rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
 def handle_about_command(message: types.Message) -> None:
     """Команда /about"""
+    # Обрабатывать только личные сообщения
+    if message.chat.type != 'private':
+        return
+
     send_about_us(message)
 
 
@@ -524,6 +608,10 @@ def handle_about_command(message: types.Message) -> None:
 @rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
 def handle_feedback_command(message: types.Message) -> None:
     """Команда /feedback"""
+    # Обрабатывать только личные сообщения
+    if message.chat.type != 'private':
+        return
+
     send_feedback_contact(message)
 
 
@@ -531,6 +619,10 @@ def handle_feedback_command(message: types.Message) -> None:
 @rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
 def handle_status_command(message: types.Message) -> None:
     """Команда /status - показать статус подписки"""
+    # Обрабатывать только личные сообщения
+    if message.chat.type != 'private':
+        return
+
     user_id = message.from_user.id
     user_data = get_user_status(user_id)
 
@@ -569,6 +661,10 @@ def handle_status_command(message: types.Message) -> None:
 @rate_limit(max_requests=10, time_window=15.0, block_duration=30.0)
 def handle_status_button(message: types.Message) -> None:
     """Обработчик кнопки 'Статус подписки'"""
+    # Обрабатывать только личные сообщения
+    if message.chat.type != 'private':
+        return
+
     handle_status_command(message)
 
 
