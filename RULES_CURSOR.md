@@ -152,6 +152,10 @@ Cursor_test/
 │   ├── ROADMAP_TRADETHERAPYBOT.md
 │   ├── DONE_LIST_TRADETHERAPYBOT.md
 │   └── SESSION_SUMMARY_YYYY-MM-DD.md
+├── xxx/                         # ✅ Проект "Копия иксуюемся" (коммитится)
+│   ├── ROADMAP_КОПИЯ_ИКСУЮЕМСЯ.md
+│   ├── DONE_LIST_КОПИЯ_ИКСУЮЕМСЯ.md
+│   └── SESSION_SUMMARY_YYYY-MM-DD.md
 ├── PastuhiBot/                  # ❌ Проект 2 (НЕ коммитится)
 │   ├── ROADMAP_PASTUHIBOT.md
 │   ├── DONE_LIST_PASTUHIBOT.md
