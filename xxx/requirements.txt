@@ -1,6 +1,0 @@
-pyrogram>=2.0.106
-aiogram>=2.25.1
-python-dotenv
-APScheduler
-pytest>=7.0.0
-# tgcrypto — опционально (ускоряет Pyrogram); на Windows нужны C++ Build Tools для установки

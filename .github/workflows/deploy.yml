@@ -49,13 +49,6 @@ jobs:
           cd ${{ secrets.DEPLOY_PATH }}
           git pull origin main
           pip3 install -r requirements.txt --break-system-packages || true
-          if [ -d "xxx" ]; then
-            pip3 install -r xxx/requirements.txt --break-system-packages || true
-            sudo systemctl restart kopiya-iksuyemsya.service || true
-          fi
-          sudo systemctl restart tradetherapybot.service || true
+          sudo systemctl restart tradetherapybot.service
           sleep 5
-          sudo systemctl status tradetherapybot.service --no-pager || true
-          if [ -d "xxx" ]; then
-            sudo systemctl status kopiya-iksuyemsya.service --no-pager || true
-          fi
+          sudo systemctl status tradetherapybot.service --no-pager

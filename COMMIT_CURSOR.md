@@ -2,18 +2,18 @@
 
 ## Логика коммитов
 
-### Что коммитится в репозиторий:
+### Что коммитится в репозиторий TradeTherapyBot (nikkronos/TradeTherapyBot):
 
-✅ **Коммитятся:**
-- Все файлы из корня `CURSOR_TEST`
+✅ **Коммитятся (из корня CURSOR_TEST):**
+- Все файлы из корня `CURSOR_TEST` (main.py, handlers/, loader.py, docs/ и т.д.)
 - Проект `TradeTherapyBot/` (полностью)
-- Проект `xxx/` (Копия иксуюемся) - коммитится в отдельную папку
 - Документация в корне (`docs/`, `RULES_CURSOR.md`, `QUICK_START_AGENT.md` и т.д.)
 - Все общие файлы и настройки
 
-❌ **НЕ коммитятся:**
-- `ParentChildResearch/` - временный исследовательский проект
-- `PastuhiBot/` - локальная копия боевого бота (хранится только локально)
+❌ **НЕ коммитятся в TradeTherapyBot:**
+- `ParentChildResearch/` — временный исследовательский проект
+- `PastuhiBot/` — локальная копия боевого бота (хранится только локально)
+- `xxx/` — проект «Копия иксуюемся»; у него **свой репозиторий** (nikkronos/kopiya-iksuyemsya). Коммиты для xxx делаются **в папке xxx**, пуш — в репозиторий kopiya-iksuyemsya. См. `docs/ДВА_РЕПОЗИТОРИЯ_И_ДЕПЛОЙ.md`.
 
 ### Настройка .gitignore
 
@@ -23,6 +23,9 @@
 # Временные проекты - не коммитить
 ParentChildResearch/
 PastuhiBot/
+
+# Копия иксуюемся — отдельный репозиторий
+xxx/
 ```
 
 ## Процесс коммита
@@ -86,20 +89,22 @@ refactor: улучшена структура базы данных
 4. **Коммить только после тестирования** - не коммить сломанный код
 5. **Обновляй документацию** - если изменилась структура, обнови соответствующие файлы
 
-## Структура репозитория
+## Структура репозитория TradeTherapyBot
 
 ```
-CURSOR_TEST/                    # Корень репозитория
-├── .gitignore                  # Исключает ParentChildResearch и PastuhiBot
-├── RULES_CURSOR.md            # Правила работы с проектами
-├── QUICK_START_AGENT.md       # Быстрый старт для агента
-├── COMMIT_CURSOR.md           # Этот файл
-├── docs/                       # Общая документация
-│   └── AGENT_PROMPTS.md       # Полная инструкция для агента
-├── TradeTherapyBot/            # ✅ Коммитится
-├── ParentChildResearch/        # ❌ НЕ коммитится
-└── PastuhiBot/                 # ❌ НЕ коммитится
+CURSOR_TEST/                    # Корень = клон nikkronos/TradeTherapyBot
+├── .gitignore                  # Исключает ParentChildResearch, PastuhiBot, xxx
+├── RULES_CURSOR.md
+├── COMMIT_CURSOR.md            # Этот файл
+├── docs/                        # Общая документация
+├── main.py, handlers/, ...     # ✅ Коммитится в TradeTherapyBot
+├── TradeTherapyBot/             # ✅ Коммитится
+├── ParentChildResearch/         # ❌ НЕ коммитится
+├── PastuhiBot/                  # ❌ НЕ коммитится
+└── xxx/                         # ❌ НЕ коммитится сюда — свой репозиторий (kopiya-iksuyemsya)
 ```
+
+Коммиты для **Копия иксуюемся**: выполняются в папке `xxx/`, пуш в **nikkronos/kopiya-iksuyemsya**. Подробно: `docs/ДВА_РЕПОЗИТОРИЯ_И_ДЕПЛОЙ.md`.
 
 ## CI/CD
 
