@@ -156,6 +156,10 @@ Cursor_test/
 │   ├── ROADMAP_КОПИЯ_ИКСУЮЕМСЯ.md
 │   ├── DONE_LIST_КОПИЯ_ИКСУЮЕМСЯ.md
 │   └── SESSION_SUMMARY_YYYY-MM-DD.md
+├── VPN/                         # ✅ Проект VPN/Proxy (коммитится, отдельный репозиторий)
+│   ├── ROADMAP_VPN.md
+│   ├── DONE_LIST_VPN.md
+│   └── SESSION_SUMMARY_YYYY-MM-DD.md
 ├── PastuhiBot/                  # ❌ Проект 2 (НЕ коммитится)
 │   ├── ROADMAP_PASTUHIBOT.md
 │   ├── DONE_LIST_PASTUHIBOT.md
@@ -212,6 +216,7 @@ Cursor_test/
 ✅ **Коммитятся:**
 - Все файлы из корня `CURSOR_TEST`
 - Проект `TradeTherapyBot/` (полностью)
+- Проект `VPN/` (полностью, в отдельный Git-репозиторий)
 - Документация в корне (`docs/`, `RULES_CURSOR.md`, `QUICK_START_AGENT.md` и т.д.)
 - Все общие файлы и настройки
 

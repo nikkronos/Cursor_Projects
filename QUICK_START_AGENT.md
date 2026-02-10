@@ -7,7 +7,7 @@
 ```
 Прочитай RULES_CURSOR.md - общие правила работы с проектами.
 
-Определи, с каким проектом работаем (TradeTherapyBot или PastuhiBot).
+Определи, с каким проектом работаем (TradeTherapyBot, PastuhiBot, VPN).
 
 Изучи проект:
 1. ROADMAP_ИМЯПРОЕКТА.md - что в планах
