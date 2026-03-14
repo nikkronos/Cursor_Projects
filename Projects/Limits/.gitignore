@@ -1,0 +1,6 @@
+env_vars.txt
+.env
+venv/
+__pycache__/
+*.pyc
+.venv/
