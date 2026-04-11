@@ -326,7 +326,9 @@
 
 ### Git (если проект коммитится)
 
-Для проектов, которые коммитятся в Git (например, TradeTherapyBot):
+**По умолчанию** агент выполняет git-команды сам в терминале Cursor; если шаг не удаётся (окружение, права, кириллица в пути и т.д.) — передаёт пользователю готовые команды. Детали: `Main_docs/RULES_CURSOR.md` (раздел про терминал), `Main_docs/COMMIT_CURSOR.md`.
+
+Для проектов, которые коммитятся в Git (например, TradeTherapyBot), типовой порядок:
 
 ```bash
 # Перейти в папку проекта
@@ -350,7 +352,7 @@ git push origin main
 - Для PastuhiBot, Damir, HH, Chess, n8n изменения НЕ коммитятся - хранятся локально!
 - Для VPN коммиты делаются в папке `Projects/VPN/`, пуш в репозиторий `nikkronos/vpnservice`
 - Для xxx коммиты делаются в папке `Projects/xxx/`, пуш в репозиторий `nikkronos/kopiya-iksuyemsya`
-- При создании нового проекта агент должен спросить: создать новый репозиторий или коммитить в `nikkronos/Cursor_Projects`?
+- При создании нового проекта агент должен спросить: создать новый репозиторий или коммитить в `nikkronos/Cursor_Projectcs`?
 
 ---
 
@@ -361,19 +363,21 @@ git push origin main
 **Описание:** Виджет для отображения данных по фьючерсам (T-Invest API): таблица (название, цена закрытия/открытия, изменение %), настройки с фильтрами по категориям.
 
 **Особенности:**
-- **Планируется отдельный Git-репозиторий** (как VPN и xxx)
+- **Отдельный Git-репозиторий:** https://github.com/nikkronos/Futures_auction
 - Интеграция с T-Invest REST API (SDK сломан)
-- Деплой на Timeweb (24/7), ~10 пользователей
+- Деплой на Timeweb: `/opt/futures_auction`, systemd `futures_auction.service`
+- **С 2026-04-04 прод выключен** (`stop` + `disable`), не 24/7; см. `Projects/Damir/SESSION_SUMMARY_2026-04-04.md`
 - Документация API: [developer.tbank.ru/invest](https://developer.tbank.ru/invest/intro/intro/)
 
 **Документы:**
+- `Projects/Damir/TRANSFER_OTHER_PERSON.md` — передача проекта человеку / prompt для агента (есть `.pdf`)
 - `Projects/Damir/ROADMAP_DAMIR.md`
 - `Projects/Damir/DONE_LIST_DAMIR.md`
 - `Projects/Damir/SESSION_SUMMARY_ДАТА.md`
 
 **База знаний:** `Projects/Damir/docs/`
 
-**Сервер:** TimeWeb
+**Сервер:** TimeWeb (виджет на `:5000` не слушает, пока сервис снова не включат)
 
 ### TradeTherapyBot
 
@@ -442,6 +446,8 @@ git push origin main
 
 **Описание:** Сервис для безопасного туннелирования трафика (VPN/Proxy) с упором на высокую скорость, низкий пинг и простое управление через Telegram-бота.
 
+**Канонические ссылки:** код и доки — `Projects/VPN/`; репозиторий — https://github.com/nikkronos/vpnservice (на типичной машине пользователя полный путь: `C:\Users\krono\OneDrive\Рабочий стол\Cursor_Projects\Projects\VPN`). Подробнее: `Main_docs/PROJECTS.md`, раздел VPN.
+
 **Особенности:**
 - Отдельный Git-репозиторий `nikkronos/vpnservice` (коммиты из папки `Projects/VPN/`)
 - Коммитится в Git
@@ -486,7 +492,7 @@ git push origin main
 4. **Обновляй документацию** при завершении сессии
 5. **Не сломанный код** - не коммить код, который ломает существующие функции
 6. **Следуй паттернам** проекта из `Projects/ИМЯПРОЕКТА/docs/patterns.md`
-7. **При создании нового проекта** - спроси пользователя: создать новый репозиторий или коммитить в `nikkronos/Cursor_Projects`?
+7. **При создании нового проекта** - спроси пользователя: создать новый репозиторий или коммитить в `nikkronos/Cursor_Projectcs`?
 7. **Логируй важные операции**
 8. **Никогда не хардкоди секреты**
 9. **Валидируй все входные данные**

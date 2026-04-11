@@ -2,9 +2,9 @@
 
 ## Репозиторий Git в корне `Cursor_Projects`
 
-- **`origin`** — **`https://github.com/nikkronos/Cursor_Projects.git`**: общий монорепозиторий (`Main_docs/`, `Projects/`, и т.д.). Команды в корне: `git push origin main` отправляют сюда.
+- **`origin`** — **`https://github.com/nikkronos/Cursor_Projectcs.git`**: общий монорепозиторий на GitHub (`Main_docs/`, `Projects/`, и т.д.). Имя репозитория на сайте — **`Cursor_Projectcs`** (окончание `cs`, не `Projects`); локальная папка на диске по-прежнему часто **`Cursor_Projects`**. Команды в корне: `git push origin main` отправляют сюда.
 - **`nikkronos/TradeTherapyBot`** — **отдельный** репозиторий кода бота. В корневом клоне `Cursor_Projects` он подключён как дополнительный remote **`tradetherapybot`**, а не как `origin`. Явно: `git fetch tradetherapybot`, `git push tradetherapybot …` — только если нужно взаимодействовать с репозиторием TradeTherapyBot; **не подменяй им `origin`**, иначе пуш уйдёт не в тот репозиторий.
-- Если **`git fetch origin`** выдаёт **`Repository not found`**: репозиторий приватный или имя/доступ другие — выполни вход (`gh auth login`, PAT в диспетчере учётных данных Windows) или используй SSH (`git@github.com:nikkronos/Cursor_Projects.git`), если ключ добавлен в GitHub.
+- Если **`git fetch origin`** выдаёт **`Repository not found`**: проверь URL (`…/Cursor_Projectcs.git`), приватность репозитория и вход (`gh auth login`, PAT в Windows) или SSH (`git@github.com:nikkronos/Cursor_Projectcs.git`).
 
 ## Логика коммитов
 
@@ -98,7 +98,7 @@ refactor: улучшена структура базы данных
 ## Структура монорепозитория Cursor_Projects (корень папки)
 
 ```
-Cursor_Projects/                # Корень = клон nikkronos/Cursor_Projects (remote origin)
+Cursor_Projects/                # Корень локально; remote origin → github.com/nikkronos/Cursor_Projectcs
 ├── .gitignore
 ├── Main_docs/                   # ✅ Общие правила, COMMIT_CURSOR.md, …
 ├── Projects/                    # Подпроекты (часть в отдельных repo — см. RULES)
