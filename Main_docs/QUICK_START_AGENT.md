@@ -92,16 +92,13 @@
 ### Общие правила:
 - **`Main_docs/RULES_CURSOR.md`** - общие правила для всех проектов (ОБЯЗАТЕЛЬНО ПРОЧИТАТЬ!)
 
-### В каждом проекте (Projects/ИМЯПРОЕКТА/):
-- **`ROADMAP_ИМЯПРОЕКТА.md`** - планы развития проекта
-- **`DONE_LIST_ИМЯПРОЕКТА.md`** - история выполненных задач
-- **`SESSION_SUMMARY_ДАТА.md`** - информация о последней сессии
-- **`README_FOR_NEXT_AGENT.md`** - инструкция для следующего агента
-- **`docs/`** - база знаний проекта
-  - `agent-onboarding.md` - онбординг
-  - `architecture.md` - архитектура
-  - `patterns.md` - правила кода
-  - `specs/spec-template.md` - шаблон спецификаций
+### В каждом проекте (`Projects/Non actual/ИМЯ/` для архива или `Projects/VPN/`):
+- **`ROADMAP_…`**, **`DONE_LIST_…`**, **`SESSION_SUMMARY_…`**, **`README_FOR_NEXT_AGENT.md`**
+- **`…/docs/`** — база знаний внутри каталога проекта (пример: `Projects/Non actual/TradeTherapyBot/docs/`)
+
+### Общая папка `docs/` в корне монорепо:
+- **`docs/README.md`** — что осталось в корневых `docs/` и куда смотреть дальше
+- **`docs/server-timeweb.md`**, **`docs/ДВА_РЕПОЗИТОРИЯ_И_ДЕПЛОЙ.md`**, устаревший **`docs/agent-onboarding.md`**
 
 ### Полная инструкция:
 - **`Main_docs/AGENT_PROMPTS.md`** - полная инструкция для агента (детальное руководство)

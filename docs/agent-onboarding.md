@@ -139,7 +139,7 @@ git push origin main
 
 ## 💻 Паттерны и стандарты кода
 
-Подробная информация: [docs/patterns.md](patterns.md)
+Подробная информация: [patterns.md](../Projects/Non%20actual/TradeTherapyBot/docs/patterns.md)
 
 ### Общие правила:
 
@@ -226,7 +226,7 @@ git push origin main
 
 ## 📝 Правила коммитов для агента
 
-Подробная информация: [docs/patterns.md](patterns.md#правила-коммитов-для-агента)
+Подробная информация: [patterns.md](../Projects/Non%20actual/TradeTherapyBot/docs/patterns.md#правила-коммитов-для-агента)
 
 ### ⚠️ ВАЖНО: Расположение репозитория
 
@@ -381,7 +381,7 @@ C:\Users\krono\OneDrive\Рабочий стол\Cursor_test\  (корень пр
 1. **Всегда проверяй связанные функции** перед изменением кода
 2. **Тестируй изменения** перед коммитом
 3. **Не коммить сломанный код**
-4. **Следуй паттернам** из `docs/patterns.md`
+4. **Следуй паттернам** из `Projects/Non actual/TradeTherapyBot/docs/patterns.md`
 5. **Логируй важные операции**
 6. **Никогда не хардкоди секреты**
 
