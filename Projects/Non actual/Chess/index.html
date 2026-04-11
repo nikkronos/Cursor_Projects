@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <title>Шахматы на четверых</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+    <div class="app">
+        <header class="app-header">
+            <h1>Шахматы на четверых</h1>
+            <p class="status" id="status">Подключение к серверу…</p>
+            <p class="hint">
+                Откройте эту страницу на четырёх устройствах или в четырёх браузерных окнах.
+                Сервер попытается выдать каждому игроку свой цвет (красный, синий, жёлтый, зелёный).
+            </p>
+        </header>
+
+        <main class="app-main">
+            <div class="board" id="board"></div>
+            <aside class="sidebar">
+                <div class="player-info">
+                    <h2>Ваш цвет</h2>
+                    <div id="my-color" class="color-badge color-unknown">—</div>
+                </div>
+                <div class="log">
+                    <h2>Лог ходов</h2>
+                    <div id="log-entries" class="log-entries"></div>
+                </div>
+                <div class="help">
+                    <h2>Как ходить</h2>
+                    <ul>
+                        <li>Нажмите на свою фигуру.</li>
+                        <li>Нажмите на клетку, куда хотите походить.</li>
+                        <li>Правила близки к классическим шахматам, но без шаха/мата.</li>
+                        <li>Сервер проверяет базовую корректность хода.</li>
+                    </ul>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <script src="/static/game.js"></script>
+</body>
+</html>
+

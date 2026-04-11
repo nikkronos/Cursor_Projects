@@ -28,13 +28,13 @@
 ### Сервер TimeWeb
 - Оплаченный сервер на TimeWeb
 - На сервере был развёрнут TradeTherapyBot (создан с AI агентами); **с 2026-02-21 бот выключен (неактуален)**
-- Боевой стек **PastuhiBot** (процессы **hamster\*** у разработчика) с **2026-04-10** на **Fornex**; на Timeweb отключён. Доки: `Projects/PastuhiBot/docs/SERVER_MIGRATION_FORNEX_2026-04-10.md`
-- Проект Damir (виджет Т-Инвестиции) **развёрнут на Timeweb, но с 2026-04-04 systemd-сервис `futures_auction` остановлен и отключён** (не 24/7); см. `Projects/Damir/SESSION_SUMMARY_2026-04-04.md`
+- Боевой стек **PastuhiBot** (процессы **hamster\*** у разработчика) с **2026-04-10** на **Fornex**; на Timeweb отключён. Доки: `Projects/Non actual/PastuhiBot/docs/SERVER_MIGRATION_FORNEX_2026-04-10.md`
+- Проект Damir (виджет Т-Инвестиции) **развёрнут на Timeweb, но с 2026-04-04 systemd-сервис `futures_auction` остановлен и отключён** (не 24/7); см. `Projects/Non actual/Damir/SESSION_SUMMARY_2026-04-04.md`
 - Проект **xxx (Копия иксуюемся)** и **VPN Telegram-бот** с **2026-04-10** перенесены на **Fornex** (с Timeweb до Telegram API недоступен); см. `Main_docs/TELEGRAM_MIGRATION_TIMWEB_FORNEX_2026-04-10.md`. На Timeweb могут остаться копии каталогов и другие сервисы (в т.ч. веб-панель VPN на `:5001`).
 
 ### Сервер Fornex
 - Дополнительный сервер на Fornex
-- **С 2026-04-10 на Fornex (прод):** VPN, Копия иксуюемся (xxx), VPN Telegram-бот, стек **hamster\*** (Pastuhi у разработчика) — см. `Main_docs/TELEGRAM_MIGRATION_TIMWEB_FORNEX_2026-04-10.md` и `Projects/PastuhiBot/docs/SERVER_MIGRATION_FORNEX_2026-04-10.md`
+- **С 2026-04-10 на Fornex (прод):** VPN, Копия иксуюемся (xxx), VPN Telegram-бот, стек **hamster\*** (Pastuhi у разработчика) — см. `Main_docs/TELEGRAM_MIGRATION_TIMWEB_FORNEX_2026-04-10.md` и `Projects/Non actual/PastuhiBot/docs/SERVER_MIGRATION_FORNEX_2026-04-10.md`
 
 **Важно:** Все секреты (пароли, токены, API ключи) хранятся в файле `Main_docs/env_vars.txt` (локально) или `.env` (на сервере). Также в папке `Projects/VPN/` есть свой файл `env_vars.txt` для VPN проекта.
 - Файлы с секретами **НИКОГДА** не коммитятся в Git
@@ -46,7 +46,7 @@
 У пользователя есть **четыре репозитория** на GitHub:
 
 1. **`nikkronos/Cursor_Projects`** — монорепозиторий на GitHub; локально папка **`Cursor_Projects`**: `Main_docs/`, `Projects/*` (кроме того, что в `.gitignore` и отдельных repo). В корне клона **`git remote origin`** → `…/Cursor_Projects.git`, не TradeTherapyBot (см. `Main_docs/COMMIT_CURSOR.md`, remote **`tradetherapybot`**). Старое имя на GitHub было `Cursor_Projectcs` — URL редиректит на `Cursor_Projects`.
-2. **`nikkronos/TradeTherapyBot`** — код Telegram-бота TradeTherapyBot; коммиты из **`Projects/TradeTherapyBot/`**, если там настроен отдельный Git, иначе копия может жить только внутри `Cursor_Projects`.
+2. **`nikkronos/TradeTherapyBot`** — код Telegram-бота TradeTherapyBot; **архивная копия** в монорепо: **`Projects/Non actual/TradeTherapyBot/`**. Пуш в репозиторий бота — из отдельного клона или из этой папки, если внутри настроен remote **`tradetherapybot`**.
 3. **`nikkronos/vpnservice`** — отдельный репозиторий для проекта VPN (коммиты из папки `Projects/VPN/`)
 4. **`nikkronos/kopiya-iksuyemsya`** — отдельный репозиторий для проекта "Копия иксуюемся" (коммиты из папки `Projects/xxx/`)
 
@@ -157,39 +157,15 @@ git status
 
 ```
 Cursor_Projects/
-├── Main_docs/                    # Основные документы
-│   ├── RULES_CURSOR.md          # Этот файл - правила работы
-│   ├── PROJECTS.md              # Описание всех проектов
-│   ├── ROAD_MAP_AI.md           # Roadmap AI проектов
-│   ├── QUICK_START_AGENT.md     # Быстрый старт для агента
-│   ├── COMMIT_CURSOR.md         # Правила коммитов
-│   ├── AGENT_PROMPTS.md         # Полная инструкция для агента
-│   └── env_vars.txt             # Секреты (НЕ коммитится!)
-├── Projects/                     # Все проекты
-│   ├── TradeTherapyBot/         # ✅ Проект 1 (коммитится в nikkronos/TradeTherapyBot)
-│   │   ├── ROADMAP_TRADETHERAPYBOT.md
-│   │   ├── DONE_LIST_TRADETHERAPYBOT.md
-│   │   └── SESSION_SUMMARY_YYYY-MM-DD.md
-│   ├── xxx/                     # ✅ Проект "Копия иксуюемся" (коммитится в nikkronos/kopiya-iksuyemsya)
-│   │   ├── ROADMAP_КОПИЯ_ИКСУЮЕМСЯ.md
-│   │   ├── DONE_LIST_КОПИЯ_ИКСУЮЕМСЯ.md
-│   │   └── SESSION_SUMMARY_YYYY-MM-DD.md
-│   ├── VPN/                     # ✅ Проект VPN/Proxy (коммитится в nikkronos/vpnservice)
-│   │   ├── ROADMAP_VPN.md
-│   │   ├── DONE_LIST_VPN.md
-│   │   └── SESSION_SUMMARY_YYYY-MM-DD.md
-│   ├── PastuhiBot/              # ❌ Проект 2 (НЕ коммитится)
-│   ├── Damir/                   # ❌ Виджет Т-Инвестиции (НЕ коммитится, локально)
-│   ├── HH/                      # ❌ Проект HeadHunter (НЕ коммитится)
-│   ├── Chess/                   # ❌ Проект Chess (НЕ коммитится)
-│   ├── n8n/                     # ❌ N8N интеграция (НЕ коммитится)
-│   ├── TestN8N/                 # ❌ Тестовый проект (НЕ коммитится)
-│   └── ParentChildResearch/     # ❌ Временные проекты (НЕ коммитятся)
-├── docs/                         # Общая документация
-│   ├── n8n-*.md                 # Документация по N8N
-│   └── specs/                   # Технические спецификации
-├── .gitignore                   # Игнорируемые файлы
-└── [другие файлы в корне]       # Могут коммититься в nikkronos/Cursor_Projects
+├── Main_docs/                    # Правила, PROJECTS, COMMIT_CURSOR, AGENT_PROMPTS, …
+│   └── env_vars.txt              # Секреты (НЕ коммитится!)
+├── Projects/
+│   ├── VPN/                      # Отдельный репо vpnservice (в .gitignore этого монорепо)
+│   └── Non actual/               # Архив: TradeTherapyBot, PastuhiBot, Damir, xxx, Limits, HH, Chess, …
+├── docs/                         # Общая документация (без дублей с архивом бота)
+├── TestN8N/                      # Локально, в .gitignore
+├── .gitignore
+└── README.md
 ```
 
 **VPN:** полный локальный путь и URL репозитория зафиксированы в `Main_docs/PROJECTS.md` (раздел «7. VPN»): `Projects/VPN/` → https://github.com/nikkronos/vpnservice
@@ -237,22 +213,19 @@ Cursor_Projects/
 
 ### Что коммитится:
 
-✅ **Коммитятся:**
-- Все файлы из корня локального клона `Cursor_Projects` (кроме env_vars.txt) — пуш в **`nikkronos/Cursor_Projects`**
-- Проект `Projects/TradeTherapyBot/` (полностью, в репозиторий nikkronos/TradeTherapyBot)
-- Проект `Projects/VPN/` (полностью, в отдельный репозиторий nikkronos/vpnservice)
-- Проект `Projects/xxx/` (полностью, в отдельный репозиторий nikkronos/kopiya-iksuyemsya)
-- Документация (`docs/`, `Main_docs/` кроме env_vars.txt)
-- Все общие файлы и настройки (могут коммититься в nikkronos/Cursor_Projects)
+✅ **Коммитятся (в `nikkronos/Cursor_Projects`):**
+- Всё под **`Projects/Non actual/`** — архивные копии завершённых и неактуальных проектов
+- `docs/`, `Main_docs/` (кроме `env_vars.txt`), корневые мета-файлы (`.gitignore`, `README.md`, `.github`, …)
 
-❌ **НЕ коммитятся:**
-- `Projects/ParentChildResearch/` - временный исследовательский проект
-- `Projects/PastuhiBot/` - локальная копия боевого бота (хранится только локально)
-- `Projects/Damir/` - виджет Т-Инвестиции (хранится только локально)
-- `Projects/HH/` - проект HeadHunter (хранится только локально)
-- `Projects/n8n/` - N8N интеграция (хранится только локально)
-- `Main_docs/env_vars.txt` - секреты (НИКОГДА не коммитить!)
-- `Projects/VPN/env_vars.txt` - секреты VPN (НИКОГДА не коммитить!)
+❌ **Не в этом монорепо (см. `.gitignore` или отдельный репо):**
+- `Projects/VPN/` — зеркалится в **`nikkronos/vpnservice`** (отдельный Git в этой папке)
+- `TestN8N/` в корне — только локально
+- `Main_docs/env_vars.txt` — секреты (НИКОГДА не коммитить!)
+- `Projects/VPN/env_vars.txt` — секреты VPN (НИКОГДА не коммитить!)
+
+**Отдельные репозитории (пуш не в `origin` монорепо):**
+- `nikkronos/TradeTherapyBot` — из отдельного клона или из **`Projects/Non actual/TradeTherapyBot/`**, если там настроен remote
+- `nikkronos/kopiya-iksuyemsya` — коммиты из **`Projects/Non actual/xxx/`**
 
 ### Процесс коммита:
 
@@ -284,7 +257,7 @@ Cursor_Projects/
 2. **Актуализировать документы** - старую информацию переносить в DONE_LIST
 3. **Следовать структуре** - одинаковые файлы во всех проектах
 4. **Читать перед началом** - всегда начинать с изучения существующих документов
-5. **Проверять .gitignore** - убедиться, что ParentChildResearch и PastuhiBot исключены
+5. **Проверять .gitignore** — что **`Projects/VPN/`** и **`TestN8N/`** по-прежнему исключены из монорепо; архив **`Projects/Non actual/`** наоборот **трекается**
 
 ## Исключения
 

@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Damir — Инструкция для передачи человеку</title>
+    <style>
+      body { margin: 0; padding: 24px; background: #ffffff; color: #111; }
+      pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 12px;
+        line-height: 1.35;
+      }
+      h1 { font-size: 18px; margin: 0 0 12px; }
+      .meta { color: #444; font-size: 12px; margin-bottom: 16px; }
+      @media print {
+        body { padding: 12px; }
+        pre { font-size: 11px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="meta">Generated from <code>TRANSFER_OTHER_PERSON.md</code> for printing to PDF.</div>
+    <pre># Damir — Futures Auction Widget (T-Invest) | Инструкция для передачи другому человеку
+
+## Коротко: что это
+Виджет на `Flask` + `static/index.html` для отображения таблицы инструментов T-Invest (фьючерсы/спот) с автообновлением и “именными ссылками” через `/?profile=...`.
+
+Текущая рабочая версия интерфейса: **v5**.
+
+## Важно про актуальность README на GitHub
+`README.md` в репозитории местами описывает старую логику UI (про “Свечи/Стакан” и другие интервалы), поэтому при правках ориентироваться нужно на фактический код:
+- `server.py`
+- `static/index.html`
+
+## Ссылки (всё, что понадобится)
+Репозиторий:
+- https://github.com/nikkronos/Futures_auction
+
+Файлы из репозитория (raw):
+- `server.py`: https://raw.githubusercontent.com/nikkronos/Futures_auction/main/server.py
+- `static/index.html`: https://raw.githubusercontent.com/nikkronos/Futures_auction/main/static/index.html
+- `requirements.txt`: https://raw.githubusercontent.com/nikkronos/Futures_auction/main/requirements.txt
+- `env_vars.example.txt`: https://raw.githubusercontent.com/nikkronos/Futures_auction/main/env_vars.example.txt
+- `futures_auction.service`: https://raw.githubusercontent.com/nikkronos/Futures_auction/main/futures_auction.service
+
+## Как открыть виджет (именые ссылки / profile)
+Важно: корень `/` **без** `profile` отдаёт заглушку (виджет и настройки не грузятся). Нужен URL с параметром.
+
+Пример формата:
+- http://81.200.146.32:5000/?profile=ivan
+- http://81.200.146.32:5000/?profile=damir
+- http://81.200.146.32:5000/?profile=nikolay
+- http://81.200.146.32:5000/?profile=alex
+- http://81.200.146.32:5000/?profile=nikita
+
+## Настройки и перенос на другое устройство
+Выбор инструментов хранится в `localStorage` браузера (на сервере профили пока не хранятся).
+Это значит: на новом устройстве/браузере нужно будет заново открыть настройки и выбрать инструменты.
+
+## Timeweb / деплой (Linux + systemd). Ориентир: /opt/futures_auction
+### Что должно быть в папке `/opt/futures_auction`
+- `server.py`
+- `static/index.html`
+- `requirements.txt` (может быть, если делаем установки на месте)
+- `env_vars.txt` (секреты) — **НЕ коммитить**
+- виртуальное окружение: `/opt/futures_auction/.venv/` (создаётся при настройке)
+
+### env_vars.txt
+Обязательно задать:
+- `TINKOFF_INVEST_TOKEN=...`
+- `SANDBOX=0` (всегда боевой контур)
+
+Пример:
+- https://raw.githubusercontent.com/nikkronos/Futures_auction/main/env_vars.example.txt
+
+### Вариант “копируются файлы” (самый вероятный для Timeweb)
+1. Скопировать на сервер в `/opt/futures_auction/`:
+   - `server.py`
+   - `static/index.html`
+   - `requirements.txt` (если нужно)
+2. Создать/обновить venv:
+   - `python3 -m venv /opt/futures_auction/.venv`
+   - `/opt/futures_auction/.venv/bin/pip install -r /opt/futures_auction/requirements.txt`
+3. Положить секреты в:
+   - `/opt/futures_auction/env_vars.txt`
+4. Поднять systemd сервис:
+   - `/etc/systemd/system/futures_auction.service`
+   - `sudo systemctl daemon-reload`
+   - `sudo systemctl enable futures_auction`
+   - `sudo systemctl restart futures_auction`
+   - `sudo systemctl status futures_auction --no-pager`
+
+### Вариант “через git” (если git доступен на сервере)
+- В папке `/opt/futures_auction`:
+  - `git pull`
+  - затем `pip install -r requirements.txt`
+  - затем `systemctl restart futures_auction`
+
+## Проверка после деплоя (минимум)
+1. Открыть заглушку без profile:
+   - http://81.200.146.32:5000/
+   Должна быть страница “Доступ по личным ссылкам…”.
+2. Открыть виджет с profile:
+   - http://81.200.146.32:5000/?profile=nikita
+3. UI:
+   - кнопка `Настройки` открывает/закрывает панель
+   - `Авто: ВКЛ/ВЫКЛ` работает
+   - таблица не “пропадает” при ошибках/таймаутах
+4. Поведение при лимите инструментов:
+   - максимум обновления/кэша: `40`
+
+## Критические правила поведения при правках (важно для Cursor/Claude)
+При любых изменениях сохранять текущее поведение v5:
+1. Корень `/` **без** `?profile=...`:
+   - не делать запросы к API
+   - отдавать заглушку
+2. Ошибки/таймауты `/api/orderbook`:
+   - таблицу не очищать
+   - оставлять последние валидные данные
+3. Лимит инструментов:
+   - в коде/фронте жестко согласован лимит `40`
+4. Автообновление и расписание аукциона:
+   - расписание считается по МСК в двух местах:
+     - `server.py` (логика `_is_auction_time()`)
+     - `static/index.html` (логика `getRefreshInterval()`)
+5. История “поломки кнопок” (двойные обработчики):
+   - не добавлять дублирующие `addEventListener` к кнопкам “Настройки/Авто”
+   - если меняете обработчики — убедиться, что срабатывает один раз и ошибки из try/catch не ломают UI
+
+API endpoints:
+- `/api/futures` — список инструментов для настроек
+- `/api/orderbook` — данные таблицы + auction status + `limit_warning` (если превышен лимит)
+- `/api/stats` — статистика запросов/кэша (если доступна)
+
+## Инструкция для Cursor / Claude Code (готовый prompt)
+Скопируйте текст и вставьте агенту:
+
+```text
+Проект Damir / Futures Auction Widget (T-Invest). Текущая цель: редактировать и поддерживать v5, не ломая рабочий UI.
+
+Сначала прочитай:
+- Projects/Damir/ROADMAP_DAMIR.md
+- Projects/Damir/DONE_LIST_DAMIR.md
+- Projects/Damir/SESSION_SUMMARY_*.md (последнюю)
+- Projects/Damir/static/index.html
+- Projects/Damir/server.py
+
+Критически важно (v5):
+1) Корень '/' БЕЗ '?profile=' не должен запрашивать API — там заглушка.
+2) Таблица не должна “исчезать” при таймаутах/errors в /api/orderbook:
+   - при ошибках оставлять последние валидные данные
+   - очищать только если это самый первый запрос
+3) Лимит инструментов согласован: в коде/фронте жёстко 40.
+4) Автообновление: расписание аукциона считается по МСК в двух местах:
+   - server.py: функция _is_auction_time()
+   - static/index.html: функция getRefreshInterval()
+5) Профили: выбор пользователя задаётся параметром '?profile=...'.
+   Настройки сохраняются в localStorage (server-side профилей нет).
+6) Историческая ошибка: двойные обработчики кнопок.
+   - не добавлять дублирующие addEventListener к кнопкам “Настройки/Авто/Режим”
+   - если менять кнопки — убедиться, что обработчик вызван один раз и ошибки внутри try/catch не ломают UI
+
+API endpoints:
+- /api/futures — список инструментов для настроек
+- /api/orderbook — данные таблицы + auction status + cache_stats? + limit_warning?
+- /api/stats — статистика запросов/кэша (если доступна)
+
+После правок обязательно:
+- Проверить вручную в браузере:
+  a) /?profile=... (настройки открываются)
+  b) сохранение выбора инструментов
+  c) поведение при ошибках API (таблица не очищается)
+  d) лимит инструментов (предупреждение и отсутствие “лишних” обновлений)
+- Если менялась логика — обновить документацию в Projects/Damir:
+  ROADMAP_DAMIR.md, DONE_LIST_DAMIR.md, SESSION_SUMMARY_*.md
+- env_vars.txt НЕ коммитить, не хардкодить токены.
+```
+
+## Уточнение про “SANDBOX”
+- На боевом сервере всегда: `SANDBOX=0`.
+
+---
+Конец документа.
+</pre>
+  </body>
+</html>
+

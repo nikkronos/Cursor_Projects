@@ -1,0 +1,10 @@
+@echo off
+chcp 65001 >nul
+cd /d "%~dp0"
+python work_with_docx.py
+pause
+
+
+
+
+

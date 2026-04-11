@@ -332,7 +332,7 @@
 
 ```bash
 # Перейти в папку проекта
-cd Projects/TradeTherapyBot
+cd "Projects/Non actual/TradeTherapyBot"
 
 # Добавить изменения
 git add .
@@ -351,7 +351,7 @@ git push origin main
 **Важно:** 
 - Для PastuhiBot, Damir, HH, Chess, n8n изменения НЕ коммитятся - хранятся локально!
 - Для VPN коммиты делаются в папке `Projects/VPN/`, пуш в репозиторий `nikkronos/vpnservice`
-- Для xxx коммиты делаются в папке `Projects/xxx/`, пуш в репозиторий `nikkronos/kopiya-iksuyemsya`
+- Для xxx коммиты делаются в папке `Projects/Non actual/xxx/`, пуш в репозиторий `nikkronos/kopiya-iksuyemsya`
 - При создании нового проекта агент должен спросить: создать новый репозиторий или коммитить в `nikkronos/Cursor_Projects`?
 
 ---
@@ -366,16 +366,16 @@ git push origin main
 - **Отдельный Git-репозиторий:** https://github.com/nikkronos/Futures_auction
 - Интеграция с T-Invest REST API (SDK сломан)
 - Деплой на Timeweb: `/opt/futures_auction`, systemd `futures_auction.service`
-- **С 2026-04-04 прод выключен** (`stop` + `disable`), не 24/7; см. `Projects/Damir/SESSION_SUMMARY_2026-04-04.md`
+- **С 2026-04-04 прод выключен** (`stop` + `disable`), не 24/7; см. `Projects/Non actual/Damir/SESSION_SUMMARY_2026-04-04.md`
 - Документация API: [developer.tbank.ru/invest](https://developer.tbank.ru/invest/intro/intro/)
 
 **Документы:**
-- `Projects/Damir/TRANSFER_OTHER_PERSON.md` — передача проекта человеку / prompt для агента (есть `.pdf`)
-- `Projects/Damir/ROADMAP_DAMIR.md`
-- `Projects/Damir/DONE_LIST_DAMIR.md`
-- `Projects/Damir/SESSION_SUMMARY_ДАТА.md`
+- `Projects/Non actual/Damir/TRANSFER_OTHER_PERSON.md` — передача проекта человеку / prompt для агента (есть `.pdf`)
+- `Projects/Non actual/Damir/ROADMAP_DAMIR.md`
+- `Projects/Non actual/Damir/DONE_LIST_DAMIR.md`
+- `Projects/Non actual/Damir/SESSION_SUMMARY_ДАТА.md`
 
-**База знаний:** `Projects/Damir/docs/`
+**База знаний:** `Projects/Non actual/Damir/docs/`
 
 **Сервер:** TimeWeb (виджет на `:5000` не слушает, пока сервис снова не включат)
 
@@ -391,11 +391,11 @@ git push origin main
 - Бот остановлен и отключён от автозапуска на TimeWeb
 
 **Документы:**
-- `Projects/TradeTherapyBot/ROADMAP_TRADETHERAPYBOT.md`
-- `Projects/TradeTherapyBot/DONE_LIST_TRADETHERAPYBOT.md`
-- `Projects/TradeTherapyBot/SESSION_SUMMARY_ДАТА.md`
+- `Projects/Non actual/TradeTherapyBot/ROADMAP_TRADETHERAPYBOT.md`
+- `Projects/Non actual/TradeTherapyBot/DONE_LIST_TRADETHERAPYBOT.md`
+- `Projects/Non actual/TradeTherapyBot/SESSION_SUMMARY_ДАТА.md`
 
-**База знаний:** `Projects/TradeTherapyBot/docs/`
+**База знаний:** `Projects/Non actual/TradeTherapyBot/docs/`
 
 **Сервер:** TimeWeb
 
@@ -409,11 +409,11 @@ git push origin main
 - Изменения применяются вручную после тестирования
 
 **Документы:**
-- `Projects/PastuhiBot/ROADMAP_PASTUHIBOT.md`
-- `Projects/PastuhiBot/DONE_LIST_PASTUHIBOT.md`
-- `Projects/PastuhiBot/SESSION_SUMMARY_ДАТА.md`
+- `Projects/Non actual/PastuhiBot/ROADMAP_PASTUHIBOT.md`
+- `Projects/Non actual/PastuhiBot/DONE_LIST_PASTUHIBOT.md`
+- `Projects/Non actual/PastuhiBot/SESSION_SUMMARY_ДАТА.md`
 
-**База знаний:** `Projects/PastuhiBot/docs/`
+**База знаний:** `Projects/Non actual/PastuhiBot/docs/`
 
 **Сервер:** TimeWeb
 
@@ -422,17 +422,17 @@ git push origin main
 **Описание:** Telegram-бот для копирования информации из одного Telegram-канала в другой (бот-перелив).
 
 **Особенности:**
-- **Коммитится в Git** репозиторий `nikkronos/kopiya-iksuyemsya` (коммиты из папки `Projects/xxx/`)
+- **Коммитится в Git** репозиторий `nikkronos/kopiya-iksuyemsya` (коммиты из папки `Projects/Non actual/xxx/`)
 - Создан по аналогии с PastuhiBot
 - Работает на сервере TimeWeb (тот же сервер, что и TradeTherapyBot и PastuhiBot)
 - Создан с помощью AI агентов
 
 **Документы:**
-- `Projects/xxx/ROADMAP_КОПИЯ_ИКСУЮЕМСЯ.md`
-- `Projects/xxx/DONE_LIST_КОПИЯ_ИКСУЮЕМСЯ.md`
-- `Projects/xxx/SESSION_SUMMARY_ДАТА.md`
+- `Projects/Non actual/xxx/ROADMAP_КОПИЯ_ИКСУЮЕМСЯ.md`
+- `Projects/Non actual/xxx/DONE_LIST_КОПИЯ_ИКСУЮЕМСЯ.md`
+- `Projects/Non actual/xxx/SESSION_SUMMARY_ДАТА.md`
 
-**База знаний:** `Projects/xxx/docs/`
+**База знаний:** `Projects/Non actual/xxx/docs/`
 
 **Сервер:** TimeWeb
 

@@ -21,7 +21,7 @@
 
 ## 🏗️ Архитектура проекта
 
-Подробная информация об архитектуре: [docs/architecture.md](architecture.md)
+Подробная информация об архитектуре: [architecture.md](../Projects/Non%20actual/TradeTherapyBot/docs/architecture.md)
 
 ### Основные компоненты:
 
@@ -111,7 +111,7 @@ git push origin main
 
 ## 📐 Бизнес-правила
 
-Подробная информация: [docs/business-rules.md](business-rules.md)
+Подробная информация: [business-rules.md](../Projects/Non%20actual/TradeTherapyBot/docs/business-rules.md)
 
 ### Ключевые правила:
 
@@ -179,7 +179,7 @@ git push origin main
    - PRIORITY_LIST.md для понимания текущих задач
 
 2. **Создать спек:**
-   - Использовать шаблон `docs/specs/spec-template.md`
+   - Использовать шаблон `Projects/Non actual/TradeTherapyBot/docs/specs/spec-template.md`
    - Описать задачу, риски, альтернативы
    - Создать чеклист для самопроверки
 
@@ -341,7 +341,7 @@ C:\Users\krono\OneDrive\Рабочий стол\Cursor_test\  (корень пр
 
 ## 📊 Известные проблемы и статус задач
 
-Подробная информация: [PRIORITY_LIST.md](../PRIORITY_LIST.md)
+Подробная информация: [PRIORITY_LIST.md](../Projects/Non%20actual/TradeTherapyBot/PRIORITY_LIST.md)
 
 ### Текущий статус:
 
@@ -362,17 +362,17 @@ C:\Users\krono\OneDrive\Рабочий стол\Cursor_test\  (корень пр
 
 ## 🔗 Полезные ссылки
 
-- **Быстрый старт:** [QUICK_START_AGENT.md](../QUICK_START_AGENT.md)
-- **Архитектура:** [docs/architecture.md](architecture.md)
-- **Бизнес-правила:** [docs/business-rules.md](business-rules.md)
-- **Паттерны кода:** [docs/patterns.md](patterns.md)
-- **База данных:** [docs/database.md](database.md)
-- **Безопасность:** [docs/security.md](security.md)
-- **Спек-шаблон:** [docs/specs/spec-template.md](specs/spec-template.md)
-- **Список задач:** [PRIORITY_LIST.md](../PRIORITY_LIST.md)
-- **Roadmap:** [docs/roadmap.md](roadmap.md)
-- **Git workflow:** [docs/git-workflow.md](git-workflow.md)
-- **CI/CD настройка:** [docs/CICD_SETUP.md](CICD_SETUP.md)
+- **Быстрый старт:** [QUICK_START_AGENT.md](../Main_docs/QUICK_START_AGENT.md)
+- **Архитектура:** [architecture.md](../Projects/Non%20actual/TradeTherapyBot/docs/architecture.md)
+- **Бизнес-правила:** [business-rules.md](../Projects/Non%20actual/TradeTherapyBot/docs/business-rules.md)
+- **Паттерны кода:** [patterns.md](patterns.md)
+- **База данных:** [database.md](../Projects/Non%20actual/TradeTherapyBot/docs/database.md)
+- **Безопасность:** [security.md](../Projects/Non%20actual/TradeTherapyBot/docs/security.md)
+- **Спек-шаблон:** [spec-template.md](../Projects/Non%20actual/TradeTherapyBot/docs/specs/spec-template.md)
+- **Список задач:** [PRIORITY_LIST.md](../Projects/Non%20actual/TradeTherapyBot/PRIORITY_LIST.md)
+- **Roadmap:** [roadmap.md](../Projects/Non%20actual/TradeTherapyBot/docs/roadmap.md)
+- **Git workflow:** [git-workflow.md](../Projects/Non%20actual/TradeTherapyBot/docs/git-workflow.md)
+- **CI/CD настройка:** [CICD_SETUP.md](../Projects/Non%20actual/TradeTherapyBot/docs/CICD_SETUP.md)
 
 ---
 

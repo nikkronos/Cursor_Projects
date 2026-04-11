@@ -1,0 +1,2696 @@
+{
+  "form_url": "https://forms.gle/jtdB9xU37NZUmH8o6",
+  "pages": [
+    {
+      "page_number": 1,
+      "html_file": "C:\\Users\\krono\\OneDrive\\Рабочий стол\\Cursor_test\\ParentChildResearch\\scripts\\..\\data\\raw\\form_analysis\\page_1.html",
+      "question_containers": [],
+      "radio_buttons": [
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "jsname": "o6bZLc"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 632,
+            "y": 12
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "liS6Hc",
+            "jsname": "F0H8Yc"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 658,
+            "y": 270
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "geS5n",
+            "jsaction": "EEvAHc:yfX9oc;",
+            "jscontroller": "sWGJ4b",
+            "jsname": "WsjYwc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 387
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "rFrNMe k3kHxc RdH0ib yqQS1 zKHdkd",
+            "jsaction": "clickonly:KjsqPd; focus:Jt1EX; blur:fpfTEe; input:Lg5SV",
+            "jscontroller": "pxq3x",
+            "jsname": "YPqjbf",
+            "jsshadow": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 452
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "aria-hidden": "true",
+            "class": "ndJi5d snByac",
+            "jsname": "LwH6nd"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 468
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "OabDMe cXrdqd",
+            "jsname": "XmnwAc"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 805,
+            "y": 490
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "ovnfwe Is7Fhb",
+            "jsname": "ty6ygf"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 658,
+            "y": 492
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "SL4Sz",
+            "id": "i3",
+            "jsname": "Rfh2Tc",
+            "role": "alert"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "geS5n",
+            "jsaction": "EEvAHc:yfX9oc;",
+            "jscontroller": "sWGJ4b",
+            "jsname": "WsjYwc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 537
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "rFrNMe k3kHxc RdH0ib yqQS1 zKHdkd",
+            "jsaction": "clickonly:KjsqPd; focus:Jt1EX; blur:fpfTEe; input:Lg5SV",
+            "jscontroller": "pxq3x",
+            "jsname": "YPqjbf",
+            "jsshadow": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 602
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "aria-hidden": "true",
+            "class": "ndJi5d snByac",
+            "jsname": "LwH6nd"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 618
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "OabDMe cXrdqd",
+            "jsname": "XmnwAc"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 805,
+            "y": 640
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "ovnfwe Is7Fhb",
+            "jsname": "ty6ygf"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 658,
+            "y": 642
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "SL4Sz",
+            "id": "i8",
+            "jsname": "Rfh2Tc",
+            "role": "alert"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "geS5n",
+            "jsaction": "EEvAHc:yfX9oc;",
+            "jscontroller": "sWGJ4b",
+            "jsname": "WsjYwc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 687
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "rFrNMe k3kHxc RdH0ib yqQS1 zKHdkd",
+            "jsaction": "clickonly:KjsqPd; focus:Jt1EX; blur:fpfTEe; input:Lg5SV",
+            "jscontroller": "pxq3x",
+            "jsname": "YPqjbf",
+            "jsshadow": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 752
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "aria-hidden": "true",
+            "class": "ndJi5d snByac",
+            "jsname": "LwH6nd"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 768
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "OabDMe cXrdqd",
+            "jsname": "XmnwAc"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 805,
+            "y": 790
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "ovnfwe Is7Fhb",
+            "jsname": "ty6ygf"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 658,
+            "y": 792
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "SL4Sz",
+            "id": "i13",
+            "jsname": "Rfh2Tc",
+            "role": "alert"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "uArJ5e UQuaGc YhQJj zo8FOc ctEux",
+            "jsaction": "click:cOuCgd; mousedown:UX7yZ; mouseup:lbsD7e; mouseenter:tfO1Yc; mouseleave:JywGue;touchstart:p6p2H; touchmove:FwuNnf; touchend:yfqBxc(preventDefault=true); touchcancel:JMtRjd;focus:AHmuwe; blur:O22p3e; contextmenu:mg9Pef;",
+            "jscontroller": "VXdfxd",
+            "jsname": "OCpkoe",
+            "jsshadow": "",
+            "role": "button",
+            "tabindex": "0"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 837
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "Fvio9d MbhUzd",
+            "jsname": "ksKsZd"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 632,
+            "y": 837
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "uArJ5e UQuaGc kCyAyd l3F1ye TFBnVe",
+            "jsaction": "click:cOuCgd; mousedown:UX7yZ; mouseup:lbsD7e; mouseenter:tfO1Yc; mouseleave:JywGue;touchstart:p6p2H; touchmove:FwuNnf; touchend:yfqBxc(preventDefault=true); touchcancel:JMtRjd;focus:AHmuwe; blur:O22p3e; contextmenu:mg9Pef;",
+            "jscontroller": "VXdfxd",
+            "jsname": "X5DuWc",
+            "jsshadow": "",
+            "role": "button",
+            "tabindex": "0"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 1141,
+            "y": 837
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "Fvio9d MbhUzd",
+            "jsname": "ksKsZd"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 1141,
+            "y": 837
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "VfPpkd-xl07Ob-XxIAqe-OWXEXe-oYxtQd",
+            "data-is-menu-hoisted": "true",
+            "jsaction": "JIbuQc:aj0Jcf(WjL7X); keydown:uYT2Vb(WjL7X);xDliB:oNPcuf;SM8mFd:li9Srb;iFFCZc:NSsOUb;Rld2oe:NSsOUb",
+            "jscontroller": "wg1P6b",
+            "jsname": "hTYMre",
+            "jsshadow": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 5,
+            "y": 892
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "jsname": "WjL7X",
+            "jsslot": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 5,
+            "y": 892
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "VfPpkd-Bz112c-Jh9lGc",
+            "jsname": "s3Eaab"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 5,
+            "y": 892
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "jsname": "U0exHf",
+            "jsslot": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 5,
+            "y": 940
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "jsaction": "rcuQ6b:rcuQ6b;UxRBlf:rcuQ6b;",
+            "jscontroller": "yUS4Lc"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 632,
+            "y": 12
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "geS5n",
+            "jsaction": "EEvAHc:yfX9oc;",
+            "jscontroller": "sWGJ4b",
+            "jsname": "WsjYwc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 387
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "AgroKb",
+            "jsaction": "rcuQ6b:vZc4S;O22p3e:zjh6rb;b2trFe:eVidQc;sPvj8e:d3sQLd;AHmuwe:h06R8;",
+            "jscontroller": "oCiKKc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 452
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "rFrNMe k3kHxc RdH0ib yqQS1 zKHdkd",
+            "jsaction": "clickonly:KjsqPd; focus:Jt1EX; blur:fpfTEe; input:Lg5SV",
+            "jscontroller": "pxq3x",
+            "jsname": "YPqjbf",
+            "jsshadow": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 452
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "geS5n",
+            "jsaction": "EEvAHc:yfX9oc;",
+            "jscontroller": "sWGJ4b",
+            "jsname": "WsjYwc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 537
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "AgroKb",
+            "jsaction": "rcuQ6b:vZc4S;O22p3e:zjh6rb;b2trFe:eVidQc;sPvj8e:d3sQLd;AHmuwe:h06R8;",
+            "jscontroller": "oCiKKc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 602
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "rFrNMe k3kHxc RdH0ib yqQS1 zKHdkd",
+            "jsaction": "clickonly:KjsqPd; focus:Jt1EX; blur:fpfTEe; input:Lg5SV",
+            "jscontroller": "pxq3x",
+            "jsname": "YPqjbf",
+            "jsshadow": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 602
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "geS5n",
+            "jsaction": "EEvAHc:yfX9oc;",
+            "jscontroller": "sWGJ4b",
+            "jsname": "WsjYwc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 687
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "AgroKb",
+            "jsaction": "rcuQ6b:vZc4S;O22p3e:zjh6rb;b2trFe:eVidQc;sPvj8e:d3sQLd;AHmuwe:h06R8;",
+            "jscontroller": "oCiKKc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 752
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "rFrNMe k3kHxc RdH0ib yqQS1 zKHdkd",
+            "jsaction": "clickonly:KjsqPd; focus:Jt1EX; blur:fpfTEe; input:Lg5SV",
+            "jscontroller": "pxq3x",
+            "jsname": "YPqjbf",
+            "jsshadow": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 752
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "ThHDze",
+            "data-is-receipt-checked": "false",
+            "data-should-execute-invisible-captcha-on-form-submit": "false",
+            "data-shuffle-seed": "-5927931720192042741",
+            "jsaction": "rcuQ6b:npT2md;JIbuQc:qV61Ff(X5DuWc),Gl574d(QR6bsb),V3upec(GeGHKb),HiUbje(M2UYVd),NPBnCf(OCpkoe); keydown:duASZc",
+            "jscontroller": "lSvzH"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 837
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "uArJ5e UQuaGc YhQJj zo8FOc ctEux",
+            "jsaction": "click:cOuCgd; mousedown:UX7yZ; mouseup:lbsD7e; mouseenter:tfO1Yc; mouseleave:JywGue;touchstart:p6p2H; touchmove:FwuNnf; touchend:yfqBxc(preventDefault=true); touchcancel:JMtRjd;focus:AHmuwe; blur:O22p3e; contextmenu:mg9Pef;",
+            "jscontroller": "VXdfxd",
+            "jsname": "OCpkoe",
+            "jsshadow": "",
+            "role": "button",
+            "tabindex": "0"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 837
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "uArJ5e UQuaGc kCyAyd l3F1ye TFBnVe",
+            "jsaction": "click:cOuCgd; mousedown:UX7yZ; mouseup:lbsD7e; mouseenter:tfO1Yc; mouseleave:JywGue;touchstart:p6p2H; touchmove:FwuNnf; touchend:yfqBxc(preventDefault=true); touchcancel:JMtRjd;focus:AHmuwe; blur:O22p3e; contextmenu:mg9Pef;",
+            "jscontroller": "VXdfxd",
+            "jsname": "X5DuWc",
+            "jsshadow": "",
+            "role": "button",
+            "tabindex": "0"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 1141,
+            "y": 837
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "wJFUN",
+            "data-report-abuse-url": "https://drive.google.com/abuse?id=AKkXjowH44YQ_JtuXE8QAC2HWoGbZmQ8APAsh9I2jGYp5WUVXGIxT_G_Uf0zSelZfxq11N4iFW2VGRKC7wuf2dw:0&docurl=https://docs.google.com/forms/d/e/1FAIpQLSfHfLPVxnFYAGpq2sXbQfQZSrXfRFg4n_TUL59XdEgcDLD6Sw/viewform?usp%3Dsend_form",
+            "data-should-open-contact-owner-dialog": "false",
+            "data-sign-in-url-for-contact-owner": "https://accounts.google.com/Login?continue=https://docs.google.com/forms/d/e/1FAIpQLSfHfLPVxnFYAGpq2sXbQfQZSrXfRFg4n_TUL59XdEgcDLD6Sw/viewform?usp%3Dsend_form%26socod%3Dtrue&service=wise",
+            "data-user-display-name": "",
+            "data-user-email-address": "",
+            "jsaction": "rcuQ6b:npT2md;FzgWvd:PSl28c;iFFCZc:Y0y4c;",
+            "jscontroller": "KFVhZe"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 5,
+            "y": 892
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "VfPpkd-xl07Ob-XxIAqe-OWXEXe-oYxtQd",
+            "data-is-menu-hoisted": "true",
+            "jsaction": "JIbuQc:aj0Jcf(WjL7X); keydown:uYT2Vb(WjL7X);xDliB:oNPcuf;SM8mFd:li9Srb;iFFCZc:NSsOUb;Rld2oe:NSsOUb",
+            "jscontroller": "wg1P6b",
+            "jsname": "hTYMre",
+            "jsshadow": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 5,
+            "y": 892
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "VfPpkd-xl07Ob-XxIAqe VfPpkd-xl07Ob q6oraf P77izf",
+            "data-is-hoisted": "true",
+            "data-menu-uid": "ucj-1",
+            "data-should-flip-corner-horizontally": "false",
+            "data-stay-in-viewport": "false",
+            "jsaction": "keydown:I481le;JIbuQc:j697N(rymPhb);XVaHYd:c9v4Fb(rymPhb);Oyo5M:b5fzT(rymPhb);DimkCe:TQSy7b(rymPhb);m0LGSd:fAWgXe(rymPhb);WAiFGd:kVJJuc(rymPhb);",
+            "jscontroller": "ywOR5c"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      ],
+      "selectors_found": {
+        "div[role='listitem']": 3,
+        "div[data-params]": 3,
+        "div[jsname]": 28,
+        "div[jscontroller]": 16
+      }
+    },
+    {
+      "page_number": 2,
+      "html_file": "C:\\Users\\krono\\OneDrive\\Рабочий стол\\Cursor_test\\ParentChildResearch\\scripts\\..\\data\\raw\\form_analysis\\page_2.html",
+      "question_containers": [],
+      "radio_buttons": [
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "jsname": "o6bZLc"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 632,
+            "y": 12
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "liS6Hc",
+            "jsname": "F0H8Yc"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 658,
+            "y": 270
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "geS5n Jj6Lae",
+            "jsaction": "EEvAHc:yfX9oc;",
+            "jscontroller": "sWGJ4b",
+            "jsname": "WsjYwc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 387
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "rFrNMe k3kHxc RdH0ib yqQS1 zKHdkd u3bW4e",
+            "jsaction": "clickonly:KjsqPd; focus:Jt1EX; blur:fpfTEe; input:Lg5SV",
+            "jscontroller": "pxq3x",
+            "jsname": "YPqjbf",
+            "jsshadow": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 452
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "aria-hidden": "true",
+            "class": "ndJi5d snByac",
+            "jsname": "LwH6nd"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 468
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "OabDMe cXrdqd Y2Zypf",
+            "jsname": "XmnwAc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 490
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "ovnfwe Is7Fhb",
+            "jsname": "ty6ygf"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 658,
+            "y": 492
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "SL4Sz",
+            "id": "i3",
+            "jsname": "Rfh2Tc",
+            "role": "alert",
+            "style": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 508
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "geS5n",
+            "jsaction": "EEvAHc:yfX9oc;",
+            "jscontroller": "sWGJ4b",
+            "jsname": "WsjYwc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 569
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "rFrNMe k3kHxc RdH0ib yqQS1 zKHdkd",
+            "jsaction": "clickonly:KjsqPd; focus:Jt1EX; blur:fpfTEe; input:Lg5SV",
+            "jscontroller": "pxq3x",
+            "jsname": "YPqjbf",
+            "jsshadow": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 634
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "aria-hidden": "true",
+            "class": "ndJi5d snByac",
+            "jsname": "LwH6nd"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 650
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "OabDMe cXrdqd",
+            "jsname": "XmnwAc"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 805,
+            "y": 672
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "ovnfwe Is7Fhb",
+            "jsname": "ty6ygf"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 658,
+            "y": 674
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "SL4Sz",
+            "id": "i8",
+            "jsname": "Rfh2Tc",
+            "role": "alert",
+            "style": ""
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 0,
+            "y": 6
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "geS5n",
+            "jsaction": "EEvAHc:yfX9oc;",
+            "jscontroller": "sWGJ4b",
+            "jsname": "WsjYwc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 719
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "rFrNMe k3kHxc RdH0ib yqQS1 zKHdkd",
+            "jsaction": "clickonly:KjsqPd; focus:Jt1EX; blur:fpfTEe; input:Lg5SV",
+            "jscontroller": "pxq3x",
+            "jsname": "YPqjbf",
+            "jsshadow": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 784
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "aria-hidden": "true",
+            "class": "ndJi5d snByac",
+            "jsname": "LwH6nd"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 800
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "OabDMe cXrdqd",
+            "jsname": "XmnwAc"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 805,
+            "y": 822
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "ovnfwe Is7Fhb",
+            "jsname": "ty6ygf"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 658,
+            "y": 824
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "SL4Sz",
+            "id": "i13",
+            "jsname": "Rfh2Tc",
+            "role": "alert",
+            "style": ""
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 0,
+            "y": 6
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "uArJ5e UQuaGc YhQJj zo8FOc ctEux M9Bg4d",
+            "jsaction": "click:cOuCgd; mousedown:UX7yZ; mouseup:lbsD7e; mouseenter:tfO1Yc; mouseleave:JywGue;touchstart:p6p2H; touchmove:FwuNnf; touchend:yfqBxc(preventDefault=true); touchcancel:JMtRjd;focus:AHmuwe; blur:O22p3e; contextmenu:mg9Pef;",
+            "jscontroller": "VXdfxd",
+            "jsname": "OCpkoe",
+            "jsshadow": "",
+            "role": "button",
+            "tabindex": "0"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 869
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "Fvio9d MbhUzd",
+            "jsname": "ksKsZd",
+            "style": "top: -14.2031px; left: 45.5px; width: 92px; height: 92px;"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 678,
+            "y": 855
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "uArJ5e UQuaGc kCyAyd l3F1ye TFBnVe",
+            "jsaction": "click:cOuCgd; mousedown:UX7yZ; mouseup:lbsD7e; mouseenter:tfO1Yc; mouseleave:JywGue;touchstart:p6p2H; touchmove:FwuNnf; touchend:yfqBxc(preventDefault=true); touchcancel:JMtRjd;focus:AHmuwe; blur:O22p3e; contextmenu:mg9Pef;",
+            "jscontroller": "VXdfxd",
+            "jsname": "X5DuWc",
+            "jsshadow": "",
+            "role": "button",
+            "tabindex": "0"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 1141,
+            "y": 869
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "Fvio9d MbhUzd",
+            "jsname": "ksKsZd"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 1141,
+            "y": 869
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "VfPpkd-xl07Ob-XxIAqe-OWXEXe-oYxtQd",
+            "data-is-menu-hoisted": "true",
+            "jsaction": "JIbuQc:aj0Jcf(WjL7X); keydown:uYT2Vb(WjL7X);xDliB:oNPcuf;SM8mFd:li9Srb;iFFCZc:NSsOUb;Rld2oe:NSsOUb",
+            "jscontroller": "wg1P6b",
+            "jsname": "hTYMre",
+            "jsshadow": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 5,
+            "y": 898
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "jsname": "WjL7X",
+            "jsslot": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 5,
+            "y": 898
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "VfPpkd-Bz112c-Jh9lGc",
+            "jsname": "s3Eaab"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 5,
+            "y": 898
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "jsname": "U0exHf",
+            "jsslot": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 5,
+            "y": 946
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "jsaction": "rcuQ6b:rcuQ6b;UxRBlf:rcuQ6b;",
+            "jscontroller": "yUS4Lc"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 632,
+            "y": 12
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "geS5n Jj6Lae",
+            "jsaction": "EEvAHc:yfX9oc;",
+            "jscontroller": "sWGJ4b",
+            "jsname": "WsjYwc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 387
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "AgroKb",
+            "jsaction": "rcuQ6b:vZc4S;O22p3e:zjh6rb;b2trFe:eVidQc;sPvj8e:d3sQLd;AHmuwe:h06R8;",
+            "jscontroller": "oCiKKc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 452
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "rFrNMe k3kHxc RdH0ib yqQS1 zKHdkd u3bW4e",
+            "jsaction": "clickonly:KjsqPd; focus:Jt1EX; blur:fpfTEe; input:Lg5SV",
+            "jscontroller": "pxq3x",
+            "jsname": "YPqjbf",
+            "jsshadow": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 452
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "geS5n",
+            "jsaction": "EEvAHc:yfX9oc;",
+            "jscontroller": "sWGJ4b",
+            "jsname": "WsjYwc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 569
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "AgroKb",
+            "jsaction": "rcuQ6b:vZc4S;O22p3e:zjh6rb;b2trFe:eVidQc;sPvj8e:d3sQLd;AHmuwe:h06R8;",
+            "jscontroller": "oCiKKc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 634
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "rFrNMe k3kHxc RdH0ib yqQS1 zKHdkd",
+            "jsaction": "clickonly:KjsqPd; focus:Jt1EX; blur:fpfTEe; input:Lg5SV",
+            "jscontroller": "pxq3x",
+            "jsname": "YPqjbf",
+            "jsshadow": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 634
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "geS5n",
+            "jsaction": "EEvAHc:yfX9oc;",
+            "jscontroller": "sWGJ4b",
+            "jsname": "WsjYwc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 719
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "AgroKb",
+            "jsaction": "rcuQ6b:vZc4S;O22p3e:zjh6rb;b2trFe:eVidQc;sPvj8e:d3sQLd;AHmuwe:h06R8;",
+            "jscontroller": "oCiKKc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 784
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "rFrNMe k3kHxc RdH0ib yqQS1 zKHdkd",
+            "jsaction": "clickonly:KjsqPd; focus:Jt1EX; blur:fpfTEe; input:Lg5SV",
+            "jscontroller": "pxq3x",
+            "jsname": "YPqjbf",
+            "jsshadow": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 784
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "ThHDze",
+            "data-is-receipt-checked": "false",
+            "data-should-execute-invisible-captcha-on-form-submit": "false",
+            "data-shuffle-seed": "-5927931720192042741",
+            "jsaction": "rcuQ6b:npT2md;JIbuQc:qV61Ff(X5DuWc),Gl574d(QR6bsb),V3upec(GeGHKb),HiUbje(M2UYVd),NPBnCf(OCpkoe); keydown:duASZc",
+            "jscontroller": "lSvzH"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 869
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "uArJ5e UQuaGc YhQJj zo8FOc ctEux M9Bg4d",
+            "jsaction": "click:cOuCgd; mousedown:UX7yZ; mouseup:lbsD7e; mouseenter:tfO1Yc; mouseleave:JywGue;touchstart:p6p2H; touchmove:FwuNnf; touchend:yfqBxc(preventDefault=true); touchcancel:JMtRjd;focus:AHmuwe; blur:O22p3e; contextmenu:mg9Pef;",
+            "jscontroller": "VXdfxd",
+            "jsname": "OCpkoe",
+            "jsshadow": "",
+            "role": "button",
+            "tabindex": "0"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 869
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "uArJ5e UQuaGc kCyAyd l3F1ye TFBnVe",
+            "jsaction": "click:cOuCgd; mousedown:UX7yZ; mouseup:lbsD7e; mouseenter:tfO1Yc; mouseleave:JywGue;touchstart:p6p2H; touchmove:FwuNnf; touchend:yfqBxc(preventDefault=true); touchcancel:JMtRjd;focus:AHmuwe; blur:O22p3e; contextmenu:mg9Pef;",
+            "jscontroller": "VXdfxd",
+            "jsname": "X5DuWc",
+            "jsshadow": "",
+            "role": "button",
+            "tabindex": "0"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 1141,
+            "y": 869
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "wJFUN",
+            "data-report-abuse-url": "https://drive.google.com/abuse?id=AKkXjowH44YQ_JtuXE8QAC2HWoGbZmQ8APAsh9I2jGYp5WUVXGIxT_G_Uf0zSelZfxq11N4iFW2VGRKC7wuf2dw:0&docurl=https://docs.google.com/forms/d/e/1FAIpQLSfHfLPVxnFYAGpq2sXbQfQZSrXfRFg4n_TUL59XdEgcDLD6Sw/viewform?usp%3Dsend_form",
+            "data-should-open-contact-owner-dialog": "false",
+            "data-sign-in-url-for-contact-owner": "https://accounts.google.com/Login?continue=https://docs.google.com/forms/d/e/1FAIpQLSfHfLPVxnFYAGpq2sXbQfQZSrXfRFg4n_TUL59XdEgcDLD6Sw/viewform?usp%3Dsend_form%26socod%3Dtrue&service=wise",
+            "data-user-display-name": "",
+            "data-user-email-address": "",
+            "jsaction": "rcuQ6b:npT2md;FzgWvd:PSl28c;iFFCZc:Y0y4c;",
+            "jscontroller": "KFVhZe"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 5,
+            "y": 898
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "VfPpkd-xl07Ob-XxIAqe-OWXEXe-oYxtQd",
+            "data-is-menu-hoisted": "true",
+            "jsaction": "JIbuQc:aj0Jcf(WjL7X); keydown:uYT2Vb(WjL7X);xDliB:oNPcuf;SM8mFd:li9Srb;iFFCZc:NSsOUb;Rld2oe:NSsOUb",
+            "jscontroller": "wg1P6b",
+            "jsname": "hTYMre",
+            "jsshadow": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 5,
+            "y": 898
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "VfPpkd-xl07Ob-XxIAqe VfPpkd-xl07Ob q6oraf P77izf",
+            "data-is-hoisted": "true",
+            "data-menu-uid": "ucj-1",
+            "data-should-flip-corner-horizontally": "false",
+            "data-stay-in-viewport": "false",
+            "jsaction": "keydown:I481le;JIbuQc:j697N(rymPhb);XVaHYd:c9v4Fb(rymPhb);Oyo5M:b5fzT(rymPhb);DimkCe:TQSy7b(rymPhb);m0LGSd:fAWgXe(rymPhb);WAiFGd:kVJJuc(rymPhb);",
+            "jscontroller": "ywOR5c",
+            "style": ""
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 0,
+            "y": 6
+          }
+        }
+      ],
+      "selectors_found": {
+        "div[role='listitem']": 3,
+        "div[data-params]": 3,
+        "div[jsname]": 28,
+        "div[jscontroller]": 16
+      }
+    },
+    {
+      "page_number": 3,
+      "html_file": "C:\\Users\\krono\\OneDrive\\Рабочий стол\\Cursor_test\\ParentChildResearch\\scripts\\..\\data\\raw\\form_analysis\\page_3.html",
+      "question_containers": [],
+      "radio_buttons": [
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "jsname": "o6bZLc"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 632,
+            "y": 12
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "liS6Hc",
+            "jsname": "F0H8Yc"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 658,
+            "y": 270
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "geS5n Jj6Lae",
+            "jsaction": "EEvAHc:yfX9oc;",
+            "jscontroller": "sWGJ4b",
+            "jsname": "WsjYwc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 387
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "rFrNMe k3kHxc RdH0ib yqQS1 zKHdkd u3bW4e",
+            "jsaction": "clickonly:KjsqPd; focus:Jt1EX; blur:fpfTEe; input:Lg5SV",
+            "jscontroller": "pxq3x",
+            "jsname": "YPqjbf",
+            "jsshadow": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 452
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "aria-hidden": "true",
+            "class": "ndJi5d snByac",
+            "jsname": "LwH6nd"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 468
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "OabDMe cXrdqd Y2Zypf",
+            "jsname": "XmnwAc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 490
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "ovnfwe Is7Fhb",
+            "jsname": "ty6ygf"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 658,
+            "y": 492
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "SL4Sz",
+            "id": "i3",
+            "jsname": "Rfh2Tc",
+            "role": "alert",
+            "style": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 508
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "geS5n",
+            "jsaction": "EEvAHc:yfX9oc;",
+            "jscontroller": "sWGJ4b",
+            "jsname": "WsjYwc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 569
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "rFrNMe k3kHxc RdH0ib yqQS1 zKHdkd",
+            "jsaction": "clickonly:KjsqPd; focus:Jt1EX; blur:fpfTEe; input:Lg5SV",
+            "jscontroller": "pxq3x",
+            "jsname": "YPqjbf",
+            "jsshadow": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 634
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "aria-hidden": "true",
+            "class": "ndJi5d snByac",
+            "jsname": "LwH6nd"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 650
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "OabDMe cXrdqd",
+            "jsname": "XmnwAc"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 805,
+            "y": 672
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "ovnfwe Is7Fhb",
+            "jsname": "ty6ygf"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 658,
+            "y": 674
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "SL4Sz",
+            "id": "i8",
+            "jsname": "Rfh2Tc",
+            "role": "alert",
+            "style": ""
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 0,
+            "y": 6
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "geS5n",
+            "jsaction": "EEvAHc:yfX9oc;",
+            "jscontroller": "sWGJ4b",
+            "jsname": "WsjYwc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 719
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "rFrNMe k3kHxc RdH0ib yqQS1 zKHdkd",
+            "jsaction": "clickonly:KjsqPd; focus:Jt1EX; blur:fpfTEe; input:Lg5SV",
+            "jscontroller": "pxq3x",
+            "jsname": "YPqjbf",
+            "jsshadow": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 784
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "aria-hidden": "true",
+            "class": "ndJi5d snByac",
+            "jsname": "LwH6nd"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 800
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "OabDMe cXrdqd",
+            "jsname": "XmnwAc"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 805,
+            "y": 822
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "ovnfwe Is7Fhb",
+            "jsname": "ty6ygf"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 658,
+            "y": 824
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "SL4Sz",
+            "id": "i13",
+            "jsname": "Rfh2Tc",
+            "role": "alert",
+            "style": ""
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 0,
+            "y": 6
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "uArJ5e UQuaGc YhQJj zo8FOc ctEux M9Bg4d",
+            "jsaction": "click:cOuCgd; mousedown:UX7yZ; mouseup:lbsD7e; mouseenter:tfO1Yc; mouseleave:JywGue;touchstart:p6p2H; touchmove:FwuNnf; touchend:yfqBxc(preventDefault=true); touchcancel:JMtRjd;focus:AHmuwe; blur:O22p3e; contextmenu:mg9Pef;",
+            "jscontroller": "VXdfxd",
+            "jsname": "OCpkoe",
+            "jsshadow": "",
+            "role": "button",
+            "tabindex": "0"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 869
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "Fvio9d MbhUzd",
+            "jsname": "ksKsZd",
+            "style": "top: 17.7969px; left: 45.5px; width: 92px; height: 92px;"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 678,
+            "y": 887
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "uArJ5e UQuaGc kCyAyd l3F1ye TFBnVe",
+            "jsaction": "click:cOuCgd; mousedown:UX7yZ; mouseup:lbsD7e; mouseenter:tfO1Yc; mouseleave:JywGue;touchstart:p6p2H; touchmove:FwuNnf; touchend:yfqBxc(preventDefault=true); touchcancel:JMtRjd;focus:AHmuwe; blur:O22p3e; contextmenu:mg9Pef;",
+            "jscontroller": "VXdfxd",
+            "jsname": "X5DuWc",
+            "jsshadow": "",
+            "role": "button",
+            "tabindex": "0"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 1141,
+            "y": 869
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "Fvio9d MbhUzd",
+            "jsname": "ksKsZd"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 1141,
+            "y": 869
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "VfPpkd-xl07Ob-XxIAqe-OWXEXe-oYxtQd",
+            "data-is-menu-hoisted": "true",
+            "jsaction": "JIbuQc:aj0Jcf(WjL7X); keydown:uYT2Vb(WjL7X);xDliB:oNPcuf;SM8mFd:li9Srb;iFFCZc:NSsOUb;Rld2oe:NSsOUb",
+            "jscontroller": "wg1P6b",
+            "jsname": "hTYMre",
+            "jsshadow": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 5,
+            "y": 898
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "jsname": "WjL7X",
+            "jsslot": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 5,
+            "y": 898
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "VfPpkd-Bz112c-Jh9lGc",
+            "jsname": "s3Eaab"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 5,
+            "y": 898
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "jsname": "U0exHf",
+            "jsslot": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 5,
+            "y": 946
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "jsaction": "rcuQ6b:rcuQ6b;UxRBlf:rcuQ6b;",
+            "jscontroller": "yUS4Lc"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 632,
+            "y": 12
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "geS5n Jj6Lae",
+            "jsaction": "EEvAHc:yfX9oc;",
+            "jscontroller": "sWGJ4b",
+            "jsname": "WsjYwc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 387
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "AgroKb",
+            "jsaction": "rcuQ6b:vZc4S;O22p3e:zjh6rb;b2trFe:eVidQc;sPvj8e:d3sQLd;AHmuwe:h06R8;",
+            "jscontroller": "oCiKKc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 452
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "rFrNMe k3kHxc RdH0ib yqQS1 zKHdkd",
+            "jsaction": "clickonly:KjsqPd; focus:Jt1EX; blur:fpfTEe; input:Lg5SV",
+            "jscontroller": "pxq3x",
+            "jsname": "YPqjbf",
+            "jsshadow": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 452
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "geS5n",
+            "jsaction": "EEvAHc:yfX9oc;",
+            "jscontroller": "sWGJ4b",
+            "jsname": "WsjYwc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 569
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "AgroKb",
+            "jsaction": "rcuQ6b:vZc4S;O22p3e:zjh6rb;b2trFe:eVidQc;sPvj8e:d3sQLd;AHmuwe:h06R8;",
+            "jscontroller": "oCiKKc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 634
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "rFrNMe k3kHxc RdH0ib yqQS1 zKHdkd",
+            "jsaction": "clickonly:KjsqPd; focus:Jt1EX; blur:fpfTEe; input:Lg5SV",
+            "jscontroller": "pxq3x",
+            "jsname": "YPqjbf",
+            "jsshadow": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 634
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "geS5n",
+            "jsaction": "EEvAHc:yfX9oc;",
+            "jscontroller": "sWGJ4b",
+            "jsname": "WsjYwc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 719
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "AgroKb",
+            "jsaction": "rcuQ6b:vZc4S;O22p3e:zjh6rb;b2trFe:eVidQc;sPvj8e:d3sQLd;AHmuwe:h06R8;",
+            "jscontroller": "oCiKKc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 784
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "rFrNMe k3kHxc RdH0ib yqQS1 zKHdkd",
+            "jsaction": "clickonly:KjsqPd; focus:Jt1EX; blur:fpfTEe; input:Lg5SV",
+            "jscontroller": "pxq3x",
+            "jsname": "YPqjbf",
+            "jsshadow": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 784
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "ThHDze",
+            "data-is-receipt-checked": "false",
+            "data-should-execute-invisible-captcha-on-form-submit": "false",
+            "data-shuffle-seed": "-5927931720192042741",
+            "jsaction": "rcuQ6b:npT2md;JIbuQc:qV61Ff(X5DuWc),Gl574d(QR6bsb),V3upec(GeGHKb),HiUbje(M2UYVd),NPBnCf(OCpkoe); keydown:duASZc",
+            "jscontroller": "lSvzH"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 869
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "uArJ5e UQuaGc YhQJj zo8FOc ctEux M9Bg4d",
+            "jsaction": "click:cOuCgd; mousedown:UX7yZ; mouseup:lbsD7e; mouseenter:tfO1Yc; mouseleave:JywGue;touchstart:p6p2H; touchmove:FwuNnf; touchend:yfqBxc(preventDefault=true); touchcancel:JMtRjd;focus:AHmuwe; blur:O22p3e; contextmenu:mg9Pef;",
+            "jscontroller": "VXdfxd",
+            "jsname": "OCpkoe",
+            "jsshadow": "",
+            "role": "button",
+            "tabindex": "0"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 869
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "uArJ5e UQuaGc kCyAyd l3F1ye TFBnVe",
+            "jsaction": "click:cOuCgd; mousedown:UX7yZ; mouseup:lbsD7e; mouseenter:tfO1Yc; mouseleave:JywGue;touchstart:p6p2H; touchmove:FwuNnf; touchend:yfqBxc(preventDefault=true); touchcancel:JMtRjd;focus:AHmuwe; blur:O22p3e; contextmenu:mg9Pef;",
+            "jscontroller": "VXdfxd",
+            "jsname": "X5DuWc",
+            "jsshadow": "",
+            "role": "button",
+            "tabindex": "0"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 1141,
+            "y": 869
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "wJFUN",
+            "data-report-abuse-url": "https://drive.google.com/abuse?id=AKkXjowH44YQ_JtuXE8QAC2HWoGbZmQ8APAsh9I2jGYp5WUVXGIxT_G_Uf0zSelZfxq11N4iFW2VGRKC7wuf2dw:0&docurl=https://docs.google.com/forms/d/e/1FAIpQLSfHfLPVxnFYAGpq2sXbQfQZSrXfRFg4n_TUL59XdEgcDLD6Sw/viewform?usp%3Dsend_form",
+            "data-should-open-contact-owner-dialog": "false",
+            "data-sign-in-url-for-contact-owner": "https://accounts.google.com/Login?continue=https://docs.google.com/forms/d/e/1FAIpQLSfHfLPVxnFYAGpq2sXbQfQZSrXfRFg4n_TUL59XdEgcDLD6Sw/viewform?usp%3Dsend_form%26socod%3Dtrue&service=wise",
+            "data-user-display-name": "",
+            "data-user-email-address": "",
+            "jsaction": "rcuQ6b:npT2md;FzgWvd:PSl28c;iFFCZc:Y0y4c;",
+            "jscontroller": "KFVhZe"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 5,
+            "y": 898
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "VfPpkd-xl07Ob-XxIAqe-OWXEXe-oYxtQd",
+            "data-is-menu-hoisted": "true",
+            "jsaction": "JIbuQc:aj0Jcf(WjL7X); keydown:uYT2Vb(WjL7X);xDliB:oNPcuf;SM8mFd:li9Srb;iFFCZc:NSsOUb;Rld2oe:NSsOUb",
+            "jscontroller": "wg1P6b",
+            "jsname": "hTYMre",
+            "jsshadow": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 5,
+            "y": 898
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "VfPpkd-xl07Ob-XxIAqe VfPpkd-xl07Ob q6oraf P77izf",
+            "data-is-hoisted": "true",
+            "data-menu-uid": "ucj-1",
+            "data-should-flip-corner-horizontally": "false",
+            "data-stay-in-viewport": "false",
+            "jsaction": "keydown:I481le;JIbuQc:j697N(rymPhb);XVaHYd:c9v4Fb(rymPhb);Oyo5M:b5fzT(rymPhb);DimkCe:TQSy7b(rymPhb);m0LGSd:fAWgXe(rymPhb);WAiFGd:kVJJuc(rymPhb);",
+            "jscontroller": "ywOR5c",
+            "style": ""
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 0,
+            "y": 6
+          }
+        }
+      ],
+      "selectors_found": {
+        "div[role='listitem']": 3,
+        "div[data-params]": 3,
+        "div[jsname]": 28,
+        "div[jscontroller]": 16
+      }
+    },
+    {
+      "page_number": 4,
+      "html_file": "C:\\Users\\krono\\OneDrive\\Рабочий стол\\Cursor_test\\ParentChildResearch\\scripts\\..\\data\\raw\\form_analysis\\page_4.html",
+      "question_containers": [],
+      "radio_buttons": [
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "jsname": "o6bZLc"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 632,
+            "y": 12
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "liS6Hc",
+            "jsname": "F0H8Yc"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 658,
+            "y": 270
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "geS5n Jj6Lae",
+            "jsaction": "EEvAHc:yfX9oc;",
+            "jscontroller": "sWGJ4b",
+            "jsname": "WsjYwc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 387
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "rFrNMe k3kHxc RdH0ib yqQS1 zKHdkd u3bW4e",
+            "jsaction": "clickonly:KjsqPd; focus:Jt1EX; blur:fpfTEe; input:Lg5SV",
+            "jscontroller": "pxq3x",
+            "jsname": "YPqjbf",
+            "jsshadow": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 452
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "aria-hidden": "true",
+            "class": "ndJi5d snByac",
+            "jsname": "LwH6nd"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 468
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "OabDMe cXrdqd Y2Zypf",
+            "jsname": "XmnwAc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 490
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "ovnfwe Is7Fhb",
+            "jsname": "ty6ygf"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 658,
+            "y": 492
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "SL4Sz",
+            "id": "i3",
+            "jsname": "Rfh2Tc",
+            "role": "alert",
+            "style": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 508
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "geS5n",
+            "jsaction": "EEvAHc:yfX9oc;",
+            "jscontroller": "sWGJ4b",
+            "jsname": "WsjYwc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 569
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "rFrNMe k3kHxc RdH0ib yqQS1 zKHdkd",
+            "jsaction": "clickonly:KjsqPd; focus:Jt1EX; blur:fpfTEe; input:Lg5SV",
+            "jscontroller": "pxq3x",
+            "jsname": "YPqjbf",
+            "jsshadow": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 634
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "aria-hidden": "true",
+            "class": "ndJi5d snByac",
+            "jsname": "LwH6nd"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 650
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "OabDMe cXrdqd",
+            "jsname": "XmnwAc"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 805,
+            "y": 672
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "ovnfwe Is7Fhb",
+            "jsname": "ty6ygf"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 658,
+            "y": 674
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "SL4Sz",
+            "id": "i8",
+            "jsname": "Rfh2Tc",
+            "role": "alert",
+            "style": ""
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 0,
+            "y": 6
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "geS5n",
+            "jsaction": "EEvAHc:yfX9oc;",
+            "jscontroller": "sWGJ4b",
+            "jsname": "WsjYwc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 719
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "rFrNMe k3kHxc RdH0ib yqQS1 zKHdkd",
+            "jsaction": "clickonly:KjsqPd; focus:Jt1EX; blur:fpfTEe; input:Lg5SV",
+            "jscontroller": "pxq3x",
+            "jsname": "YPqjbf",
+            "jsshadow": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 784
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "aria-hidden": "true",
+            "class": "ndJi5d snByac",
+            "jsname": "LwH6nd"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 800
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "OabDMe cXrdqd",
+            "jsname": "XmnwAc"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 805,
+            "y": 822
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "ovnfwe Is7Fhb",
+            "jsname": "ty6ygf"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 658,
+            "y": 824
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "SL4Sz",
+            "id": "i13",
+            "jsname": "Rfh2Tc",
+            "role": "alert",
+            "style": ""
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 0,
+            "y": 6
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "uArJ5e UQuaGc YhQJj zo8FOc ctEux M9Bg4d",
+            "jsaction": "click:cOuCgd; mousedown:UX7yZ; mouseup:lbsD7e; mouseenter:tfO1Yc; mouseleave:JywGue;touchstart:p6p2H; touchmove:FwuNnf; touchend:yfqBxc(preventDefault=true); touchcancel:JMtRjd;focus:AHmuwe; blur:O22p3e; contextmenu:mg9Pef;",
+            "jscontroller": "VXdfxd",
+            "jsname": "OCpkoe",
+            "jsshadow": "",
+            "role": "button",
+            "tabindex": "0"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 869
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "Fvio9d MbhUzd",
+            "jsname": "ksKsZd",
+            "style": "top: 17.7969px; left: 45.5px; width: 92px; height: 92px;"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 678,
+            "y": 887
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "uArJ5e UQuaGc kCyAyd l3F1ye TFBnVe",
+            "jsaction": "click:cOuCgd; mousedown:UX7yZ; mouseup:lbsD7e; mouseenter:tfO1Yc; mouseleave:JywGue;touchstart:p6p2H; touchmove:FwuNnf; touchend:yfqBxc(preventDefault=true); touchcancel:JMtRjd;focus:AHmuwe; blur:O22p3e; contextmenu:mg9Pef;",
+            "jscontroller": "VXdfxd",
+            "jsname": "X5DuWc",
+            "jsshadow": "",
+            "role": "button",
+            "tabindex": "0"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 1141,
+            "y": 869
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "Fvio9d MbhUzd",
+            "jsname": "ksKsZd"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 1141,
+            "y": 869
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "VfPpkd-xl07Ob-XxIAqe-OWXEXe-oYxtQd",
+            "data-is-menu-hoisted": "true",
+            "jsaction": "JIbuQc:aj0Jcf(WjL7X); keydown:uYT2Vb(WjL7X);xDliB:oNPcuf;SM8mFd:li9Srb;iFFCZc:NSsOUb;Rld2oe:NSsOUb",
+            "jscontroller": "wg1P6b",
+            "jsname": "hTYMre",
+            "jsshadow": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 5,
+            "y": 898
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "jsname": "WjL7X",
+            "jsslot": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 5,
+            "y": 898
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "class": "VfPpkd-Bz112c-Jh9lGc",
+            "jsname": "s3Eaab"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 5,
+            "y": 898
+          }
+        },
+        {
+          "selector": "div[jsname]",
+          "tag": "div",
+          "attributes": {
+            "jsname": "U0exHf",
+            "jsslot": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 5,
+            "y": 946
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "jsaction": "rcuQ6b:rcuQ6b;UxRBlf:rcuQ6b;",
+            "jscontroller": "yUS4Lc"
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 632,
+            "y": 12
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "geS5n Jj6Lae",
+            "jsaction": "EEvAHc:yfX9oc;",
+            "jscontroller": "sWGJ4b",
+            "jsname": "WsjYwc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 387
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "AgroKb",
+            "jsaction": "rcuQ6b:vZc4S;O22p3e:zjh6rb;b2trFe:eVidQc;sPvj8e:d3sQLd;AHmuwe:h06R8;",
+            "jscontroller": "oCiKKc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 452
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "rFrNMe k3kHxc RdH0ib yqQS1 zKHdkd u3bW4e",
+            "jsaction": "clickonly:KjsqPd; focus:Jt1EX; blur:fpfTEe; input:Lg5SV",
+            "jscontroller": "pxq3x",
+            "jsname": "YPqjbf",
+            "jsshadow": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 452
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "geS5n",
+            "jsaction": "EEvAHc:yfX9oc;",
+            "jscontroller": "sWGJ4b",
+            "jsname": "WsjYwc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 569
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "AgroKb",
+            "jsaction": "rcuQ6b:vZc4S;O22p3e:zjh6rb;b2trFe:eVidQc;sPvj8e:d3sQLd;AHmuwe:h06R8;",
+            "jscontroller": "oCiKKc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 634
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "rFrNMe k3kHxc RdH0ib yqQS1 zKHdkd",
+            "jsaction": "clickonly:KjsqPd; focus:Jt1EX; blur:fpfTEe; input:Lg5SV",
+            "jscontroller": "pxq3x",
+            "jsname": "YPqjbf",
+            "jsshadow": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 634
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "geS5n",
+            "jsaction": "EEvAHc:yfX9oc;",
+            "jscontroller": "sWGJ4b",
+            "jsname": "WsjYwc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 719
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "AgroKb",
+            "jsaction": "rcuQ6b:vZc4S;O22p3e:zjh6rb;b2trFe:eVidQc;sPvj8e:d3sQLd;AHmuwe:h06R8;",
+            "jscontroller": "oCiKKc"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 784
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "rFrNMe k3kHxc RdH0ib yqQS1 zKHdkd",
+            "jsaction": "clickonly:KjsqPd; focus:Jt1EX; blur:fpfTEe; input:Lg5SV",
+            "jscontroller": "pxq3x",
+            "jsname": "YPqjbf",
+            "jsshadow": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 658,
+            "y": 784
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "ThHDze",
+            "data-is-receipt-checked": "false",
+            "data-should-execute-invisible-captcha-on-form-submit": "false",
+            "data-shuffle-seed": "-5927931720192042741",
+            "jsaction": "rcuQ6b:npT2md;JIbuQc:qV61Ff(X5DuWc),Gl574d(QR6bsb),V3upec(GeGHKb),HiUbje(M2UYVd),NPBnCf(OCpkoe); keydown:duASZc",
+            "jscontroller": "lSvzH"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 869
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "uArJ5e UQuaGc YhQJj zo8FOc ctEux M9Bg4d",
+            "jsaction": "click:cOuCgd; mousedown:UX7yZ; mouseup:lbsD7e; mouseenter:tfO1Yc; mouseleave:JywGue;touchstart:p6p2H; touchmove:FwuNnf; touchend:yfqBxc(preventDefault=true); touchcancel:JMtRjd;focus:AHmuwe; blur:O22p3e; contextmenu:mg9Pef;",
+            "jscontroller": "VXdfxd",
+            "jsname": "OCpkoe",
+            "jsshadow": "",
+            "role": "button",
+            "tabindex": "0"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 632,
+            "y": 869
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "uArJ5e UQuaGc kCyAyd l3F1ye TFBnVe",
+            "jsaction": "click:cOuCgd; mousedown:UX7yZ; mouseup:lbsD7e; mouseenter:tfO1Yc; mouseleave:JywGue;touchstart:p6p2H; touchmove:FwuNnf; touchend:yfqBxc(preventDefault=true); touchcancel:JMtRjd;focus:AHmuwe; blur:O22p3e; contextmenu:mg9Pef;",
+            "jscontroller": "VXdfxd",
+            "jsname": "X5DuWc",
+            "jsshadow": "",
+            "role": "button",
+            "tabindex": "0"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 1141,
+            "y": 869
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "wJFUN",
+            "data-report-abuse-url": "https://drive.google.com/abuse?id=AKkXjowH44YQ_JtuXE8QAC2HWoGbZmQ8APAsh9I2jGYp5WUVXGIxT_G_Uf0zSelZfxq11N4iFW2VGRKC7wuf2dw:0&docurl=https://docs.google.com/forms/d/e/1FAIpQLSfHfLPVxnFYAGpq2sXbQfQZSrXfRFg4n_TUL59XdEgcDLD6Sw/viewform?usp%3Dsend_form",
+            "data-should-open-contact-owner-dialog": "false",
+            "data-sign-in-url-for-contact-owner": "https://accounts.google.com/Login?continue=https://docs.google.com/forms/d/e/1FAIpQLSfHfLPVxnFYAGpq2sXbQfQZSrXfRFg4n_TUL59XdEgcDLD6Sw/viewform?usp%3Dsend_form%26socod%3Dtrue&service=wise",
+            "data-user-display-name": "",
+            "data-user-email-address": "",
+            "jsaction": "rcuQ6b:npT2md;FzgWvd:PSl28c;iFFCZc:Y0y4c;",
+            "jscontroller": "KFVhZe"
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 5,
+            "y": 898
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "VfPpkd-xl07Ob-XxIAqe-OWXEXe-oYxtQd",
+            "data-is-menu-hoisted": "true",
+            "jsaction": "JIbuQc:aj0Jcf(WjL7X); keydown:uYT2Vb(WjL7X);xDliB:oNPcuf;SM8mFd:li9Srb;iFFCZc:NSsOUb;Rld2oe:NSsOUb",
+            "jscontroller": "wg1P6b",
+            "jsname": "hTYMre",
+            "jsshadow": ""
+          },
+          "is_displayed": true,
+          "location": {
+            "x": 5,
+            "y": 898
+          }
+        },
+        {
+          "selector": "div[jscontroller]",
+          "tag": "div",
+          "attributes": {
+            "class": "VfPpkd-xl07Ob-XxIAqe VfPpkd-xl07Ob q6oraf P77izf",
+            "data-is-hoisted": "true",
+            "data-menu-uid": "ucj-1",
+            "data-should-flip-corner-horizontally": "false",
+            "data-stay-in-viewport": "false",
+            "jsaction": "keydown:I481le;JIbuQc:j697N(rymPhb);XVaHYd:c9v4Fb(rymPhb);Oyo5M:b5fzT(rymPhb);DimkCe:TQSy7b(rymPhb);m0LGSd:fAWgXe(rymPhb);WAiFGd:kVJJuc(rymPhb);",
+            "jscontroller": "ywOR5c",
+            "style": ""
+          },
+          "is_displayed": false,
+          "location": {
+            "x": 0,
+            "y": 6
+          }
+        }
+      ],
+      "selectors_found": {
+        "div[role='listitem']": 3,
+        "div[data-params]": 3,
+        "div[jsname]": 28,
+        "div[jscontroller]": 16
+      }
+    }
+  ]
+}

@@ -6,25 +6,14 @@ logs/
 bot.db
 *.db
 
-# Local / temp projects (see Main_docs/RULES_CURSOR.md)
-ParentChildResearch/
-PastuhiBot/
+# Отдельный репозиторий VPN — не дублировать в монорепо
+Projects/VPN/
 
-# Not in monorepo ? local copies only
-Projects/Damir/
-Projects/Chess/
-Projects/HH/
-Projects/Work/
-Projects/Transcribator/
-Projects/n8n/
-
-# Separate Git repos (clones live elsewhere)
-xxx/
-VPN/
+# Прочее локальное у корня (не архив)
 TestN8N/
 HeadHunterAutomation/
 
-# Root-only n8n folder (do not ignore Projects/TradeTherapyBot/n8n)
+# Корневой n8n (не путать с архивом TradeTherapyBot внутри Non actual)
 /n8n/
 
 /n8n/credentials/*.json
@@ -32,24 +21,23 @@ HeadHunterAutomation/
 !/n8n/credentials/.gitkeep
 !/n8n/credentials/*.example.json
 
-# DB check scripts (local)
+# Скрипты проверки БД (локально)
 check_db*.py
 check_db*.bat
 check_db*.ps1
 check_db*.sh
 check_db*.txt
-Projects/TradeTherapyBot/check_db*.py
-Projects/TradeTherapyBot/check_db*.bat
-Projects/TradeTherapyBot/check_db*.ps1
-Projects/TradeTherapyBot/check_db*.sh
-Projects/TradeTherapyBot/check_db*.txt
+Projects/Non actual/TradeTherapyBot/check_db*.py
+Projects/Non actual/TradeTherapyBot/check_db*.bat
+Projects/Non actual/TradeTherapyBot/check_db*.ps1
+Projects/Non actual/TradeTherapyBot/check_db*.sh
+Projects/Non actual/TradeTherapyBot/check_db*.txt
 
-# Local scratch scripts
 transpose_helper.py
 analyze_correlations_full.py
 ROAD_MAP_AI.md
 
-# testn8n drafts under shared docs/
+# Черновики testn8n в общих docs/
 docs/testn8n-*.md
 docs/why-files-yellow.md
 docs/yellow-files-explanation.md

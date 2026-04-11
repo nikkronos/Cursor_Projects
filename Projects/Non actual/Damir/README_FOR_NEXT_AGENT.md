@@ -1,0 +1,24 @@
+# Инструкция для агента — Damir
+
+## Проект
+Виджет для торгового терминала Т-Инвестиции: таблица фьючерсов (название, цена закрытия, цена открытия, изменение %), настройки выбора фьючерсов.
+
+**Актуально (2026-04-04):** прод на Timeweb **выключен** (`futures_auction.service` — `stop` + `disable`). Инструкция для передачи проекта: `TRANSFER_OTHER_PERSON.md` (и `.pdf`). Последняя сессия: `SESSION_SUMMARY_2026-04-04.md`.
+
+## Перед началом
+1. Прочитай ROADMAP_DAMIR.md, DONE_LIST_DAMIR.md, последний SESSION_SUMMARY_*.md.
+2. Изучи docs/agent-onboarding.md и docs/specs/widget-futures-table.md.
+
+## API
+- [T-Invest API](https://developer.tbank.ru/invest/intro/intro/) — gRPC/REST, токен обязателен.
+- InstrumentsService: Futures — список фьючерсов.
+- MarketDataService: GetCandles — дневные свечи (open, close).
+- Токен и sandbox/prod — из переменных окружения (env_vars.txt / .env).
+
+## Правила
+- Секреты не коммитить, не хардкодить.
+- Проект ведётся в отдельном репозитории `nikkronos/Futures_auction`; изменения коммитятся туда.
+
+---
+
+**См. также:** RULES_CURSOR.md в корне репозитория.

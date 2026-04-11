@@ -7,20 +7,20 @@
 ```
 Прочитай Main_docs/RULES_CURSOR.md - общие правила работы с проектами.
 
-Определи, с каким проектом работаем (TradeTherapyBot, PastuhiBot, VPN, Damir, HH, Chess, n8n).
+Определи, с каким проектом работаем (VPN в `Projects/VPN/`; архив: TradeTherapyBot, PastuhiBot, Damir, xxx, Limits, HH, Chess — в `Projects/Non actual/ИМЯ/`).
 
-Изучи проект в папке Projects/ИМЯПРОЕКТА/:
+Изучи проект в папке `Projects/Non actual/ИМЯПРОЕКТА/` (архив) или `Projects/VPN/` (активный VPN), либо другом актуальном пути из Main_docs/PROJECTS.md:
 1. ROADMAP_ИМЯПРОЕКТА.md - что в планах
 2. DONE_LIST_ИМЯПРОЕКТА.md - что уже сделано
 3. SESSION_SUMMARY_ДАТА.md - последняя сессия
 
-Прочитай базу знаний в папке Projects/ИМЯПРОЕКТА/docs/ проекта.
+Прочитай базу знаний в папке …/docs/ этого проекта (для архива обычно `Projects/Non actual/ИМЯПРОЕКТА/docs/`).
 
 Есть задача: [ОПИШИ СВОЮ ЗАДАЧУ]
 
 Используй workflow:
-1. Читай Projects/ИМЯПРОЕКТА/docs/agent-onboarding.md
-2. Создай спек в Projects/ИМЯПРОЕКТА/docs/specs/ используя spec-template.md
+1. Читай …/docs/agent-onboarding.md в каталоге проекта
+2. Создай спек в …/docs/specs/ используя spec-template.md (шаблон можно взять из архива TradeTherapyBot: `Projects/Non actual/TradeTherapyBot/docs/specs/spec-template.md`)
 3. Задай мне вопросы
 4. Проведи самооценку решения (риски, альтернативы)
 5. Создай чеклист для самопроверки

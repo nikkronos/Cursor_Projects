@@ -74,7 +74,7 @@ ssh root@<IP_ADDRESS>
   - Путь: `/opt/futures_auction`  
   - systemd: `futures_auction.service`  
   - **С 2026-04-04:** сервис остановлен и отключён от автозапуска (`stop` + `disable`); URL `http://81.200.146.32:5000/` снаружи недоступен (`ERR_CONNECTION_REFUSED`), пока снова не выполнят `enable` + `start`.  
-  - Описание и детали: `Projects/Damir/README.md`, передача проекта: `Projects/Damir/TRANSFER_OTHER_PERSON.md`, сессия: `Projects/Damir/SESSION_SUMMARY_2026-04-04.md`
+  - Описание и детали: `Projects/Non actual/Damir/README.md`, передача проекта: `Projects/Non actual/Damir/TRANSFER_OTHER_PERSON.md`, сессия: `Projects/Non actual/Damir/SESSION_SUMMARY_2026-04-04.md`
 
 - **VPN мониторинг (панель проекта VPN)**  
   - **С 2026-04-11:** панель перенесена на **Fornex** (`http://185.21.8.91:5001/`); на Timeweb **`vpn-web.service` отключён** — URL `http://81.200.146.32:5001/` **не** обслуживается.  

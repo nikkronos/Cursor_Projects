@@ -1,0 +1,249 @@
+{
+  "last_processed_index": 40,
+  "successful_count": 40,
+  "failed_count": 0,
+  "successful_submissions": [
+    {
+      "index": 1,
+      "name": "Георгиади Ангелина",
+      "timestamp": "2025-12-15T15:10:29.498862",
+      "status": "success"
+    },
+    {
+      "index": 2,
+      "name": "Мой",
+      "timestamp": "2025-12-15T15:14:15.280194",
+      "status": "success"
+    },
+    {
+      "index": 3,
+      "name": "Анна Перейро",
+      "timestamp": "2025-12-15T15:18:33.839560",
+      "status": "success"
+    },
+    {
+      "index": 4,
+      "name": "Воробьёв Тимофей",
+      "timestamp": "2025-12-15T15:23:35.186748",
+      "status": "success"
+    },
+    {
+      "index": 5,
+      "name": "Волков Артём",
+      "timestamp": "2025-12-15T15:29:05.576695",
+      "status": "success"
+    },
+    {
+      "index": 6,
+      "name": "Семенова Милана",
+      "timestamp": "2025-12-15T15:34:45.936989",
+      "status": "success"
+    },
+    {
+      "index": 7,
+      "name": "Новиков Иван",
+      "timestamp": "2025-12-15T15:40:43.968951",
+      "status": "success"
+    },
+    {
+      "index": 8,
+      "name": "Кучин Матвей",
+      "timestamp": "2025-12-15T15:46:26.797643",
+      "status": "success"
+    },
+    {
+      "index": 9,
+      "name": "Соколов Сергей",
+      "timestamp": "2025-12-15T15:52:40.485475",
+      "status": "success"
+    },
+    {
+      "index": 10,
+      "name": "Соловьёва Ксения",
+      "timestamp": "2025-12-15T15:57:01.786814",
+      "status": "success"
+    },
+    {
+      "index": 11,
+      "name": "Семенова Елена",
+      "timestamp": "2025-12-15T16:02:12.977590",
+      "status": "success"
+    },
+    {
+      "index": 12,
+      "name": "Зайцев Марк",
+      "timestamp": "2025-12-15T16:08:50.923384",
+      "status": "success"
+    },
+    {
+      "index": 13,
+      "name": "Смирнов Фёдор",
+      "timestamp": "2025-12-15T16:13:18.627362",
+      "status": "success"
+    },
+    {
+      "index": 14,
+      "name": "Морозова Виктория",
+      "timestamp": "2025-12-15T16:18:12.995245",
+      "status": "success"
+    },
+    {
+      "index": 15,
+      "name": "Кац Екатерина",
+      "timestamp": "2025-12-15T16:23:55.071814",
+      "status": "success"
+    },
+    {
+      "index": 16,
+      "name": "Крылов Тимофей",
+      "timestamp": "2025-12-15T16:28:34.276128",
+      "status": "success"
+    },
+    {
+      "index": 17,
+      "name": "Павлова Елена",
+      "timestamp": "2025-12-15T16:32:22.164739",
+      "status": "success"
+    },
+    {
+      "index": 18,
+      "name": "Кабанов Марк",
+      "timestamp": "2025-12-15T16:35:54.657317",
+      "status": "success"
+    },
+    {
+      "index": 19,
+      "name": "Козлов Сергей",
+      "timestamp": "2025-12-15T16:39:33.304213",
+      "status": "success"
+    },
+    {
+      "index": 20,
+      "name": "Жуков Богдан",
+      "timestamp": "2025-12-15T16:43:12.023370",
+      "status": "success"
+    },
+    {
+      "index": 21,
+      "name": "Попова Юлия",
+      "timestamp": "2025-12-15T16:46:46.473314",
+      "status": "success"
+    },
+    {
+      "index": 22,
+      "name": "Фрегатова Вероника",
+      "timestamp": "2025-12-15T16:51:03.608208",
+      "status": "success"
+    },
+    {
+      "index": 23,
+      "name": "Волков Михаил",
+      "timestamp": "2025-12-15T16:54:52.741766",
+      "status": "success"
+    },
+    {
+      "index": 24,
+      "name": "Голубева Арина",
+      "timestamp": "2025-12-15T16:58:32.428240",
+      "status": "success"
+    },
+    {
+      "index": 25,
+      "name": "Новикова Елена",
+      "timestamp": "2025-12-15T17:02:03.902442",
+      "status": "success"
+    },
+    {
+      "index": 26,
+      "name": "Кузнецова София",
+      "timestamp": "2025-12-15T17:05:41.575649",
+      "status": "success"
+    },
+    {
+      "index": 27,
+      "name": "Козлова Маргарита",
+      "timestamp": "2025-12-15T17:09:17.451208",
+      "status": "success"
+    },
+    {
+      "index": 28,
+      "name": "Иванова Марина",
+      "timestamp": "2025-12-15T17:12:55.140169",
+      "status": "success"
+    },
+    {
+      "index": 29,
+      "name": "Лебедева Ольга",
+      "timestamp": "2025-12-15T17:16:31.671523",
+      "status": "success"
+    },
+    {
+      "index": 30,
+      "name": "Волкич Сергей",
+      "timestamp": "2025-12-15T17:20:07.146948",
+      "status": "success"
+    },
+    {
+      "index": 31,
+      "name": "Морозов Богдан",
+      "timestamp": "2025-12-15T17:23:48.856998",
+      "status": "success"
+    },
+    {
+      "index": 32,
+      "name": "Кузнецова Александра",
+      "timestamp": "2025-12-15T17:27:30.988400",
+      "status": "success"
+    },
+    {
+      "index": 33,
+      "name": "Павлов Даниил",
+      "timestamp": "2025-12-15T17:31:05.156975",
+      "status": "success"
+    },
+    {
+      "index": 34,
+      "name": "Волкова Арина",
+      "timestamp": "2025-12-15T17:34:45.072355",
+      "status": "success"
+    },
+    {
+      "index": 35,
+      "name": "Богданова Виктория",
+      "timestamp": "2025-12-15T17:38:27.013981",
+      "status": "success"
+    },
+    {
+      "index": 36,
+      "name": "Петрова Алиса",
+      "timestamp": "2025-12-15T17:42:07.052641",
+      "status": "success"
+    },
+    {
+      "index": 37,
+      "name": "Жебин Никита",
+      "timestamp": "2025-12-15T17:45:40.373934",
+      "status": "success"
+    },
+    {
+      "index": 38,
+      "name": "Васильева Екатерина",
+      "timestamp": "2025-12-15T17:49:21.741223",
+      "status": "success"
+    },
+    {
+      "index": 39,
+      "name": "Лебедев Ярослав",
+      "timestamp": "2025-12-15T17:53:02.183259",
+      "status": "success"
+    },
+    {
+      "index": 40,
+      "name": "Петрова Виктория",
+      "timestamp": "2025-12-15T17:56:44.309452",
+      "status": "success"
+    }
+  ],
+  "failed_submissions": [],
+  "last_update": "2025-12-15T18:00:25.331100"
+}
