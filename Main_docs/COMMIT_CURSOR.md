@@ -2,16 +2,16 @@
 
 ## Репозиторий Git в корне `Cursor_Projects`
 
-- **`origin`** — **`https://github.com/nikkronos/Cursor_Projectcs.git`**: общий монорепозиторий на GitHub (`Main_docs/`, `Projects/`, и т.д.). Имя репозитория на сайте — **`Cursor_Projectcs`** (окончание `cs`, не `Projects`); локальная папка на диске по-прежнему часто **`Cursor_Projects`**. Команды в корне: `git push origin main` отправляют сюда.
+- **`origin`** — **`https://github.com/nikkronos/Cursor_Projects.git`**: общий монорепозиторий на GitHub (`Main_docs/`, `Projects/`, и т.д.). Имя репозитория на сайте — **`Cursor_Projects`** (совпадает с типичным именем локальной папки). Старый URL `…/Cursor_Projectcs.git` GitHub перенаправляет сюда; для `git remote set-url` и новых клонов используй **`Cursor_Projects`**. Команды в корне: `git push origin main` отправляют сюда.
 - **`nikkronos/TradeTherapyBot`** — **отдельный** репозиторий кода бота. В корневом клоне `Cursor_Projects` он подключён как дополнительный remote **`tradetherapybot`**, а не как `origin`. Явно: `git fetch tradetherapybot`, `git push tradetherapybot …` — только если нужно взаимодействовать с репозиторием TradeTherapyBot; **не подменяй им `origin`**, иначе пуш уйдёт не в тот репозиторий.
-- Если **`git fetch origin`** выдаёт **`Repository not found`**: проверь URL (`…/Cursor_Projectcs.git`), приватность репозитория и вход (`gh auth login`, PAT в Windows) или SSH (`git@github.com:nikkronos/Cursor_Projectcs.git`).
+- Если **`git fetch origin`** выдаёт **`Repository not found`**: проверь URL (`…/Cursor_Projects.git`), приватность репозитория и вход (`gh auth login`, PAT в Windows) или SSH (`git@github.com:nikkronos/Cursor_Projects.git`).
 
 ### GitHub: заново залогиниться после отзыва токенов
 
 Если **`Invalid username or token` / `Password authentication is not supported`**: старый PAT в Windows больше не действует. Сделай одно из:
 
 1. **`gh auth login`** (рекомендуется) и снова `git push origin main`.
-2. Либо **Параметры Windows → Учётные записи → Диспетчер учётных данных** — удали сохранённые пароли для `git:https://github.com`, затем при следующем `git push` введи **новый** fine-grained/classic PAT с правом `Contents: Read and write` для репо `Cursor_Projectcs`.
+2. Либо **Параметры Windows → Учётные записи → Диспетчер учётных данных** — удали сохранённые пароли для `git:https://github.com`, затем при следующем `git push` введи **новый** fine-grained/classic PAT с правом `Contents: Read and write` для репо `Cursor_Projects`.
 
 ### Push protection (GH013): «Push cannot contain secrets»
 
@@ -117,7 +117,7 @@ refactor: улучшена структура базы данных
 ## Структура монорепозитория Cursor_Projects (корень папки)
 
 ```
-Cursor_Projects/                # Корень локально; remote origin → github.com/nikkronos/Cursor_Projectcs
+Cursor_Projects/                # Корень локально; remote origin → github.com/nikkronos/Cursor_Projects
 ├── .gitignore
 ├── Main_docs/                   # ✅ Общие правила, COMMIT_CURSOR.md, …
 ├── Projects/                    # Подпроекты (часть в отдельных repo — см. RULES)

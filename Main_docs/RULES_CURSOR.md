@@ -45,14 +45,14 @@
 
 У пользователя есть **четыре репозитория** на GitHub:
 
-1. **`nikkronos/Cursor_Projectcs`** — монорепозиторий на GitHub (имя с **`cs`** в конце); локально папка часто **`Cursor_Projects`**: `Main_docs/`, `Projects/*` (кроме того, что в `.gitignore` и отдельных repo). В корне клона **`git remote origin`** → `…/Cursor_Projectcs.git`, не TradeTherapyBot (см. `Main_docs/COMMIT_CURSOR.md`, remote **`tradetherapybot`**).
+1. **`nikkronos/Cursor_Projects`** — монорепозиторий на GitHub; локально папка **`Cursor_Projects`**: `Main_docs/`, `Projects/*` (кроме того, что в `.gitignore` и отдельных repo). В корне клона **`git remote origin`** → `…/Cursor_Projects.git`, не TradeTherapyBot (см. `Main_docs/COMMIT_CURSOR.md`, remote **`tradetherapybot`**). Старое имя на GitHub было `Cursor_Projectcs` — URL редиректит на `Cursor_Projects`.
 2. **`nikkronos/TradeTherapyBot`** — код Telegram-бота TradeTherapyBot; коммиты из **`Projects/TradeTherapyBot/`**, если там настроен отдельный Git, иначе копия может жить только внутри `Cursor_Projects`.
 3. **`nikkronos/vpnservice`** — отдельный репозиторий для проекта VPN (коммиты из папки `Projects/VPN/`)
 4. **`nikkronos/kopiya-iksuyemsya`** — отдельный репозиторий для проекта "Копия иксуюемся" (коммиты из папки `Projects/xxx/`)
 
 **Важно:**
 - У каждого проекта свой репозиторий или ветка в `Cursor_Projects` — не путать **`origin`** корня с репозиторием TradeTherapyBot
-- При создании нового проекта агент должен **спросить пользователя**: создать новый репозиторий или коммитить в существующий (например, в **`nikkronos/Cursor_Projectcs`**)
+- При создании нового проекта агент должен **спросить пользователя**: создать новый репозиторий или коммитить в существующий (например, в **`nikkronos/Cursor_Projects`**)
 - Вся логика должна быть отображена в документах, чтобы все AI агенты всё понимали
 - Настроен автоматический CI/CD деплой через GitHub Actions для TradeTherapyBot
 - Коммиты и деплои обычно агент делает автоматически, но иногда обращается к пользователю
@@ -189,7 +189,7 @@ Cursor_Projects/
 │   ├── n8n-*.md                 # Документация по N8N
 │   └── specs/                   # Технические спецификации
 ├── .gitignore                   # Игнорируемые файлы
-└── [другие файлы в корне]       # Могут коммититься в nikkronos/Cursor_Projectcs
+└── [другие файлы в корне]       # Могут коммититься в nikkronos/Cursor_Projects
 ```
 
 **VPN:** полный локальный путь и URL репозитория зафиксированы в `Main_docs/PROJECTS.md` (раздел «7. VPN»): `Projects/VPN/` → https://github.com/nikkronos/vpnservice
@@ -238,12 +238,12 @@ Cursor_Projects/
 ### Что коммитится:
 
 ✅ **Коммитятся:**
-- Все файлы из корня локального клона `Cursor_Projects` (кроме env_vars.txt) — пуш в **`nikkronos/Cursor_Projectcs`**
+- Все файлы из корня локального клона `Cursor_Projects` (кроме env_vars.txt) — пуш в **`nikkronos/Cursor_Projects`**
 - Проект `Projects/TradeTherapyBot/` (полностью, в репозиторий nikkronos/TradeTherapyBot)
 - Проект `Projects/VPN/` (полностью, в отдельный репозиторий nikkronos/vpnservice)
 - Проект `Projects/xxx/` (полностью, в отдельный репозиторий nikkronos/kopiya-iksuyemsya)
 - Документация (`docs/`, `Main_docs/` кроме env_vars.txt)
-- Все общие файлы и настройки (могут коммититься в nikkronos/Cursor_Projectcs)
+- Все общие файлы и настройки (могут коммититься в nikkronos/Cursor_Projects)
 
 ❌ **НЕ коммитятся:**
 - `Projects/ParentChildResearch/` - временный исследовательский проект
