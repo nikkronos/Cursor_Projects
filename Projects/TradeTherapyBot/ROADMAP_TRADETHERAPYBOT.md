@@ -1,7 +1,5 @@
 # Roadmap TradeTherapyBot
 
-> **⏸️ Проект приостановлен (неактуален) с 2026-02-21.** Бот выключен на сервере Timeweb (`systemctl stop` + `disable tradetherapybot.service`). Код и документация сохранены; при необходимости бот можно снова включить.
-
 ## Завершено ✅
 
 **Подробности выполненных задач см. в:** `DONE_LIST_TRADETHERAPYBOT.md`

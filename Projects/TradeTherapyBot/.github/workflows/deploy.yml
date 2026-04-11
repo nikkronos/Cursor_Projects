@@ -49,7 +49,6 @@ jobs:
           cd ${{ secrets.DEPLOY_PATH }}
           git pull origin main
           pip3 install -r requirements.txt --break-system-packages || true
-          # Проект приостановлен (2026-02-21): бот не перезапускаем. Чтобы снова запустить: sudo systemctl enable --now tradetherapybot.service
-          # sudo systemctl restart tradetherapybot.service
-          # sleep 5
-          # sudo systemctl status tradetherapybot.service --no-pager
+          sudo systemctl restart tradetherapybot.service
+          sleep 5
+          sudo systemctl status tradetherapybot.service --no-pager
