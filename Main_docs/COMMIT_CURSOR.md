@@ -6,6 +6,27 @@
 - **`nikkronos/TradeTherapyBot`** — **отдельный** репозиторий кода бота. В корневом клоне `Cursor_Projects` он подключён как дополнительный remote **`tradetherapybot`**, а не как `origin`. Явно: `git fetch tradetherapybot`, `git push tradetherapybot …` — только если нужно взаимодействовать с репозиторием TradeTherapyBot; **не подменяй им `origin`**, иначе пуш уйдёт не в тот репозиторий.
 - Если **`git fetch origin`** выдаёт **`Repository not found`**: проверь URL (`…/Cursor_Projectcs.git`), приватность репозитория и вход (`gh auth login`, PAT в Windows) или SSH (`git@github.com:nikkronos/Cursor_Projectcs.git`).
 
+### GitHub: заново залогиниться после отзыва токенов
+
+Если **`Invalid username or token` / `Password authentication is not supported`**: старый PAT в Windows больше не действует. Сделай одно из:
+
+1. **`gh auth login`** (рекомендуется) и снова `git push origin main`.
+2. Либо **Параметры Windows → Учётные записи → Диспетчер учётных данных** — удали сохранённые пароли для `git:https://github.com`, затем при следующем `git push` введи **новый** fine-grained/classic PAT с правом `Contents: Read and write` для репо `Cursor_Projectcs`.
+
+### Push protection (GH013): «Push cannot contain secrets»
+
+GitHub сканирует **все объекты**, которые ты отправляешь веткой (включая старую историю). Сообщение указывает **коммит и путь файла** — там когда-то был PAT (`ghp_…` / `github_pat_…`).
+
+1. **Токен считать скомпрометированным** — отозвать в настройках GitHub (ты уже удалил токены — хорошо).
+2. **Убрать секрет из истории**, затем снова `git push`:
+   - Установить [git-filter-repo](https://github.com/newren/git-filter-repo) (`pip install git-filter-repo`), сделать резервную копию папки `.git`, затем, например, удалить проблемный файл из всей истории:  
+     `git filter-repo --path ПУТЬ/К/ФАЙЛУ.md --invert-paths --force`  
+     либо замена текста по [документации replace-text](https://htmlpreview.github.io/?https://github.com/newren/git-filter-repo/blob/docs/html/git-filter-repo.html#_replacing_text_in_files).
+   - Если история не нужна: **новая ветка без родителя** (`git checkout --orphan …`, один коммит со снимком файлов) и **`git push --force`** (осознанно теряется вся старая история на `main`).
+3. Кнопка **Allow secret** в URL из лога GitHub — только если уверен, что это ложное срабатывание; для настоящего PAT **не использовать**.
+
+Если в **локальном** `git log` нет коммита из сообщения GitHub, секрет мог быть только в другой копии репозитория или уже в удалённой истории — ориентируйся на путь и паттерн из письма/лога GitHub и повтори `filter-repo` на той копии, из которой делается push.
+
 ## Логика коммитов
 
 ### Что коммитится в репозиторий TradeTherapyBot (nikkronos/TradeTherapyBot):
