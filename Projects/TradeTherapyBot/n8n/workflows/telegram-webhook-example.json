@@ -1,0 +1,77 @@
+{
+  "name": "Telegram Bot Events",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "webhook-trigger",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "telegram-events"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.event_type }}",
+              "operation": "equals",
+              "value2": "new_subscription"
+            }
+          ]
+        }
+      },
+      "id": "if-new-subscription",
+      "name": "If New Subscription",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.data.chat_id }}",
+        "text": "Новая подписка активирована! Пользователь: {{ $json.data.user_id }}"
+      },
+      "id": "send-telegram",
+      "name": "Send Telegram Message",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [650, 200]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If New Subscription",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If New Subscription": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-12-23T00:00:00.000Z",
+  "versionId": "1"
+}
+
