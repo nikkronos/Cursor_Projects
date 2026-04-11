@@ -105,6 +105,7 @@
 3. **Решить судьбу копий на Timeweb:** оставить как бэкап или удалить/архивировать, чтобы не деплоить туда по ошибке.
 4. **Остальные боты на Timeweb** (например `hamster*`, `tradetherapybot` и т.д.): если нужен Telegram — либо перенос, либо туннель/прокси; иначе будут в том же состоянии, что и до миграции xxx/vpn-bot.
 5. **Обновить локальные репозитории** (`Projects/xxx`, `Projects/VPN`): при необходимости добавить в README раздел «Прод: Fornex», чтобы не расходилось с `Main_docs/PROJECTS.md`.
+6. **VPN-бот на Fornex — окружение после переноса:** на хосте **`vpn-bot`** нужны **`wireguard-tools`** (для `/get_config` по России: локальные `wg genkey`/`wg pubkey`) и **реальные файлы** по путям **`WG_SSH_KEY_PATH`** (main) и **`WG_EU1_SSH_KEY_PATH`** (иначе AmneziaWG и `/regen` падают на SSH). Чеклист: `Projects/VPN/docs/deployment.md` («Чеклист хоста бота после переноса на Fornex»), резюме: `Projects/VPN/SESSION_SUMMARY_2026-04-11.md`.
 
 ---
 
