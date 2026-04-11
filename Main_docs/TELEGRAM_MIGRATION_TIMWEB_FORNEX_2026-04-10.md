@@ -86,7 +86,7 @@
 - **VPN-бот:** отвечает на команды на Fornex.
 - **hamster / Pastuhi-стек (5 сервисов):** работает на Fornex; детали и нюансы Python/venv/session — `Projects/PastuhiBot/docs/SERVER_MIGRATION_FORNEX_2026-04-10.md`.
 - **Команда `proxy rotate`:** **не работает** — отложена на отдельный разбор (вероятная причина: логика ротации завязана на хост/ Docker там, где раньше жил бот или MTProxy; после переноса только бота пути и окружение разъехались). Исправление не выполнялось в этой сессии.
-- Веб-восстановление VPN: [http://81.200.146.32:5001/recovery](http://81.200.146.32:5001/recovery) — **открывается** (панель/recovery по-прежнему доступна с указанного IP).
+- Веб-панель и recovery VPN: **с 2026-04-11 на Fornex** — [мониторинг](http://185.21.8.91:5001/), [recovery](http://185.21.8.91:5001/recovery); на Timeweb **`vpn-web.service` отключён** (`systemctl disable --now`). Подробно: `Projects/VPN/SESSION_SUMMARY_2026-04-10.md`, `Projects/VPN/docs/vpn-web-migration-fornex-plan.md`.
 
 ---
 
@@ -101,7 +101,7 @@
 ## Что имеет смысл сделать позже (чеклист)
 
 1. **Починить `proxy rotate`:** ✅ выполнено 2026-04-10 — MTProxy Fake TLS на Fornex, внешний порт **8444** (443 занят Xray); код: проброс `MTPROXY_*` в subprocess, диагностика порта. Подробно: `Projects/VPN/SESSION_SUMMARY_2026-04-10.md`, `Projects/VPN/DONE_LIST_VPN.md`.
-2. **Задокументировать в `Projects/VPN/docs/deployment.md`:** фактическое размещение `vpn-bot` на Fornex; панель (`vpn-web`) пока Timeweb — **перенос:** `Projects/VPN/docs/vpn-web-migration-fornex-plan.md`.
+2. **Документация `vpn-bot` + `vpn-web` на Fornex:** ✅ выполнено 2026-04-11 — `Projects/VPN/docs/deployment.md`, `Projects/VPN/docs/vpn-web-migration-fornex-plan.md`, `Projects/VPN/SESSION_SUMMARY_2026-04-10.md`; панель на Timeweb **отключена**.
 3. **Решить судьбу копий на Timeweb:** оставить как бэкап или удалить/архивировать, чтобы не деплоить туда по ошибке.
 4. **Остальные боты на Timeweb** (например `hamster*`, `tradetherapybot` и т.д.): если нужен Telegram — либо перенос, либо туннель/прокси; иначе будут в том же состоянии, что и до миграции xxx/vpn-bot.
 5. **Обновить локальные репозитории** (`Projects/xxx`, `Projects/VPN`): при необходимости добавить в README раздел «Прод: Fornex», чтобы не расходилось с `Main_docs/PROJECTS.md`.

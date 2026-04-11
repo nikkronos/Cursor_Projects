@@ -68,6 +68,23 @@ ssh root@<IP_ADDRESS>
 - **Путь на сервере:** (уточнить)
 - **Запуск:** (уточнить метод запуска)
 
+## Веб‑сервисы и URL на Timeweb
+
+- **Damir (виджет Т‑Инвестиции, Futures_auction)**  
+  - Путь: `/opt/futures_auction`  
+  - systemd: `futures_auction.service`  
+  - **С 2026-04-04:** сервис остановлен и отключён от автозапуска (`stop` + `disable`); URL `http://81.200.146.32:5000/` снаружи недоступен (`ERR_CONNECTION_REFUSED`), пока снова не выполнят `enable` + `start`.  
+  - Описание и детали: `Projects/Damir/README.md`, передача проекта: `Projects/Damir/TRANSFER_OTHER_PERSON.md`, сессия: `Projects/Damir/SESSION_SUMMARY_2026-04-04.md`
+
+- **VPN мониторинг (панель проекта VPN)**  
+  - **С 2026-04-11:** панель перенесена на **Fornex** (`http://185.21.8.91:5001/`); на Timeweb **`vpn-web.service` отключён** — URL `http://81.200.146.32:5001/` **не** обслуживается.  
+  - Каталог на Timeweb **`/opt/vpnservice`** может оставаться как копия/резерв; актуальный прод бота и панели — **`Projects/VPN/docs/deployment.md`**, **`Projects/VPN/SESSION_SUMMARY_2026-04-10.md`**.
+
+- **Limits (виджет лимитных заявок T‑Invest)**  
+  - Путь: `/opt/Limits`  
+  - Порт задаётся через `PORT` в `/opt/Limits/env_vars.txt` (рекомендуется не пересекаться с 5000/5001, например `5002`).  
+  - Пример URL: `http://81.200.146.32:<PORT>/` (после выбора порта и запуска `limits.service`).
+
 ## Управление ботами на сервере
 
 ### TradeTherapyBot

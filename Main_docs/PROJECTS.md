@@ -56,21 +56,23 @@
 
 **Особенности:**
 - **НЕ коммитится в Git** - все изменения хранятся локально
-- Боевой бот работает на сервере Timeweb
+- **Прод с 2026-04-10:** боевые процессы (внутренние имена **`hamster26_*`**, **`hamster93_*`**) перенесены на **Fornex** из‑за недоступности Telegram API с Timeweb; см. `Projects/PastuhiBot/docs/SERVER_MIGRATION_FORNEX_2026-04-10.md` и кратко для разработчика: `Projects/PastuhiBot/DEV_HANDOFF_FORNEX_2026-04-10.md`
 - Создан с разработчиком (копия с сервера)
 - Изменения применяются вручную после тестирования
 
 **Расположение:**
 - Локально: `Projects/PastuhiBot/`
-- На сервере: работает на TimeWeb (путь уточнить)
+- На сервере (прод): **Fornex** — каталоги `/home/hamster26/`, `/home/hamster93_bot/`, `/home/hamster93_userbot/`, `/home/hamster93_feedbackbot/`; systemd `hamster*.service`
 
 **Документы:**
 - `Projects/PastuhiBot/ROADMAP_PASTUHIBOT.md` - планы развития
 - `Projects/PastuhiBot/DONE_LIST_PASTUHIBOT.md` - выполненные задачи
 - `Projects/PastuhiBot/SESSION_SUMMARY_YYYY-MM-DD.md` - последняя сессия
 - `Projects/PastuhiBot/docs/` - база знаний проекта
+- `Projects/PastuhiBot/docs/SERVER_MIGRATION_FORNEX_2026-04-10.md` — миграция на Fornex (технически)
+- `Projects/PastuhiBot/DEV_HANDOFF_FORNEX_2026-04-10.md` — передача разработчику
 
-**Сервер:** TimeWeb
+**Сервер:** Fornex (прод с 2026-04-10); Timeweb — выключенный резерв для этого стека
 
 **Технологии:**
 - aiogram 2.25.1
@@ -137,18 +139,20 @@
 **Особенности:**
 - **Отдельный Git-репозиторий** — не входит в TradeTherapyBot; коммиты и пуш из папки `Projects/xxx/` идут в **nikkronos/kopiya-iksuyemsya**
 - Создан по аналогии с PastuhiBot
-- Работает на сервере TimeWeb (отдельная папка и systemd-сервис)
+- **Прод с 2026-04-10:** основной процесс перенесён на **Fornex** (Timeweb перестал достучаться до `api.telegram.org`; см. `Main_docs/TELEGRAM_MIGRATION_TIMWEB_FORNEX_2026-04-10.md`).
+- На Timeweb копия в `/opt/kopiya-iksuyemsya` может оставаться как резерв; systemd `kopiya-iksuyemsya.service` на Timeweb **отключён**.
 - Создан с помощью AI агентов
 
 **Расположение:**
 - Локально: папка `Projects/xxx/` (свой `.git`, свой remote)
-- На сервере: например `/opt/kopiya-iksuyemsya` (отдельный клон репозитория kopiya-iksuyemsya)
+- На сервере (прод): **Fornex** — `/opt/kopiya-iksuyemsya`, venv, `systemctl enable --now kopiya-iksuyemsya.service`
 
 **Документы:**
 - `Projects/xxx/docs/ДВА_РЕПОЗИТОРИЯ_И_ДЕПЛОЙ.md` — пошаговое разделение репозиториев и деплой
+- `Main_docs/TELEGRAM_MIGRATION_TIMWEB_FORNEX_2026-04-10.md` — инцидент блокировки Telegram с Timeweb и миграция на Fornex
 - В папке `Projects/xxx/`: README, ROADMAP, DONE_LIST, TESTING_GUIDE и т.д.
 
-**Сервер:** TimeWeb
+**Сервер:** Fornex (прод с 2026-04-10); Timeweb — исторически, не активный прод для этого бота
 
 **Технологии:**
 - aiogram (бот управления)
@@ -161,20 +165,21 @@
 
 ### 6. Damir
 
-**Статус:** ✅ Будет отдельный репозиторий (nikkronos/damir или аналог)  
+**Статус:** ✅ Код в отдельном репозитории [nikkronos/Futures_auction](https://github.com/nikkronos/Futures_auction); **прод на Timeweb выключен** с 2026-04-04 (`futures_auction.service`: `stop` + `disable`).  
 **Описание:** Виджет для отображения данных по фьючерсам (T-Invest API): таблица (название актива, цена закрытия/открытия, изменение %), настройки с фильтрами по категориям.
 
 **Особенности:**
-- **Планируется отдельный Git-репозиторий** — аналогично VPN и xxx
+- **Отдельный Git-репозиторий:** https://github.com/nikkronos/Futures_auction
 - Интеграция с T-Invest REST API ([developer.tbank.ru/invest](https://developer.tbank.ru/invest/intro/intro/))
-- Деплой на сервер TimeWeb (24/7)
-- Пользователи: ~10 человек
+- Деплой на TimeWeb: `/opt/futures_auction`, systemd `futures_auction.service` (при необходимости снова: `enable` + `start`)
+- Пользователи: ~10 человек (исторически)
 
 **Расположение:**
-- Локально: `Projects/Damir/` (временно в .gitignore, потом отдельный репозиторий)
-- На сервере: `/opt/damir` (планируется)
+- Локально: `Projects/Damir/` (в Cursor_Projects; по правилам репозитория может не коммититься в корень монорепо)
+- На сервере: `/opt/futures_auction`
 
 **Документы:**
+- `Projects/Damir/TRANSFER_OTHER_PERSON.md` — инструкция для передачи человеку / агенту (есть также `.html`, `.pdf`)
 - `Projects/Damir/ROADMAP_DAMIR.md` — планы
 - `Projects/Damir/DONE_LIST_DAMIR.md` — выполненные задачи
 - `Projects/Damir/SESSION_SUMMARY_YYYY-MM-DD.md` — последняя сессия
@@ -202,8 +207,12 @@
 - Основная аудитория: владелец, друзья, коллеги; в перспективе — коммерческое использование
 
 **Расположение:**
-- Локально: папка `Projects/VPN/` (свой `.git`, свой remote: https://github.com/nikkronos/vpnservice.git)
-- На сервере: отдельная папка на сервере Fornex (будет зафиксирована в `Projects/VPN/docs/deployment.md`)
+- Локально: папка `Projects/VPN/` (свой `.git`, отдельный remote от корня `Cursor_Projects`)
+- **Полный путь (Windows, этот ПК):** `C:\Users\krono\OneDrive\Рабочий стол\Cursor_Projects\Projects\VPN`
+- **Репозиторий GitHub:** https://github.com/nikkronos/vpnservice
+- На сервере: **Fornex** — прод для **VPN Telegram-бота**: `/opt/vpnservice`, `venv`, `systemctl enable --now vpn-bot.service` (с 2026-04-10; на Timeweb `vpn-bot.service` отключён). Подробности: `Main_docs/TELEGRAM_MIGRATION_TIMWEB_FORNEX_2026-04-10.md`.
+- Веб-панель и recovery: **прод на Fornex** — `http://185.21.8.91:5001/` и `http://185.21.8.91:5001/recovery` (`VPN_RECOVERY_URL` в `env_vars.txt`); на Timeweb панель **выключена** (2026-04-11). См. `Projects/VPN/docs/deployment.md`, `Projects/VPN/docs/vpn-web-migration-fornex-plan.md`.
+- **`/proxy_rotate`:** починено (MTProxy на Fornex, порт **8444**, проброс `MTPROXY_*` в subprocess) — см. `Projects/VPN/SESSION_SUMMARY_2026-04-10.md`.
 
 **Важно:** Коммиты для этого проекта делаются **в папке Projects/VPN**; пуш — в репозиторий **vpnservice**, не в TradeTherapyBot.
 
@@ -212,8 +221,30 @@
 - `Projects/VPN/DONE_LIST_VPN.md` - выполненные задачи
 - `Projects/VPN/SESSION_SUMMARY_YYYY-MM-DD.md` - последняя сессия
 - `Projects/VPN/docs/` - база знаний проекта
+- `Main_docs/TELEGRAM_MIGRATION_TIMWEB_FORNEX_2026-04-10.md` — миграция бота на Fornex и блокировка Timeweb
 
-**Сервер:** Fornex (и другие VPS)
+**Сервер:** Fornex — прод **бот** и **веб-панель** с 2026-04-11 (`185.21.8.91:5001`); main (WireGuard) остаётся на Timeweb.
+
+---
+
+### 8. Limits
+
+**Статус:** ⚙️ В разработке, локально и на Timeweb  
+**Описание:** Виджет для выставления пачки лимитных заявок через API Т‑Инвестиции: выбор инструмента (акции и фьючерсы), ввод суммы в рублях для акций или количества контрактов для фьючерсов, шаг в процентах и кнопки «Покупка ниже / Продажа выше».
+
+**Особенности:**
+- Блок «Акции» — работает по сумме в рублях (как в десктоп‑версии).
+- Блок «Фьючерсы» — работает по количеству контрактов (с оценкой только по контрактам, без пересчёта в ₽).
+- Интеграция с T‑Invest REST API, один счёт, простая панель для личного использования.
+
+**Расположение:**
+- Локально: `Projects/Limits/`
+- На сервере Timeweb: `/opt/Limits`, systemd‑сервис `limits.service`
+
+**URL:**
+- **Damir (таблица инструментов):** `http://81.200.146.32:5000/` — **с 2026-04-04 недоступен** (сервис остановлен; снаружи ожидаемо `ERR_CONNECTION_REFUSED`), пока снова не включат `futures_auction`
+- **VPN мониторинг (панель vpnservice):** `http://185.21.8.91:5001/` (Fornex; Timeweb-панель отключена 2026-04-11)
+- **Limits (лимитные заявки):** `http://81.200.146.32:<PORT>/` — порт задаётся переменной `PORT` в `/opt/Limits/env_vars.txt` (рекомендуется свободный, например `5002`).
 
 ---
 
@@ -273,10 +304,10 @@ Cursor_Projects/
 
 ### Сервер TimeWeb
 - Оплаченный сервер на TimeWeb
-- На сервере работают:
-  - TradeTherapyBot (24/7)
+- На сервере работают / развёрнуто:
+  - TradeTherapyBot — **выключен** с 2026-02-21 (см. `Main_docs/RULES_CURSOR.md`)
   - PastuhiBot (24/7)
-  - Damir (24/7)
+  - Damir (Futures_auction) — **выключен** с 2026-04-04 (не 24/7)
   - Копия иксуюемся (xxx) (24/7)
 
 ### Сервер Fornex
@@ -288,5 +319,5 @@ Cursor_Projects/
 
 ---
 
-**Последнее обновление:** 2026-02-17
+**Последнее обновление:** 2026-04-04
 
