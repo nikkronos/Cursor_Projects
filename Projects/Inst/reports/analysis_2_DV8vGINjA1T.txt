@@ -1,0 +1,38 @@
+INSTAGRAM ANALYSIS REPORT
+
+ID: 2
+URL: https://www.instagram.com/p/DV8vGINjA1T/
+Shortcode: DV8vGINjA1T
+Author: di.sukharev
+Media type: 2
+Created at: 2026-04-15T17:20:21.732239
+
+METRICS
+- Likes: 16921
+- Comments: 98
+- Views: 0
+- Engagement rate: 17266.33%
+- Engagement basis: comments_proxy
+- ER by views: 0.00%
+- ER proxy: 17266.33%
+
+MODEL: CAPTURE -> RETENTION -> TRANSFER
+- Capture: 4/10 | хук выражен слабо, стоит усилить первые 1-2 фразы
+- Retention: 4/10 | удержание неочевидно, нужен более явный сценарий повествования
+- Transfer: 7/10 | аудитория задает вопросы, есть интерес к теме; преобладает позитивный отклик на контент
+- Confidence: 75/100
+
+CTA
+- Detected: no
+- Type: неявный/отсутствует
+
+AUDIENCE REACTION
+- Positive comments: 3
+- Negative comments: 0
+- Questions comments: 15
+- Comments analyzed: 40
+
+RECOMMENDATIONS
+- Добавить явный CTA в первых 2-3 строках и продублировать его в конце.
+- Использовать микро-циклы удержания: вопрос -> короткий ответ -> следующий вопрос.
+- Тестировать 2-3 варианта хука для одной темы и сравнивать отклик в комментариях.

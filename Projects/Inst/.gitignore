@@ -1,0 +1,7 @@
+env.txt
+.env
+.instagrapi-session.json
+inst_analytics.db
+__pycache__/
+.pytest_cache/
+.venv/
