@@ -5,3 +5,5 @@ inst_analytics.db
 __pycache__/
 .pytest_cache/
 .venv/
+reports/
+secrets/*.json
