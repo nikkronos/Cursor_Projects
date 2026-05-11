@@ -35,11 +35,12 @@
 ### Сервер Fornex
 - Дополнительный сервер на Fornex
 - **С 2026-04-10 на Fornex (прод):** VPN, Копия иксуюемся (xxx), VPN Telegram-бот, стек **hamster\*** (Pastuhi у разработчика) — см. `Main_docs/TELEGRAM_MIGRATION_TIMWEB_FORNEX_2026-04-10.md` и `Projects/Non actual/PastuhiBot/docs/SERVER_MIGRATION_FORNEX_2026-04-10.md`
+- **SSH-доступ (с 2026-05-11): только по ключу**, пароль отключён. Вход: `ssh fornex` (алиас в `~/.ssh/config`) или `ssh -i ~/.ssh/id_ed25519_fornex root@185.21.8.91`. Подробно: `docs/server-fornex.md`
 
 **Важно:** Все секреты (пароли, токены, API ключи) хранятся в файле `Main_docs/env_vars.txt` (локально) или `.env` (на сервере). Также в папке `Projects/VPN/` есть свой файл `env_vars.txt` для VPN проекта.
 - Файлы с секретами **НИКОГДА** не коммитятся в Git
 - Используется `.gitignore` для исключения секретных файлов
-- Подробная документация о серверах: `docs/server-timeweb.md`
+- Подробная документация о серверах: `docs/server-timeweb.md`, `docs/server-fornex.md`
 
 ## GitHub репозитории
 
