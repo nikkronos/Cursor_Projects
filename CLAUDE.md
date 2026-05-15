@@ -54,5 +54,5 @@ Cursor_Projects/
 
 ## Правила работы
 
-Полные правила: `Main_docs/RULES_CURSOR.md`
+Полные правила: `Main_docs/RULES.md`
 Детали по проекту: `CLAUDE.md` в корне проекта (если есть)
